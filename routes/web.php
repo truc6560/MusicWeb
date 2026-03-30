@@ -14,4 +14,9 @@ Route::prefix('admin')->group(function () {
     Route::get('/artists/{id}/edit', [AdminArtistController::class, 'edit'])->name('admin.artists.edit');
     Route::put('/artists/{id}', [AdminArtistController::class, 'update'])->name('admin.artists.update');
     Route::delete('/artists/{id}', [AdminArtistController::class, 'destroy'])->name('admin.artists.destroy');
+// 3. KHU VỰC ALBUMS
+//Trang danh sách albums
+    Route::get('/albums', [AlbumController::class, 'index'])->name('albums.index');
+// Trang chi tiết album
+    Route::get('/albums/{id}', [AlbumController::class, 'show'])->name('albums.show');
 });
