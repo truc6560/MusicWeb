@@ -21,3 +21,4 @@ Route::prefix('admin')->group(function () {
     Route::get('/albums', [AlbumController::class, 'index'])->name('albums.index');
 // Trang chi tiết album
     Route::get('/albums/{id}', [AlbumController::class, 'show'])->name('albums.show');
+    Route::post('/albums/toggle-like', [AlbumController::class, 'toggleLike'])->name('albums.toggleLike');
