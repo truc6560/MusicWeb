@@ -319,50 +319,40 @@ let isPlaying = false;
 
 // Hàm phát bài hát (toàn cục)
 window.playSong = function(songId) {
+    console.log("playSong called:", songId);
+    
     if (currentSongId === songId && isPlaying) return;
     
-    fetch(`/api/song/${songId}`)
+    fetch('/song/' + songId)
         .then(res => res.json())
         .then(data => {
-            // Cập nhật giao diện player
+            console.log("Song data:", data);
+            
             document.querySelector('.player-song-img')?.setAttribute('src', data.cover);
             document.querySelector('.player-left > div > div:first-child').textContent = data.title;
             document.querySelector('.player-left > div > div:last-child').textContent = data.artist;
             
-            // Cập nhật cột phải (Lyrics)
             document.getElementById('rightCover')?.setAttribute('src', data.cover);
             document.getElementById('rightTitle').textContent = data.title;
             document.getElementById('rightArtist').textContent = data.artist;
             
-            // Cập nhật lời bài hát
             const lyricsBox = document.getElementById('lyricsBox');
-            if (lyricsBox) {
-                if (data.lyrics) {
-                    lyricsBox.innerHTML = data.lyrics.split('\n').map(line => 
-                        `<span class="lyrics-line">${line}</span>`
-                    ).join('');
-                } else {
-                    lyricsBox.innerHTML = '<span class="lyrics-line">Chưa có lời bài hát</span>';
-                }
+            if (lyricsBox && data.lyrics) {
+                lyricsBox.innerHTML = data.lyrics.split('\n').map(line => 
+                    `<span class="lyrics-line">${line}</span>`
+                ).join('');
             }
             
-            // Phát nhạc
             audio.src = data.audio_url;
             audio.play();
             isPlaying = true;
             currentSongId = data.song_id;
-            
-            // Cập nhật icon play/pause
-            const playIcon = document.querySelector('.play-btn-wrapper i');
-            if (playIcon) playIcon.className = 'fas fa-pause';
-            
-            // Lưu vào localStorage
+            document.querySelector('.play-btn-wrapper i').className = 'fas fa-pause';
             localStorage.setItem('currentSongId', songId);
         })
-        .catch(err => console.error('Lỗi tải bài hát:', err));
+        .catch(err => console.error('Fetch error:', err));
 };
 
-// Play/Pause
 document.querySelector('.play-btn-wrapper')?.addEventListener('click', () => {
     if (!currentSongId) return;
     if (isPlaying) {
@@ -375,7 +365,6 @@ document.querySelector('.play-btn-wrapper')?.addEventListener('click', () => {
     isPlaying = !isPlaying;
 });
 
-// Progress bar
 const progressFill = document.querySelector('.progress-bar-fill');
 const progressContainer = document.querySelector('.progress-container');
 const currentTimeSpan = document.querySelector('.progress-area span:first-child');
@@ -398,10 +387,8 @@ if (progressContainer) {
     });
 }
 
-// Volume
 const volumeFill = document.querySelector('.volume-fill');
 const volumeSlider = document.querySelector('.volume-slider');
-
 if (volumeSlider) {
     volumeSlider.addEventListener('click', (e) => {
         const rect = volumeSlider.getBoundingClientRect();
@@ -411,7 +398,6 @@ if (volumeSlider) {
     });
 }
 
-// Format time helper
 function formatTime(seconds) {
     if (isNaN(seconds)) return '0:00';
     const mins = Math.floor(seconds / 60);
@@ -419,11 +405,12 @@ function formatTime(seconds) {
     return `${mins}:${secs < 10 ? '0' + secs : secs}`;
 }
 
-// Khôi phục bài hát đã phát trước đó
 const savedSongId = localStorage.getItem('currentSongId');
 if (savedSongId) {
     window.playSong(savedSongId);
 }
 </script>
+
+@stack('scripts')
 </body>
 </html>
