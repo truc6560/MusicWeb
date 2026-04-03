@@ -2,6 +2,7 @@
 use App\Http\Controllers\Admin\AdminArtistController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\SongController;
 
 // 1. TRANG CHỦ (Đúng chuẩn MVC)
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
@@ -15,3 +16,6 @@ Route::prefix('admin')->group(function () {
     Route::put('/artists/{id}', [AdminArtistController::class, 'update'])->name('admin.artists.update');
     Route::delete('/artists/{id}', [AdminArtistController::class, 'destroy'])->name('admin.artists.destroy');
 });
+
+//API CHO GLOBAL PLAYER
+Route::get('/song/{id}', [SongController::class, 'getSongDetails'])->name('song.details');
