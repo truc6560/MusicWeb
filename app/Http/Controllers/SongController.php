@@ -19,7 +19,7 @@ class SongController extends Controller
             'artist' => $song->artist->name ?? 'Unknown Artist',
             'lyrics' => $song->lyrics ?? 'Chưa có lời bài hát',
             'cover' => asset($song->image_url ?? 'image/default-cover.jpg'),
-            'audio_url' => asset($song->file_path),
+            'audio_url' => asset($song->audio_file),
             'duration' => $song->duration ?? 0
         ]);
     }
