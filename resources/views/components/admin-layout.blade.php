@@ -1,9 +1,10 @@
+@props(['title' => 'Admin Dashboard'])
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Melodify</title>
+    <title>{{ $title }} - Melodify</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
@@ -30,7 +31,7 @@
         main { flex: 1; height: 100vh; padding: 30px; overflow-y: auto; }
         
         /* CSS dùng chung cho các thẻ Card và Table ở các trang con */
-        .card { background-color: #1a1c26; border: 1px solid #2d2f3b; border-radius: 16px; padding: 30px; }
+        .card { background-color: #1a1c26; border: 1px solid #2d2f3b; border-radius: 16px; padding: 30px; margin-bottom: 30px; }
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .card-header h2 { font-size: 1.8rem; }
         
@@ -58,12 +59,13 @@
             <a href="{{ route('admin.songs.index') }}" class="nav-item {{ request()->routeIs('admin.songs.*') ? 'active' : '' }}"><i class="fas fa-music"></i> Quản lý Bài hát</a>
             <a href="{{ route('admin.genres.index') }}" class="nav-item {{ request()->routeIs('admin.genres.*') ? 'active' : '' }}"><i class="fas fa-music"></i> Quản lý Thể loại</a>
             <a href="{{ route('admin.users.index') }}" class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"><i class="fas fa-users"></i> Quản lý Người dùng</a>
-            <a href="#" class="nav-item"><i class="fas fa-music"></i> Thống kê</a>
+            <a href="{{ route('admin.news.index') }}" class="nav-item {{ request()->routeIs('admin.news.*') ? 'active' : '' }}"><i class="fas fa-newspaper"></i> Quản lý Tin tức</a>
+            <a href="{{ route('admin.statistics') }}" class="nav-item {{ request()->routeIs('admin.statistics') ? 'active' : '' }}"><i class="fas fa-music"></i> Thống kê</a>
         </nav>
     </aside>
 
     <main>
-        @yield('content')
+        {{ $slot }}
     </main>
 
 </body>

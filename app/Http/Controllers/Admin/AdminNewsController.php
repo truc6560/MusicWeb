@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\News; // Đảm bảo bạn đã tạo Model News
+use App\Models\News;
 use Illuminate\Http\Request;
 
 class AdminNewsController extends Controller
@@ -11,28 +11,59 @@ class AdminNewsController extends Controller
     // Hiển thị danh sách và tìm kiếm
     public function index(Request $request)
     {
-        $query = News::query();
+        $search = $request->query('search');
+        $sort = $request->query('sort', 'desc');
 
-        // Tìm kiếm theo tiêu đề hoặc nội dung bài viết
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where('title', 'like', "%{$search}%")
-                  ->orWhere('content', 'like', "%{$search}%");
-        }
-
-        // Sắp xếp (mặc định ưu tiên bài viết mới nhất dựa vào post_date)
-        $sortOrder = $request->sort === 'asc' ? 'asc' : 'desc';
-        $news = $query->orderBy('post_date', $sortOrder)->paginate(10);
+        $news = News::query()
+            ->when($search, function ($query, $search) {
+                return $query->where(function ($nested) use ($search) {
+                    $nested->where('title', 'like', "%{$search}%")
+                        ->orWhere('content', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('news_id', $sort)
+            ->get();
 
         return view('admin.news.index', compact('news'));
     }
 
-    // Xử lý xóa tin tức
-    public function destroy($id)
-    {
+    public function create() {
+        return view('admin.news.create');
+    }
+
+    public function store(Request $request) {
+        $request->validate([
+            'title' => 'required',
+            'content' => 'required'
+        ]);
+
+        News::create([
+            'title' => $request->title,
+            'image_url' => $request->image_url,
+            'content' => $request->content,
+            'post_date' => now()
+        ]);
+
+        return redirect()->route('admin.news.index')->with('success', 'Thêm tin tức thành công!');
+    }
+
+    public function edit($id) {
         $news = News::findOrFail($id);
-        $news->delete();
-        
-        return back()->with('success', 'Đã xóa bản tin thành công!');
+        return view('admin.news.edit', compact('news'));
+    }
+
+    public function update(Request $request, $id) {
+        $news = News::findOrFail($id);
+        $news->update([
+            'title' => $request->title,
+            'image_url' => $request->image_url,
+            'content' => $request->content,
+        ]);
+        return redirect()->route('admin.news.index');
+    }
+
+    public function destroy($id) {
+        News::findOrFail($id)->delete();
+        return redirect()->route('admin.news.index')->with('success', 'Đã xóa tin tức.');
     }
 }

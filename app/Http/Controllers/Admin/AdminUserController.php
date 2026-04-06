@@ -22,11 +22,14 @@ class AdminUserController extends Controller
         // Tìm kiếm chung
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where('username', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('user_id', $search)
+                    ->orWhere('username', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
         }
 
-        $users = $query->orderBy('user_id', 'desc')->paginate(10);
+        $users = $query->orderBy('user_id', $request->input('sort', 'desc'))->get();
 
         return view('admin.users.index', compact('users'));
     }
@@ -35,12 +38,13 @@ class AdminUserController extends Controller
     public function toggleStatus($id)
     {
         $user = User::findOrFail($id);
-        
+
         // Đảo ngược trạng thái Active <-> Banned
-        $user->status = ($user->status === 'Active') ? 'Banned' : 'Active';
+        $isActive = strtolower((string) $user->status) === 'active';
+        $user->status = $isActive ? 'Banned' : 'Active';
         $user->save();
 
-        $message = $user->status === 'Banned' ? 'Tài khoản đã bị khóa.' : 'Tài khoản đã được mở.';
+        $message = $user->status === 'Banned' ? 'Tài khoản đã bị khóa.' : 'Tài khoản đã được mở khóa.';
         return back()->with('success', $message);
     }
 }

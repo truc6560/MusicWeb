@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+<x-admin-layout title="Quản lý Nghệ sĩ">
 <style>
     /* Toolbar chứa các nút lọc và tìm kiếm */
 .toolbar {
@@ -77,7 +77,6 @@
     font-size: 14px;
 }
 </style>
-@section('content')
 <div class="card">
     <div class="card-header">
         <div>
@@ -158,4 +157,4 @@
         </tbody>
     </table>
 </div>
-@endsection
+</x-admin-layout>
