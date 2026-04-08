@@ -1,7 +1,11 @@
-/* ================== AUDIO ================== */
+//AUDIO
 const audio = document.getElementById("audioPlayer");
+if (!audio) {
+    console.error("Không tìm thấy audioPlayer");
+}
 
-/* ================== UI ================== */
+//UI
+// Các nút điều khiển player
 const playBtn = document.getElementById("playBtnToggle");
 const playIcon = document.getElementById("playIcon");
 const nextBtn = document.getElementById("nextBtn");
@@ -9,85 +13,93 @@ const prevBtn = document.getElementById("prevBtn");
 const shuffleBtn = document.getElementById("shuffleBtn");
 const repeatBtn = document.getElementById("repeatBtn");
 
+// Thanh tiến trình
 const progress = document.getElementById("progress");
 const progressBar = document.getElementById("progressBar");
 
+// Thông tin bài hát đang phát (footer)
 const nowTitle = document.getElementById("now-title");
 const nowArtist = document.getElementById("now-artist");
 const nowCover = document.getElementById("nowCover");
 
+// Panel bên phải (lyrics + info)
 const rightCover = document.getElementById("rightCover");
 const rightTitle = document.getElementById("rightTitle");
 const rightArtist = document.getElementById("rightArtist");
 const lyricsBox = document.getElementById("lyricsBox");
 
+// Thời gian
 const durationText = document.getElementById("duration");
 const currentTimeText = document.getElementById("currentTime");
 
-/* --- NÚT LIKE (TIM) --- */
+//NÚT LIKE
+// Nút yêu thích bài hát
 const likeBtn = document.querySelector(".player-like-btn"); 
 const likeIcon = likeBtn ? likeBtn.querySelector("i") : null;
 
-/* --- ÂM LƯỢNG (VOLUME) --- */
+//ÂM LƯỢNG 
+//Thanh điều chỉnh âm lượng
 const volumeSlider = document.querySelector(".volume-slider");
 const volumeFill = document.querySelector(".volume-fill");
 const volumeIcon = document.getElementById("volumeIcon");
 
-/* ================== STATE ================== */
+//TRẠNG THÁI
 let songList = [];
 let currentIndex = 0;
 let isShuffle = false;
 let isRepeat = false;
 
-/* Biến kiểm soát lịch sử/lượt nghe */
+// Biến theo dõi thời gian nghe 
 let listenSeconds = 0;
 let loggedHistory = false;
 let increasedPlay = false; 
 
-/* ================== LOAD SONG ================== */
+//LOAD BÀI HÁT
 function loadSong(song, autoPlay = true) {
     if (!song || !song.src) return;
 
     audio.src = song.src;
     audio.load();
 
-    // --- 3. SỬA LỖI ẢNH BÌA (Ảnh dự phòng nếu thiếu) ---
-    // Nếu không có ảnh, dùng ảnh placeholder hoặc logo mặc định
+    //SỬA LỖI ẢNH BÌA (Ảnh dự phòng nếu thiếu)
+    //Ảnh mặc định nếu không có cover
     const defaultImage = "https://via.placeholder.com/150"; 
     const coverImage = (song.cover && song.cover.trim() !== "") ? song.cover : defaultImage;
 
-    // Footer Player
+    // Cập nhật UI player
     if (nowTitle) nowTitle.textContent = song.title;
     if (nowArtist) nowArtist.textContent = song.artist;
     if (nowCover) nowCover.src = coverImage;
 
-    // Right Panel
+    // Panel phải
     if (rightCover) rightCover.src = coverImage;
     if (rightTitle) rightTitle.textContent = song.title;
     if (rightArtist) rightArtist.textContent = song.artist;
 
-    // --- 1. TỰ ĐỘNG KIỂM TRA TRẠNG THÁI LIKE ---
+    // Kiểm tra trạng thái like
     checkLikeStatus(song.id);
 
-    // Lyrics & Highlight
+    // Load lyrics
     loadLyrics(song.id);
+    // Highlight bài đang phát
     updateRowHighlight(song.id);
 
-    /* ===== RESET BIẾN ĐẾM ===== */
+    // Reset biến đếm
     listenSeconds = 0;
     loggedHistory = false;
     increasedPlay = false;
 
-    // Save state
+    // Lưu trạng thái
     savePlayerState(autoPlay);
 
+    // Tự động phát
     if (autoPlay) {
         audio.play().catch(err => console.log("Autoplay blocked:", err));
         if (playIcon) playIcon.classList.replace("fa-play", "fa-pause");
     }
 }
 
-/* ================== HELPER: SAVE STATE ================== */
+//HÀM PHỤ: LƯU TRẠNG THÁI PLAYER
 function savePlayerState(isPlaying = false) {
     const currentSong = songList[currentIndex];
     if (!currentSong) return;
@@ -102,11 +114,11 @@ function savePlayerState(isPlaying = false) {
     localStorage.setItem("currentSong", JSON.stringify(state));
 }
 
-/* ================== LYRICS ================== */
+//LẤY LỜI BÀI HÁT
 function loadLyrics(songId) {
     if (!lyricsBox) return;
     lyricsBox.innerHTML = "Đang tải lời bài hát...";
-    fetch(`my_music.php?ajax_lyrics=1&song_id=${songId}`)
+    fetch(`/song/${songId}/lyrics`)
         .then(r => r.json())
         .then(d => {
             lyricsBox.innerHTML = d.status === "success" 
@@ -116,7 +128,7 @@ function loadLyrics(songId) {
         .catch(() => lyricsBox.innerHTML = "Không thể tải lời bài hát");
 }
 
-/* ================== FORMAT TIME ================== */
+//FORMAT THỜI GIAN
 function formatTime(sec) {
     if (isNaN(sec)) return "0:00";
     const m = Math.floor(sec / 60);
@@ -124,7 +136,7 @@ function formatTime(sec) {
     return `${m}:${s}`;
 }
 
-/* ================== CONTROLS: PLAY/PAUSE ================== */
+//NÚT PLAY HOẶC PAUSE
 if (playBtn) {
     playBtn.onclick = () => {
         if (audio.paused) {
@@ -138,25 +150,28 @@ if (playBtn) {
         }
     };
 }
-// Đồng bộ icon khi audio tự play/pause (ví dụ do hết bài)
+// Đồng bộ icon khi audio tự play/pause
 audio.onplay = () => playIcon.classList.replace("fa-play", "fa-pause");
 audio.onpause = () => playIcon.classList.replace("fa-pause", "fa-play");
 
-/* ================== CONTROLS: PROGRESS ================== */
+//THANH PROGRESS
 audio.ontimeupdate = () => {
     if (!audio.duration) return;
 
-    // Update thanh chạy
-    if (progressBar) progressBar.style.width = (audio.currentTime / audio.duration * 100) + "%";
+    // Cập nhật thanh tiến trình
+    if (progressBar) {
+        progressBar.style.width = (audio.currentTime / audio.duration * 100) + "%";
+    }
+    // Hiển thị thời gian
     if (currentTimeText) currentTimeText.textContent = formatTime(audio.currentTime);
     if (durationText) durationText.textContent = formatTime(audio.duration);
 
-    // ===== LOGIC LỊCH SỬ & LƯỢT NGHE =====
+    // LOGIC LỊCH SỬ & LƯỢT NGHE
     listenSeconds = Math.floor(audio.currentTime);
     const currentSong = songList[currentIndex];
     
     if (currentSong) {
-        // 10s: Lưu lịch sử
+        // Sau 10s → lưu lịch sử nghe
         if (listenSeconds >= 10 && !loggedHistory) {
             loggedHistory = true;
             savePlayerState(audio.paused ? false : true); // Lưu lại biến loggedHistory vào storage
@@ -166,10 +181,11 @@ audio.ontimeupdate = () => {
                 body: `action=log_history&song_id=${currentSong.id}`
             });
         }
-        // 30s: Tăng view
+        // Sau 30s → tăng lượt nghe
         if (listenSeconds >= 30 && !increasedPlay) {
             increasedPlay = true;
             savePlayerState(audio.paused ? false : true);
+
             fetch("ajax_interaction.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -178,17 +194,20 @@ audio.ontimeupdate = () => {
         }
     }
     
-    // Lưu vị trí thời gian liên tục (để F5 không mất)
-    if(listenSeconds % 5 === 0) savePlayerState(!audio.paused); 
+    // Lưu trạng thái mỗi 5s (để reload không mất)
+    if (listenSeconds % 5 === 0) {
+        savePlayerState(!audio.paused);
+    } 
 };
 
+// CLICK VÀO THANH PROGRESS ĐỂ TUA
 if (progress) {
     progress.onclick = e => {
         audio.currentTime = (e.offsetX / progress.clientWidth) * audio.duration;
     };
 }
 
-/* ================== CONTROLS: NEXT/PREV/SHUFFLE ================== */
+// NEXT/PREV/SHUFFLE
 if (shuffleBtn) {
     shuffleBtn.onclick = () => {
         isShuffle = !isShuffle;
@@ -204,6 +223,7 @@ if (repeatBtn) {
 if (nextBtn) nextBtn.onclick = () => changeSong(1);
 if (prevBtn) prevBtn.onclick = () => changeSong(-1);
 
+// CHUYỂN BÀI HÁT
 function changeSong(step) {
     if (!songList.length) return;
     if (isShuffle) {
@@ -216,6 +236,7 @@ function changeSong(step) {
     loadSong(songList[currentIndex]);
 }
 
+// KHI BÀI HÁT KẾT THÚC
 audio.onended = () => {
     if (isRepeat) {
         audio.currentTime = 0;
@@ -225,7 +246,7 @@ audio.onended = () => {
     }
 };
 
-/* ================== 1. LOGIC LIKE (TIM) ================== */
+// LOGIC LIKE (TIM)
 // Hàm cập nhật giao diện tim
 function updateLikeIcon(isLiked) {
     if (!likeIcon) return;
@@ -240,14 +261,15 @@ function updateLikeIcon(isLiked) {
 
 // Hàm kiểm tra bài hát đã like chưa (gọi khi load bài)
 function checkLikeStatus(songId) {
-    if (!songId) return;
-    // Reset trước khi check
+    if (!songId || !likeIcon) return;
+
+    // Reset về trạng thái chưa like
     updateLikeIcon(false);
 
-    fetch("ajax_interaction.php", {
+    fetch("/api/like/check", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `action=check_like&song_id=${songId}`
+        body: `song_id=${songId}`
     })
     .then(r => r.json())
     .then(data => {
@@ -258,20 +280,21 @@ function checkLikeStatus(songId) {
     .catch(err => console.error("Lỗi check like:", err));
 }
 
-// Sự kiện click nút tim
-if (likeBtn) {
+
+// Click nút tim
+if (likeBtn && likeIcon) {
     likeBtn.onclick = () => {
         const currentSong = songList[currentIndex];
         if (!currentSong) return;
 
-        // Optimistic UI: Đổi màu luôn cho mượt
+        // UI mượt: đổi ngay lập tức (optimistic UI)
         const isCurrentlyLiked = likeIcon.classList.contains("fas");
         updateLikeIcon(!isCurrentlyLiked);
 
-        fetch("ajax_interaction.php", {
+        fetch("/api/like/toggle", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `action=toggle_like&song_id=${currentSong.id}`
+            body: `song_id=${currentSong.id}`
         })
         .then(r => r.json())
         .then(data => {
@@ -279,7 +302,7 @@ if (likeBtn) {
                 const liked = (data.action === 'liked');
                 updateLikeIcon(liked);
             } else {
-                // Lỗi thì revert lại
+                // Nếu lỗi → trả về trạng thái cũ
                 updateLikeIcon(isCurrentlyLiked);
                 alert(data.message);
             }
@@ -291,7 +314,7 @@ if (likeBtn) {
     };
 }
 
-/* ================== 2. LOGIC VOLUME (ÂM LƯỢNG) ================== */
+// LOGIC VOLUME (ÂM LƯỢNG)
 // Xử lý thanh trượt volume
 if (volumeSlider) {
     volumeSlider.onclick = (e) => {
@@ -299,7 +322,7 @@ if (volumeSlider) {
         const clickX = e.offsetX;
         let percent = clickX / sliderWidth;
         
-        // Giới hạn 0 - 1
+        // Giới hạn 0 -> 1
         if (percent < 0) percent = 0;
         if (percent > 1) percent = 1;
 
@@ -309,14 +332,16 @@ if (volumeSlider) {
 
 // Tự động cập nhật UI khi âm lượng thay đổi
 audio.onvolumechange = () => {
-    // 1. Chỉnh độ dài thanh màu
+
+    // Cập nhật thanh volume
     if (volumeFill) {
         volumeFill.style.width = (audio.volume * 100) + "%";
     }
 
-    // 2. Đổi icon loa
+    // Đổi icon loa
     if (volumeIcon) {
-        volumeIcon.className = "fas"; // Reset class base
+        volumeIcon.className = "fas";
+
         if (audio.muted || audio.volume === 0) {
             volumeIcon.classList.add("fa-volume-mute");
         } else if (audio.volume < 0.5) {
@@ -342,9 +367,11 @@ if (volumeIcon) {
     };
 }
 
-/* ================== INIT & RESTORE ================== */
+/* KHỞI TẠO & KHÔI PHỤC */
+// Build danh sách bài hát từ HTML
 function buildSongList() {
     songList = [];
+
     document.querySelectorAll(".song-item-row").forEach((row, index) => {
         const song = {
             id: row.dataset.id,
@@ -353,7 +380,10 @@ function buildSongList() {
             src: row.dataset.src,
             cover: row.dataset.cover
         };
+
         songList.push(song);
+
+        // Click vào row để phát nhạc
         row.addEventListener("click", () => {
             currentIndex = index;
             loadSong(song);
@@ -361,6 +391,7 @@ function buildSongList() {
     });
 }
 
+// Highlight bài đang phát
 function updateRowHighlight(songId) {
     document.querySelectorAll(".song-item-row").forEach(r => r.classList.remove("active-playing"));
     const row = document.querySelector(`.song-item-row[data-id="${songId}"]`);
@@ -374,7 +405,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const savedVol = localStorage.getItem("playerVolume");
     if (savedVol !== null) audio.volume = parseFloat(savedVol);
 
-    // Khôi phục Bài hát
+    // Khôi phục Bài hát đang phát
     const saved = JSON.parse(localStorage.getItem("currentSong"));
     if (!saved || !saved.src) return;
 
@@ -384,14 +415,15 @@ document.addEventListener("DOMContentLoaded", () => {
     audio.src = saved.src;
     audio.currentTime = saved.currentTime || 0;
 
-    // Khôi phục biến đếm
+    // Khôi phục trạng thái lịch sử
     loggedHistory = saved.loggedHistory || false;
     increasedPlay = saved.increasedPlay || false;
 
-    // Hiển thị thông tin (dùng cơ chế fallback ảnh bìa)
+    // Ảnh fallback nếu thiếu
     const defaultImage = "https://via.placeholder.com/150"; 
     const coverImage = (saved.cover && saved.cover.trim() !== "") ? saved.cover : defaultImage;
 
+    // Update UI
     if (nowTitle) nowTitle.textContent = saved.title;
     if (nowArtist) nowArtist.textContent = saved.artist;
     if (nowCover) nowCover.src = coverImage;
@@ -409,10 +441,11 @@ document.addEventListener("DOMContentLoaded", () => {
         checkLikeStatus(saved.id); // <-- QUAN TRỌNG: Check lại tim khi F5
     }
 
+    // Tự play nếu trước đó đang phát
     if (saved.isPlaying) {
         const playPromise = audio.play();
         if (playPromise !== undefined) {
-            playPromise.catch(error => console.log("Auto-play prevented"));
+            playPromise.catch(error => console.log("Trình duyệt chặn autoplay"));
         }
     }
 });

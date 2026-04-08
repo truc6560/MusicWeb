@@ -17,5 +17,5 @@ Route::prefix('admin')->group(function () {
     Route::delete('/artists/{id}', [AdminArtistController::class, 'destroy'])->name('admin.artists.destroy');
 });
 
-//API CHO GLOBAL PLAYER
-Route::get('/song/{id}', [SongController::class, 'getSongDetails'])->name('song.details');
+//GLOBAL PLAYER
+Route::get('/song/{id}', [SongController::class, 'chitietbaihat'])->name('song.details');

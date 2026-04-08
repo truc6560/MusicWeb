@@ -8,7 +8,7 @@ use App\Models\Artist;
 
 class SongController extends Controller
 {
-    public function getSongDetails($id)
+    public function chitietbaihat($id)
     {
         // Lấy bài hát kèm thông tin nghệ sĩ
         $song = Song::with('artist')->findOrFail($id);
@@ -19,7 +19,7 @@ class SongController extends Controller
             'artist' => $song->artist->name ?? 'Unknown Artist',
             'lyrics' => $song->lyrics ?? 'Chưa có lời bài hát',
             'cover' => asset($song->image_url ?? 'image/default-cover.jpg'),
-            'audio_url' => asset($song->audio_file),
+            'audio_url' => asset('audio/' . ltrim($song->audio_file, '/')),
             'duration' => $song->duration ?? 0
         ]);
     }

@@ -311,5 +311,9 @@
         </div>
     </footer>
 @stack('scripts')
+
+//global player
+<audio id="audioPlayer"></audio>
+<script src="{{ asset('js/playerfinal.js') }}"></script>
 </body>
 </html>
