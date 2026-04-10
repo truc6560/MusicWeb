@@ -297,7 +297,8 @@
                 <div class="player-controls">
                     <i id="shuffleBtn" class="fas fa-random control-icon"></i>
                     <i id="prevBtn" class="fas fa-step-backward control-icon"></i>
-                    <div id="playBtnToggle" class="play-btn-wrapper"><i id="playIcon" class="fas fa-play"></i></div>
+                    <div id="playBtnToggle" class="play-btn-wrapper">
+                    <i id="playIcon" class="fas fa-play"></i></div>
                     <i id="nextBtn" class="fas fa-step-forward control-icon"></i>
                     <i id="repeatBtn" class="fas fa-redo control-icon"></i>
                 </div>

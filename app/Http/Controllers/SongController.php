@@ -10,6 +10,12 @@ class SongController extends Controller
 {
     public function chitietbaihat($id)
     {
+        $song = Song::with('artist')->findOrFail($id);
+        return view('song.chitiet', compact('song'));
+    }
+
+    public function thongtinbaihat($id)
+    {
         // Lấy bài hát kèm thông tin nghệ sĩ
         $song = Song::with('artist')->findOrFail($id);
 
