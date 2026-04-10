@@ -1,102 +1,162 @@
 @extends('layouts.client')
 
 @section('content')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 <style>
-    .header-section { display: flex; justify-content: space-between; align-items: end; margin-bottom: 40px; padding: 0 20px; }
-    .header-info h1 { font-size: 2.5rem; margin-bottom: 5px; color: #fff; }
-    .header-info p { color: #aaa; }
-    
-    .search-box { position: relative; width: 300px; }
-    .search-box input { width: 100%; padding: 10px 40px 10px 15px; border-radius: 20px; border: 1px solid #333; background: #1a1c26; color: #fff; outline: none; transition: border-color 0.3s; }
-    .search-box input:focus { border-color: #bd00ff; }
-    .search-box button { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background:none; border:none; cursor:pointer; color: #888; }
-    
-    .artist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 30px; padding: 0 20px 40px 20px; }
-    
-    .artist-card { background: #15171e; padding: 20px; border-radius: 10px; text-align: center; transition: all 0.3s ease; cursor: pointer; border: 1px solid transparent; }
-    .artist-card:hover { background: #1f222b; transform: translateY(-5px); border-color: #333; }
-    .artist-img { width: 140px; height: 140px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 3px solid #15171e; background-color: #333; transition: border-color 0.3s; }
-    .artist-card:hover .artist-img { border-color: #bd00ff; }
-    .artist-name { font-size: 1.1rem; font-weight: 600; margin-bottom: 5px; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .artist-country { font-size: 0.9rem; color: #888; margin-bottom: 15px; }
-    
-    .btn-follow { padding: 8px 20px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; width: 100%; border: 1px solid #bd00ff; background: transparent; color: #bd00ff; }
-    .btn-follow.active { background: #bd00ff; color: #fff; border: 1px solid #bd00ff; }
-    .btn-follow:hover { transform: scale(1.05); }
+/* --- COPY HOÀN TOÀN TỪ ALBUMS --- */
+.header-banner {
+    display: flex;
+    align-items: flex-end;
+    gap: 30px;
+    padding: 40px 40px 0 40px;
+    margin-bottom: 40px;
+}
+
+.fav-img {
+    width: 180px;
+    height: 180px;
+    border-radius: 12px;
+    background: linear-gradient(45deg, #bd00ff, #00d1ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(189, 0, 255, 0.3);
+    flex-shrink: 0;
+}
+
+.fav-img i {
+    font-size: 80px;
+    color: #fff;
+}
+
+.banner-info p.tag {
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+.banner-info h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    line-height: 1;
+    color: #fff;
+}
+
+.banner-info p.desc {
+    color: #ccc;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.artist-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+    gap: 30px;
+    padding: 40px;
+}
+
+.artist-card {
+    background-color: #1a1c26;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    text-align: center; /* Nghệ sĩ thường căn giữa tên */
+}
+
+.artist-card:hover {
+    background-color: #262a36;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(189, 0, 255, 0.2);
+}
+
+.artist-image-wrapper {
+    position: relative;
+    margin-bottom: 15px;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 50%; /* Khác Album: Nghệ sĩ để hình tròn */
+    border: 3px solid #1a1c26;
+    transition: border-color 0.3s;
+}
+
+.artist-card:hover .artist-image-wrapper {
+    border-color: #bd00ff;
+}
+
+.artist-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s;
+}
+
+.artist-card:hover .artist-image {
+    transform: scale(1.05);
+}
+
+.artist-info a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 4px;
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.artist-subtitle {
+    color: #bbbbbb;
+    font-size: 0.9rem;
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.empty-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #888888;
+    padding: 50px;
+    font-size: 1.2rem;
+}
 </style>
 
-<div class="main-content">
-    {{-- Phần Header & Tìm kiếm --}}
-    <div class="header-section">
-        <div class="header-info">
-            <h1>Nghệ Sĩ</h1>
-            <p>Khám phá và theo dõi những nghệ sĩ bạn yêu thích</p>
-        </div>
-        
-        <div class="search-box">
-            <form action="{{ route('artists.index') }}" method="GET">
-                <input type="text" name="q" placeholder="Tìm kiếm nghệ sĩ..." value="{{ request('q') }}">
-                <button type="submit"><i class="fas fa-search"></i></button>
-            </form>
-        </div>
+{{-- BỐ CỤC HEADER --}}
+<div class="header-banner">
+    <div class="fav-img">
+        <i class="fas fa-microphone-lines"></i> {{-- Icon Micro cho Nghệ sĩ --}}
     </div>
-
-    {{-- Lưới nghệ sĩ hiển thị  --}}
-    <div class="artist-grid">
-        @forelse($artists as $artist)
-            <x-artist-card :artist="$artist" />
-        @empty
-            <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #888;">
-                <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.2;"></i>
-                <p>Không tìm thấy nghệ sĩ nào phù hợp với từ khóa "{{ request('q') }}"</p>
-            </div>
-        @endforelse
+    <div class="banner-info">
+        <p class="tag">Khám phá</p>
+        <h1>Danh sách Nghệ sĩ</h1>
+        <p class="desc">Khám phá những gương mặt tài năng nhất dành cho bạn</p>
     </div>
 </div>
 
-{{-- Script xử lý AJAX Toggle Follow --}}
-<script>
-    const currentUserId = {{ Auth::id() ?: 0 }};
+{{-- BỐ CỤC DANH SÁCH --}}
+<div class="artist-container">
+    @forelse($artists as $artist)
+        <div class="artist-card" onclick="window.location.href='{{ route('artists.show', $artist->artist_id) }}'">
+            <div class="artist-image-wrapper">
+                <img class="artist-image" src="{{ $artist->image_url ?: asset('image/default_artist.png') }}" alt="{{ $artist->name }}">
+            </div>
 
-    function toggleFollow(e, artistId) {
-        e.stopPropagation(); // Ngăn việc bị chuyển hướng vào trang chi tiết khi bấm nút
-
-        if (currentUserId === 0) {
-            // Hiển thị modal yêu cầu đăng nhập (giống bản cũ của bạn)
-            const modal = document.getElementById('loginRequestModal');
-            if (modal) {
-                modal.style.display = 'flex';
-            } else {
-                alert("Vui lòng đăng nhập để theo dõi nghệ sĩ.");
-                window.location.href = "/login"; // Chuyển hướng đến trang đăng nhập nếu không có modal
-            }
-            return;
-        }
-
-        const btn = document.getElementById('btn-' + artistId);
-        
-        // Sử dụng Fetch API để gửi request tới route toggle-follow
-        fetch("{{ route('artists.toggleFollow') }}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ artist_id: artistId })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                if (data.action === 'liked') { 
-                    btn.classList.add('active');
-                    btn.innerHTML = '<i class="fas fa-check"></i> Đang theo dõi';
-                } else {
-                    btn.classList.remove('active');
-                    btn.innerHTML = '<i class="fas fa-plus"></i> Theo dõi';
-                }
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
-</script>
+            <div class="artist-info">
+                <a>{{ $artist->name }}</a>
+                <div class="artist-subtitle">{{ $artist->country ?: 'Nghệ sĩ' }}</div>
+            </div>
+        </div>
+    @empty
+        <div class="empty-message">Chưa có nghệ sĩ nào được tìm thấy.</div>
+    @endforelse
+</div>
 @endsection
