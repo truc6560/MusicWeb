@@ -310,6 +310,68 @@
             </div>
         </div>
     </footer>
+    
+@stack('scripts')
 
+//global player
+<audio id="audioPlayer"></audio>
+<script src="{{ asset('js/playerfinal.js') }}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Cấu hình CSRF Token cho tất cả request AJAX của Laravel
+    $.ajaxSetup({
+        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+    });
+
+    // 1. CHỨC NĂNG THẢ TIM (Ví dụ cho nút có class btn-like-song)
+    $('.btn-like-song').click(function(e) {
+        e.preventDefault();
+        let songId = $(this).data('id');
+        let btn = $(this);
+
+        $.post('/ajax/like-song', { song_id: songId }, function(res) {
+            if(res.status === 'success') {
+                btn.toggleClass('liked'); // Đổi màu CSS trái tim
+                alert(res.message);
+            }
+        });
+    });
+
+    // ==========================================
+    // 2. LOGIC TRÌNH PHÁT NHẠC (AUDIO PLAYER)
+    // ==========================================
+    const audio = document.getElementById('audioPlayer');
+    let currentSongId = null;
+    let hasRecordedHistory = false;
+
+    // Hàm gọi khi chuyển bài hát mới
+    function loadNewSong(songId) {
+        currentSongId = songId;
+        hasRecordedHistory = false; // Reset cờ trạng thái
+    }
+
+    if(audio) {
+        // Sự kiện: Khi đang phát nhạc (Tự động lưu lịch sử sau 30 giây)
+        audio.addEventListener('timeupdate', function() {
+            // Nếu nghe được hơn 30 giây và chưa lưu lịch sử cho bài này
+            if (audio.currentTime > 30 && !hasRecordedHistory && currentSongId) {
+                $.post('/ajax/record-history', { song_id: currentSongId });
+                hasRecordedHistory = true; // Đánh dấu đã lưu để không bị gửi liên tục
+            }
+        });
+
+        // Sự kiện: Khi bài hát kết thúc (Cộng 1 lượt nghe)
+        audio.addEventListener('ended', function() {
+            if (currentSongId) {
+                $.post('/ajax/increment-view', { song_id: currentSongId }, function(res) {
+                    if(res.status === 'success') {
+                        console.log('Đã cộng lượt nghe: ' + res.views);
+                        // Cập nhật lại số lượt nghe trên giao diện nếu cần
+                    }
+                });
+            }
+        });
+    }
+</script>
 </body>
 </html>

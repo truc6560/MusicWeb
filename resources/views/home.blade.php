@@ -104,7 +104,7 @@
                         <div style="color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->title }}</div>
                         <div style="color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->artist_name }}</div>
                     </div>
-                    <i class="fas fa-play" style="color: #00d1ff; font-size: 12px;"></i>
+                    <i class="fas fa-play play-btn" data-id="{{ $song->song_id }}" style="color: #00d1ff; font-size: 12px; cursor: pointer;"></i>
                 </div>
                 @endforeach
             </div>
@@ -121,7 +121,7 @@
                         <div style="color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->title }}</div>
                         <div style="color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->artist_name }}</div>
                     </div>
-                    <i class="fas fa-play" style="color: #00d1ff; font-size: 12px;"></i>
+                    <i class="fas fa-play play-btn" data-id="{{ $song->song_id }}" style="color: #00d1ff; font-size: 12px; cursor: pointer;"></i>
                 </div>
                 @endforeach
             </div>
@@ -138,10 +138,26 @@
                         <div style="color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->title }}</div>
                         <div style="color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->artist_name }}</div>
                     </div>
-                    <i class="fas fa-play" style="color: #00d1ff; font-size: 12px;"></i>
+                    <i class="fas fa-play play-btn" data-id="{{ $song->song_id }}" style="color: #00d1ff; font-size: 12px; cursor: pointer;"></i>
                 </div>
                 @endforeach
             </div>
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    // Xử lý click nút phát
+    document.querySelectorAll('.play-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            let songId = this.getAttribute('data-id');
+            if (window.playSong) {
+                window.playSong(songId);
+            } else {
+                console.log('playSong chưa được load');
+            }
+        });
+    });
+</script>
+@endpush
