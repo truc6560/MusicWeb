@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/ajax/playlist/add-song', [PlaylistController::class, 'addSongToPlaylist']);
 
     //Thả tim
+    Route::get('/ajax/like-song/status', [InteractionController::class, 'likeSongStatus']);
     Route::post('/ajax/like-song', [InteractionController::class, 'toggleLikeSong']);
     Route::post('/ajax/like-artist', [InteractionController::class, 'toggleLikeArtist']);
 

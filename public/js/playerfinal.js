@@ -372,18 +372,11 @@ function checkLikeStatus(songId) {
     if (!songId || !likeIcon || !isLoggedIn) return;
     updateLikeIcon(false);
     try {
-        fetch("/ajax/like-song", { 
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || ''
-            },
-            body: `song_id=${songId}`
-        })
+        fetch(`/ajax/like-song/status?song_id=${encodeURIComponent(songId)}`)
         .then(r => r.json())
         .then(data => {
             if (data.status === 'success') {
-                updateLikeIcon(data.action === 'liked');
+                updateLikeIcon(data.liked === true || data.action === 'liked');
             }
         })
         .catch(err => console.error("Lỗi check like:", err));
@@ -395,7 +388,10 @@ function checkLikeStatus(songId) {
 // Click nút tim
 if (likeBtn && likeIcon) {
     likeBtn.onclick = () => {
-        if (!isLoggedIn) return;
+        if (!isLoggedIn) {
+            alert("Bạn cần đăng nhập để thêm bài hát vào yêu thích.");
+            return;
+        }
         const currentSong = songList[currentIndex];
         if (!currentSong) return;
 

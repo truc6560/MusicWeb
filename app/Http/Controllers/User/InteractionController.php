@@ -16,10 +16,34 @@ class InteractionController extends Controller
         $user = Auth::user();
         $songId = $request->song_id;
 
-        // Giả sử Model User có hàm likedSongs() (quan hệ n-n)
-        $user->likedSongs()->toggle($songId);
+        // toggle() trả về mảng attached/detached để biết trạng thái sau cùng.
+        $result = $user->likedSongs()->toggle($songId);
+        $isLiked = !empty($result['attached']);
 
-        return response()->json(['status' => 'success', 'message' => 'Đã cập nhật yêu thích bài hát']);
+        return response()->json([
+            'status' => 'success',
+            'action' => $isLiked ? 'liked' : 'unliked',
+            'message' => 'Đã cập nhật yêu thích bài hát'
+        ]);
+    }
+
+    // 1b. Lấy trạng thái tim hiện tại của bài hát
+    public function likeSongStatus(Request $request)
+    {
+        $user = Auth::user();
+        $songId = $request->song_id;
+
+        if (!$songId) {
+            return response()->json(['status' => 'error', 'message' => 'Thiếu song_id'], 422);
+        }
+
+        $isLiked = $user->likedSongs()->where('songs.song_id', $songId)->exists();
+
+        return response()->json([
+            'status' => 'success',
+            'liked' => $isLiked,
+            'action' => $isLiked ? 'liked' : 'unliked'
+        ]);
     }
 
     // 2. Thả tim/Bỏ tim Nghệ sĩ
