@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }}</title>
@@ -182,7 +183,7 @@
         }
     </style>
 </head>
-<body>
+<body data-auth="{{ auth()->check() ? '1' : '0' }}">
 
     <header class="header">
         <div class="header-left">
@@ -268,7 +269,7 @@
 
         <aside class="sidebar-right">
             <h3 style="color: #fff; font-size: 16px; margin-bottom: 20px; text-transform: uppercase;">Lời Bài Hát</h3>
-            <img id="rightCover" class="song-cover" src="{{ asset('image/default-cover.jpg') }}">
+            <img id="rightCover" class="song-cover" src="{{ asset('image/icon2.png') }}">
             <h4 id="rightTitle" style="color: #fff; margin-bottom: 5px;">Chưa chọn bài hát</h4>
             <p id="rightArtist" style="color: var(--text-sub); font-size: 13px;">--</p>
             
@@ -283,95 +284,45 @@
     <footer>
         <div class="player-bar">
             <div class="player-left">
-                <img src="{{ asset('image/default-cover.jpg') }}" class="player-song-img">
+                <img id="nowCover" src="{{ asset('image/icon2.png') }}" class="player-song-img">
                 <div>
-                    <div style="color: #fff; font-size: 14px; font-weight: bold;">Tên bài hát</div>
-                    <div style="color: var(--text-sub); font-size: 12px;">Tên nghệ sĩ</div>
+                    <div id="now-title" style="color: #fff; font-size: 14px; font-weight: bold;">Tên bài hát</div>
+                    <div id="now-artist" style="color: var(--text-sub); font-size: 12px;">Tên nghệ sĩ</div>
                 </div>
-                <i class="far fa-heart" style="color: var(--text-sub); margin-left: 20px; cursor: pointer;"></i>
+                <div class="player-like-btn" style="margin-left: 20px; cursor: pointer;">
+                    <i class="far fa-heart" style="color: var(--text-sub); font-size: 18px;"></i>
+                </div>
             </div>
             <div class="player-center">
                 <div class="player-controls">
-                    <i class="fas fa-random control-icon"></i>
-                    <i class="fas fa-step-backward control-icon"></i>
-                    <div class="play-btn-wrapper"><i class="fas fa-play"></i></div>
-                    <i class="fas fa-step-forward control-icon"></i>
-                    <i class="fas fa-redo control-icon"></i>
+                    <i id="shuffleBtn" class="fas fa-random control-icon"></i>
+                    <i id="prevBtn" class="fas fa-step-backward control-icon"></i>
+                    <div id="playBtnToggle" class="play-btn-wrapper"><i id="playIcon" class="fas fa-play"></i></div>
+                    <i id="nextBtn" class="fas fa-step-forward control-icon"></i>
+                    <i id="repeatBtn" class="fas fa-redo control-icon"></i>
                 </div>
                 <div class="progress-area">
-                    <span style="font-size: 11px; color: var(--text-sub);">0:00</span>
-                    <div class="progress-container"><div class="progress-bar-fill"></div></div>
-                    <span style="font-size: 11px; color: var(--text-sub);">3:45</span>
+                    <span id="currentTime" style="font-size: 11px; color: var(--text-sub);">0:00</span>
+                    <div id="progress" class="progress-container"><div id="progressBar" class="progress-bar-fill"></div></div>
+                    <span id="duration" style="font-size: 11px; color: var(--text-sub);">0:00</span>
                 </div>
             </div>
             <div class="player-right">
-                <i class="fas fa-volume-up" style="color: var(--text-sub);"></i>
-                <div class="volume-slider"><div class="volume-fill"></div></div>
+                <i id="volumeIcon" class="fas fa-volume-up" style="color: var(--text-sub); cursor: pointer;"></i>
+                <div id="volumeSlider" class="volume-slider"><div id="volumeFill" class="volume-fill"></div></div>
             </div>
         </div>
     </footer>
-    
-@stack('scripts')
+    <audio id="audioPlayer" preload="auto"></audio>
 
-//global player
-<audio id="audioPlayer"></audio>
-<script src="{{ asset('js/playerfinal.js') }}"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    // Cấu hình CSRF Token cho tất cả request AJAX của Laravel
-    $.ajaxSetup({
-        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-    });
-
-    // 1. CHỨC NĂNG THẢ TIM (Ví dụ cho nút có class btn-like-song)
-    $('.btn-like-song').click(function(e) {
-        e.preventDefault();
-        let songId = $(this).data('id');
-        let btn = $(this);
-
-        $.post('/ajax/like-song', { song_id: songId }, function(res) {
-            if(res.status === 'success') {
-                btn.toggleClass('liked'); // Đổi màu CSS trái tim
-                alert(res.message);
-            }
+    @stack('scripts')
+    <script src="{{ asset('js/playerfinal.js') }}?v={{ filemtime(public_path('js/playerfinal.js')) }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Cấu hình CSRF Token cho các AJAX khác
+        $.ajaxSetup({
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
         });
-    });
-
-    // ==========================================
-    // 2. LOGIC TRÌNH PHÁT NHẠC (AUDIO PLAYER)
-    // ==========================================
-    const audio = document.getElementById('audioPlayer');
-    let currentSongId = null;
-    let hasRecordedHistory = false;
-
-    // Hàm gọi khi chuyển bài hát mới
-    function loadNewSong(songId) {
-        currentSongId = songId;
-        hasRecordedHistory = false; // Reset cờ trạng thái
-    }
-
-    if(audio) {
-        // Sự kiện: Khi đang phát nhạc (Tự động lưu lịch sử sau 30 giây)
-        audio.addEventListener('timeupdate', function() {
-            // Nếu nghe được hơn 30 giây và chưa lưu lịch sử cho bài này
-            if (audio.currentTime > 30 && !hasRecordedHistory && currentSongId) {
-                $.post('/ajax/record-history', { song_id: currentSongId });
-                hasRecordedHistory = true; // Đánh dấu đã lưu để không bị gửi liên tục
-            }
-        });
-
-        // Sự kiện: Khi bài hát kết thúc (Cộng 1 lượt nghe)
-        audio.addEventListener('ended', function() {
-            if (currentSongId) {
-                $.post('/ajax/increment-view', { song_id: currentSongId }, function(res) {
-                    if(res.status === 'success') {
-                        console.log('Đã cộng lượt nghe: ' + res.views);
-                        // Cập nhật lại số lượt nghe trên giao diện nếu cần
-                    }
-                });
-            }
-        });
-    }
-</script>
+    </script>
 </body>
 </html>

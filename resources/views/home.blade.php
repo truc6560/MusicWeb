@@ -1,6 +1,4 @@
-@extends('layouts.client')
-
-@section('content')
+<x-client-layout>
     <style>
         /* CSS DÀNH RIÊNG CHO TRANG CHỦ (Đã tinh chỉnh từ bản gốc) */
         .section-header { margin: 40px 0 20px 0; }
@@ -144,20 +142,4 @@
             </div>
         </div>
     </div>
-@endsection
-
-@push('scripts')
-<script>
-    // Xử lý click nút phát
-    document.querySelectorAll('.play-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            let songId = this.getAttribute('data-id');
-            if (window.playSong) {
-                window.playSong(songId);
-            } else {
-                console.log('playSong chưa được load');
-            }
-        });
-    });
-</script>
-@endpush
+</x-client-layout>
