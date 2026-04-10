@@ -3,6 +3,7 @@ use App\Http\Controllers\Admin\AdminArtistController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AlbumController;
+use App\Http\Controllers\ArtistController;
 
 // 1. TRANG CHỦ (Đúng chuẩn MVC)
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
@@ -21,4 +22,8 @@ Route::prefix('admin')->group(function () {
     Route::get('/albums', [AlbumController::class, 'index'])->name('albums.index');
 // Trang chi tiết album
     Route::get('/albums/{id}', [AlbumController::class, 'show'])->name('albums.show');
-    Route::post('/albums/toggle-like', [AlbumController::class, 'toggleLike'])->name('albums.toggleLike');
+    Route::post('/albums/toggle- like', [AlbumController::class, 'toggleLike'])->name('albums.toggleLike');
+// 4. KHU VỰC NGHỆ SĨ
+    Route::get('/artists', [ArtistController::class, 'index'])->name('artists.index');
+    Route::get('/artists/{id}', [ArtistController::class, 'show'])->name('artists.show');
+    Route::post('/artists/toggle-follow', [ArtistController::class, 'toggleFollow'])->name('artists.toggleFollow');
