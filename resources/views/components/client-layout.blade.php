@@ -189,7 +189,7 @@
             <div class="logo-neon"><span class="music-icon">🎵</span> SOUNDWAVE</div>
             <nav class="main-nav">
                 <a href="{{ route('client.home') }}" class="{{ request()->is('/') ? 'active' : '' }}">Trang chủ</a>
-                <a href="#">Albums</a>
+                <a href="{{ route('albums.index') }}" class="{{ request()->is('albums*') ? 'active' : '' }}">Albums</a>
                 <a href="#">Bảng xếp hạng</a>
                 <a href="#">Phát hành mới</a>
                 <a href="#">Nghệ sĩ</a>
@@ -251,7 +251,11 @@
         <aside class="sidebar-left">
             <div class="menu-group">
                 <h3>MUSIC</h3>
-                <a href="#" class="menu-item active">Playlist</a>
+                @auth
+                    <a href="{{ route('playlist.index') }}" class="menu-item {{ request()->routeIs('playlist.*') ? 'active' : '' }}">Playlist</a>
+                @else
+                    <a href="#" class="menu-item" onclick="event.preventDefault(); alert('Vui lòng đăng nhập để dùng Playlist.');">Playlist</a>
+                @endauth
                 <a href="#" class="menu-item">Favorite Songs</a>
                 <a href="#" class="menu-item">Favorites Artists</a>
                 <a href="#" class="menu-item">Listening History</a>
@@ -283,29 +287,31 @@
     <footer>
         <div class="player-bar">
             <div class="player-left">
-                <img src="{{ asset('image/default-cover.jpg') }}" class="player-song-img">
+                <img id="nowCover" src="{{ asset('image/default-cover.jpg') }}" class="player-song-img">
                 <div>
-                    <div style="color: #fff; font-size: 14px; font-weight: bold;">Tên bài hát</div>
-                    <div style="color: var(--text-sub); font-size: 12px;">Tên nghệ sĩ</div>
+                    <div id="now-title" style="color: #fff; font-size: 14px; font-weight: bold;">Tên bài hát</div>
+                    <div id="now-artist" style="color: var(--text-sub); font-size: 12px;">Tên nghệ sĩ</div>
                 </div>
-                <i class="far fa-heart" style="color: var(--text-sub); margin-left: 20px; cursor: pointer;"></i>
+                <button type="button" class="player-like-btn" style="background: none; border: none; margin-left: 20px; cursor: pointer;">
+                    <i class="far fa-heart" style="color: var(--text-sub);"></i>
+                </button>
             </div>
             <div class="player-center">
                 <div class="player-controls">
-                    <i class="fas fa-random control-icon"></i>
-                    <i class="fas fa-step-backward control-icon"></i>
-                    <div class="play-btn-wrapper"><i class="fas fa-play"></i></div>
-                    <i class="fas fa-step-forward control-icon"></i>
-                    <i class="fas fa-redo control-icon"></i>
+                    <i id="shuffleBtn" class="fas fa-random control-icon"></i>
+                    <i id="prevBtn" class="fas fa-step-backward control-icon"></i>
+                    <div id="playBtnToggle" class="play-btn-wrapper"><i id="playIcon" class="fas fa-play"></i></div>
+                    <i id="nextBtn" class="fas fa-step-forward control-icon"></i>
+                    <i id="repeatBtn" class="fas fa-redo control-icon"></i>
                 </div>
                 <div class="progress-area">
-                    <span style="font-size: 11px; color: var(--text-sub);">0:00</span>
-                    <div class="progress-container"><div class="progress-bar-fill"></div></div>
-                    <span style="font-size: 11px; color: var(--text-sub);">3:45</span>
+                    <span id="currentTime" style="font-size: 11px; color: var(--text-sub);">0:00</span>
+                    <div id="progress" class="progress-container"><div id="progressBar" class="progress-bar-fill"></div></div>
+                    <span id="duration" style="font-size: 11px; color: var(--text-sub);">0:00</span>
                 </div>
             </div>
             <div class="player-right">
-                <i class="fas fa-volume-up" style="color: var(--text-sub);"></i>
+                <i id="volumeIcon" class="fas fa-volume-up" style="color: var(--text-sub);"></i>
                 <div class="volume-slider"><div class="volume-fill"></div></div>
             </div>
         </div>
@@ -313,7 +319,6 @@
     
 @stack('scripts')
 
-//global player
 <audio id="audioPlayer"></audio>
 <script src="{{ asset('js/playerfinal.js') }}"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -338,40 +343,140 @@
     });
 
     // ==========================================
-    // 2. LOGIC TRÌNH PHÁT NHẠC (AUDIO PLAYER)
+    // 2. PARTIAL NAVIGATION (GIỮ NGUYÊN LAYOUT)
     // ==========================================
-    const audio = document.getElementById('audioPlayer');
-    let currentSongId = null;
-    let hasRecordedHistory = false;
+    const contentSelector = '.content-area';
+    let navAbortController = null;
 
-    // Hàm gọi khi chuyển bài hát mới
-    function loadNewSong(songId) {
-        currentSongId = songId;
-        hasRecordedHistory = false; // Reset cờ trạng thái
-    }
+    function runScriptsIn(container) {
+        const scripts = container.querySelectorAll('script');
+        scripts.forEach((oldScript) => {
+            const newScript = document.createElement('script');
 
-    if(audio) {
-        // Sự kiện: Khi đang phát nhạc (Tự động lưu lịch sử sau 30 giây)
-        audio.addEventListener('timeupdate', function() {
-            // Nếu nghe được hơn 30 giây và chưa lưu lịch sử cho bài này
-            if (audio.currentTime > 30 && !hasRecordedHistory && currentSongId) {
-                $.post('/ajax/record-history', { song_id: currentSongId });
-                hasRecordedHistory = true; // Đánh dấu đã lưu để không bị gửi liên tục
+            if (oldScript.src) {
+                if (document.querySelector(`script[src="${oldScript.src}"]`)) {
+                    return;
+                }
+                newScript.src = oldScript.src;
+            } else {
+                newScript.textContent = oldScript.textContent;
             }
-        });
 
-        // Sự kiện: Khi bài hát kết thúc (Cộng 1 lượt nghe)
-        audio.addEventListener('ended', function() {
-            if (currentSongId) {
-                $.post('/ajax/increment-view', { song_id: currentSongId }, function(res) {
-                    if(res.status === 'success') {
-                        console.log('Đã cộng lượt nghe: ' + res.views);
-                        // Cập nhật lại số lượt nghe trên giao diện nếu cần
-                    }
-                });
+            document.body.appendChild(newScript);
+            if (!newScript.src) {
+                document.body.removeChild(newScript);
             }
         });
     }
+
+    function refreshPlayerBindings() {
+        if (typeof window.buildSongList === 'function') {
+            window.buildSongList();
+        }
+    }
+
+    async function partialNavigate(url, options = {}) {
+        const target = document.querySelector(contentSelector);
+        if (!target) {
+            window.location.href = url;
+            return;
+        }
+
+        if (typeof window.persistPlayerState === 'function') {
+            window.persistPlayerState();
+        }
+
+        if (navAbortController) {
+            navAbortController.abort();
+        }
+        navAbortController = new AbortController();
+
+        try {
+            target.style.opacity = '0.65';
+
+            const response = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                signal: navAbortController.signal
+            });
+
+            if (!response.ok) {
+                window.location.href = url;
+                return;
+            }
+
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            const nextContent = doc.querySelector(contentSelector);
+            if (!nextContent) {
+                window.location.href = url;
+                return;
+            }
+
+            const currentHeader = document.querySelector('.header');
+            const nextHeader = doc.querySelector('.header');
+            if (currentHeader && nextHeader) {
+                currentHeader.innerHTML = nextHeader.innerHTML;
+            }
+
+            const currentSidebar = document.querySelector('.sidebar-left');
+            const nextSidebar = doc.querySelector('.sidebar-left');
+            if (currentSidebar && nextSidebar) {
+                currentSidebar.innerHTML = nextSidebar.innerHTML;
+            }
+
+            target.innerHTML = nextContent.innerHTML;
+            target.scrollTop = 0;
+            document.title = doc.title || document.title;
+
+            runScriptsIn(target);
+            refreshPlayerBindings();
+
+            if (!options.fromPopState) {
+                history.pushState({ partial: true }, '', url);
+            }
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                window.location.href = url;
+            }
+        } finally {
+            target.style.opacity = '1';
+        }
+    }
+
+    window.partialNavigate = partialNavigate;
+
+    document.addEventListener('click', (event) => {
+        const link = event.target.closest('a[href]');
+        if (!link) return;
+
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+        if (link.target === '_blank' || link.hasAttribute('download') || event.metaKey || event.ctrlKey || event.shiftKey) return;
+        if (link.dataset.noAjax === 'true') return;
+
+        const nextUrl = new URL(link.href, window.location.origin);
+        const isSameOrigin = nextUrl.origin === window.location.origin;
+        const isAdminArea = nextUrl.pathname.startsWith('/admin');
+
+        if (!isSameOrigin || isAdminArea) return;
+
+        event.preventDefault();
+        partialNavigate(nextUrl.href);
+    });
+
+    window.addEventListener('beforeunload', () => {
+        if (typeof window.persistPlayerState === 'function') {
+            window.persistPlayerState();
+        }
+    });
+
+    window.addEventListener('popstate', () => {
+        partialNavigate(window.location.href, { fromPopState: true });
+    });
 </script>
 </body>
 </html>

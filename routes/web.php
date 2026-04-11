@@ -25,7 +25,6 @@ Route::prefix('admin')->group(function () {
 // Trang chi tiết album
     Route::get('/albums/{id}', [AlbumController::class, 'show'])->name('albums.show');
     Route::post('/albums/toggle-like', [AlbumController::class, 'toggleLike'])->name('albums.toggleLike');
-});
 
 //GLOBAL PLAYER
 Route::get('/song/{id}', [SongController::class, 'chitietbaihat'])->name('song.details');
@@ -34,7 +33,7 @@ Route::get('/song/{id}', [SongController::class, 'chitietbaihat'])->name('song.d
 Route::middleware('auth')->group(function () {
     Route::get('/my-playlists', [PlaylistController::class, 'index'])->name('playlist.index');
     Route::post('/my-playlists/create', [PlaylistController::class, 'store'])->name('playlist.store');
-    Route::post('/ajax/playlist/add-song', [PlaylistController::class, 'addSongToPlaylist']);
+    Route::post('/ajax/playlist/add-song', [PlaylistController::class, 'addSongToPlaylist'])->name('playlist.add-song');
 
     //Thả tim
     Route::post('/ajax/like-song', [InteractionController::class, 'toggleLikeSong']);

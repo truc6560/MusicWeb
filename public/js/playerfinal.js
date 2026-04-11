@@ -114,19 +114,59 @@ function savePlayerState(isPlaying = false) {
     localStorage.setItem("currentSong", JSON.stringify(state));
 }
 
+function persistPlayerState() {
+    if (!audio) return;
+    savePlayerState(!audio.paused);
+}
+
 //LẤY LỜI BÀI HÁT
 function loadLyrics(songId) {
     if (!lyricsBox) return;
     lyricsBox.innerHTML = "Đang tải lời bài hát...";
-    fetch(`/song/${songId}/lyrics`)
+    fetch(`/song/${songId}`)
         .then(r => r.json())
         .then(d => {
-            lyricsBox.innerHTML = d.status === "success" 
-                ? d.lyrics.replace(/\n/g, "<br>") 
-                : "Chưa có lời bài hát";
+            const lyrics = (d && d.lyrics) ? d.lyrics : "Chưa có lời bài hát";
+            lyricsBox.innerHTML = lyrics.replace(/\n/g, "<br>");
         })
         .catch(() => lyricsBox.innerHTML = "Không thể tải lời bài hát");
 }
+
+function playSong(songId) {
+    if (!songId) return;
+
+    fetch(`/song/${songId}`)
+        .then(r => r.json())
+        .then(song => {
+            if (!song || !song.audio_url) return;
+
+            const normalizedSong = {
+                id: song.song_id,
+                title: song.title,
+                artist: song.artist,
+                src: song.audio_url,
+                cover: song.cover
+            };
+
+            const existingIndex = songList.findIndex(s => String(s.id) === String(normalizedSong.id));
+            if (existingIndex === -1) {
+                songList.push(normalizedSong);
+                currentIndex = songList.length - 1;
+            } else {
+                currentIndex = existingIndex;
+                songList[currentIndex] = normalizedSong;
+            }
+
+            loadSong(songList[currentIndex]);
+        })
+        .catch(err => console.error("Không thể phát bài hát:", err));
+}
+
+window.playSong = playSong;
+window.loadSong = loadSong;
+window.updateRowHighlight = updateRowHighlight;
+window.buildSongList = buildSongList;
+window.persistPlayerState = persistPlayerState;
 
 //FORMAT THỜI GIAN
 function formatTime(sec) {
@@ -175,21 +215,16 @@ audio.ontimeupdate = () => {
         if (listenSeconds >= 10 && !loggedHistory) {
             loggedHistory = true;
             savePlayerState(audio.paused ? false : true); // Lưu lại biến loggedHistory vào storage
-            fetch("ajax_interaction.php", {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            fetch("/ajax/record-history", {
                 method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `action=log_history&song_id=${currentSong.id}`
-            });
-        }
-        // Sau 30s → tăng lượt nghe
-        if (listenSeconds >= 30 && !increasedPlay) {
-            increasedPlay = true;
-            savePlayerState(audio.paused ? false : true);
-
-            fetch("ajax_interaction.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `action=increase_play&song_id=${currentSong.id}`
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRF-TOKEN": csrfToken
+                },
+                body: `song_id=${encodeURIComponent(currentSong.id)}`
+            }).catch(() => {
+                // Không chặn luồng phát nhạc nếu ghi lịch sử thất bại
             });
         }
     }
@@ -238,6 +273,23 @@ function changeSong(step) {
 
 // KHI BÀI HÁT KẾT THÚC
 audio.onended = () => {
+    const currentSong = songList[currentIndex];
+    if (currentSong && !increasedPlay) {
+        increasedPlay = true;
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+        fetch("/ajax/increment-view", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRF-TOKEN": csrfToken
+            },
+            body: `song_id=${encodeURIComponent(currentSong.id)}`
+        }).catch(() => {
+            // Không chặn luồng chuyển bài khi cập nhật lượt nghe thất bại
+        });
+    }
+
     if (isRepeat) {
         audio.currentTime = 0;
         audio.play();

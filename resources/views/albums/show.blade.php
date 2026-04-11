@@ -1,6 +1,4 @@
-@extends('layouts.client')
-
-@section('content')
+<x-client-layout>
 <style>
     /* --- HEADER ALBUM --- */
     .album-header {
@@ -271,4 +269,4 @@
         };
     }
 </script>
-@endsection
+</x-client-layout>

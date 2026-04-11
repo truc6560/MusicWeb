@@ -1,6 +1,4 @@
-@extends('layouts.client')
-
-@section('content')
+<x-client-layout>
 <!-- Giữ nguyên link FontAwesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -180,4 +178,4 @@
         <div class="empty-message">Chưa có album nào được tìm thấy.</div>
     @endforelse
 </div>
-@endsection
+</x-client-layout>
