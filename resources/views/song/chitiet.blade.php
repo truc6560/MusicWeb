@@ -176,6 +176,26 @@
                 height: 160px;
             }
         }
+
+        .spotify-add-to-queue {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 500px;
+            padding: 12px 22px;
+            min-height: 44px;
+            font-weight: 700;
+            font-size: 14px;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .spotify-add-to-queue:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.02);
+        }
     </style>
 
     @php
@@ -202,7 +222,10 @@
                         <i class="fas fa-play"></i> PHÁT NHẠC
                     </button>
                     <button class="spotify-like-btn" data-id="{{ $song->song_id }}">
-                        <i class="far fa-heart"></i> THÍCH
+                        <i class="far fa-heart"></i>
+                    </button>
+                    <button class="spotify-add-to-queue" data-id="{{ $song->song_id }}">
+                        <i class="fas fa-list"></i> THÊM VÀO DANH SÁCH CHỜ
                     </button>
                 </div>
             </div>
@@ -214,49 +237,4 @@
         </div>
     </div>
 
-    @push('scripts')
-    <script>
-        const detailPlayBtn = document.querySelector('.spotify-play-btn');
-        const detailLikeBtn = document.querySelector('.spotify-like-btn');
-        const detailSongId = detailPlayBtn?.getAttribute('data-id') || detailLikeBtn?.getAttribute('data-id');
-
-        function renderDetailLike(isLiked) {
-            if (!detailLikeBtn) return;
-            const icon = detailLikeBtn.querySelector('i');
-            if (!icon) return;
-
-            if (isLiked) {
-                icon.className = 'fas fa-heart';
-                detailLikeBtn.classList.add('liked');
-            } else {
-                icon.className = 'far fa-heart';
-                detailLikeBtn.classList.remove('liked');
-            }
-        }
-
-        if (detailSongId && window.playerFinalApi?.getLikeStatus) {
-            window.playerFinalApi.getLikeStatus(detailSongId)
-                .then(renderDetailLike)
-                .catch(err => console.error(err));
-        }
-
-        detailPlayBtn?.addEventListener('click', function() {
-            if (!detailSongId || !window.playerFinalApi?.playSongById) return;
-            window.playerFinalApi.playSongById(detailSongId);
-        });
-
-        detailLikeBtn?.addEventListener('click', function() {
-            if (!detailSongId || !window.playerFinalApi?.toggleLikeSong) return;
-            window.playerFinalApi.toggleLikeSong(detailSongId)
-                .then(liked => {
-                    if (liked === null) return;
-                    renderDetailLike(liked);
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert('Có lỗi xảy ra khi cập nhật yêu thích.');
-                });
-        });
-    </script>
-    @endpush
 </x-client-layout>

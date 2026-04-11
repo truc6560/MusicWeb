@@ -61,8 +61,9 @@
         /* Cột Trái (Menu) */
         .sidebar-left { 
             width: 240px; background: var(--bg-panel); border-right: 1px solid var(--border-color); 
-            padding: 20px; flex-shrink: 0; overflow-y: auto; 
+            padding: 20px 20px 200px 20px; 
         }
+        
         .menu-group h3 { color: var(--text-sub); font-size: 12px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;}
         .menu-item { display: block; padding: 12px 15px; color: var(--text-sub); text-decoration: none; margin-bottom: 5px; border-radius: 8px; font-size: 14px; transition: 0.3s; }
         .menu-item.active, .menu-item:hover { background: rgba(0, 209, 255, 0.1); color: #00d1ff; font-weight: bold; border-left: 3px solid #00d1ff; }
@@ -181,6 +182,81 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(0, 209, 255, 0.5) !important; 
         }
+
+        /* Danh sách chờ */
+        #queue-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #queue-list-container {
+            padding-bottom: 20px;
+        }
+        .queue-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            background: rgba(255,255,255,0.03);
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .queue-item:hover {
+            background: rgba(255,255,255,0.08);
+        }
+        .queue-item-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+        .queue-item-info {
+            flex: 1;
+            overflow: hidden;
+        }
+        .queue-item-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .queue-item-artist {
+            font-size: 11px;
+            color: var(--text-sub);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .queue-item-remove {
+            color: var(--text-sub);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+        .queue-item-remove:hover {
+            color: #ff007a;
+            background: rgba(255,0,122,0.1);
+        }
+
+        #queue-list-container {
+            max-height: 300px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            padding-right: 4px;
+        }
+
+        #queue-list {
+            padding: 0;
+            margin: 0;
+        }
     </style>
 </head>
 <body data-auth="{{ auth()->check() ? '1' : '0' }}">
@@ -259,7 +335,9 @@
             </div>
             <div class="menu-group" style="margin-top: 30px;">
                 <h3>DANH SÁCH CHỜ</h3>
-                <div style="color: #666; font-size: 13px; padding-left: 15px;">Chưa có bài hát nào...</div>
+                <div id="queue-list-container">
+                    <div id="queue-list" style="color: #666; font-size: 13px;">Chưa có bài hát nào...</div>
+                </div>
             </div>
         </aside>
 
@@ -324,6 +402,69 @@
         $.ajaxSetup({
             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
         });
+
+        // Giữ nguyên player đang phát.
+        (function () {
+            const contentSelector = '.content-area';
+
+            async function navigateWithSpa(url, pushState = true) {
+                const currentContent = document.querySelector(contentSelector);
+                if (!currentContent) {
+                    window.location.href = url;
+                    return;
+                }
+
+                const response = await fetch(url, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const html = await response.text();
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                const nextContent = doc.querySelector(contentSelector);
+                if (!nextContent) {
+                    window.location.href = url;
+                    return;
+                }
+
+                currentContent.innerHTML = nextContent.innerHTML;
+                document.title = doc.title || document.title;
+
+                if (pushState) {
+                    history.pushState({ spa: true, url: url }, '', url);
+                }
+
+                window.scrollTo({ top: 0, behavior: 'auto' });
+                document.dispatchEvent(new CustomEvent('spa:content-updated', { detail: { url } }));
+            }
+
+            document.addEventListener('click', function (e) {
+                const link = e.target.closest('a.song-info-link, a[data-spa="true"]');
+                if (!link) return;
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                if (link.target && link.target !== '_self') return;
+
+                const href = link.getAttribute('href');
+                if (!href || href.startsWith('#')) return;
+
+                const url = new URL(href, window.location.origin);
+                if (url.origin !== window.location.origin) return;
+
+                e.preventDefault();
+                navigateWithSpa(url.href, true).catch(() => {
+                    window.location.href = url.href;
+                });
+            });
+
+            window.addEventListener('popstate', function () {
+                navigateWithSpa(window.location.href, false).catch(() => {
+                    window.location.reload();
+                });
+            });
+        })();
     </script>
 </body>
 </html>

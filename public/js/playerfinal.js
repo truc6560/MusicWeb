@@ -46,11 +46,14 @@ const likeIcon = likeBtn ? likeBtn.querySelector("i") : null;
 
 //TRẠNG THÁI
 let songList = [];           // Mảng các bài hát (danh sách phát)
+let queueList = [];          // Mảng các bài hát chờ
 let currentIndex = 0;       // Chỉ số bài đang phát
 let isShuffle = false;      // Chế độ xáo trộn
 let isRepeat = false;       // Chế độ lặp lại
 let isSwitchingSong = false; // Cờ để tránh chồng chéo khi chuyển bài bất đồng bộ
 let queuedSongIndex = null;  // Lưu chỉ số bài hát được yêu cầu phát trong khi đang chuyển bài
+let hasBoundSongRowEvents = false;
+let hasBoundDetailEvents = false;
 
 // Biến theo dõi thời gian nghe 
 let listenSeconds = 0;       // Số giây đã nghe của bài hiện tại
@@ -112,6 +115,158 @@ function loadSong(song, autoPlay = true) {
         }
         if (playIcon) playIcon.classList.replace("fa-play", "fa-pause");
     }
+}
+
+// Lưu queue vào localStorage
+function saveQueueToLocalStorage() {
+    localStorage.setItem("playerQueue", JSON.stringify(queueList));
+}
+
+// Khôi phục queue từ localStorage
+function loadQueueFromLocalStorage() {
+    const saved = localStorage.getItem("playerQueue");
+    if (saved) {
+        try {
+            queueList = JSON.parse(saved);
+        } catch(e) { queueList = []; }
+    } else {
+        queueList = [];
+    }
+    renderQueueSidebar();
+}
+
+// Hiển thị danh sách chờ trong sidebar
+function renderQueueSidebar() {
+    const queueContainer = document.getElementById("queue-list");
+    if (!queueContainer) return;
+
+    if (!queueList.length) {
+        queueContainer.innerHTML = "Chưa có bài hát nào...";
+        return;
+    }
+
+    let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';
+    queueList.forEach((item, idx) => {
+        const coverImg = (item.cover && item.cover.trim() !== "") ? item.cover : "https://via.placeholder.com/150";
+        html += `
+            <div class="queue-item" data-queue-index="${idx}">
+                <img src="${coverImg}" alt="${escapeHtml(item.title)}" class="queue-item-img" onerror="this.src='https://via.placeholder.com/150'">
+                <div class="queue-item-info">
+                    <div class="queue-item-title">${escapeHtml(item.title)}</div>
+                    <div class="queue-item-artist">${escapeHtml(item.artist)}</div>
+                </div>
+                <i class="fas fa-times queue-item-remove" data-queue-index="${idx}"></i>
+            </div>
+        `;
+    });
+    html += '</div>';
+    queueContainer.innerHTML = html;
+
+    // Gắn sự kiện xóa cho từng nút
+    document.querySelectorAll('.queue-item-remove').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const idx = parseInt(btn.getAttribute('data-queue-index'));
+            if (!isNaN(idx)) {
+                removeFromQueue(idx);
+            }
+        });
+    });
+}
+
+// Thêm bài hát vào queue
+async function addToQueue(songId) {
+    if (!songId) return false;
+
+    // Tìm bài hát trong songList trước
+    let song = songList.find(s => String(s.id) === String(songId));
+    if (!song) {
+        try {
+            const response = await fetch(`/song/${songId}`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            song = {
+                id: songId,
+                title: data.title || "Không rõ",
+                artist: data.artist || "Unknown",
+                src: data.audio_url || `/song/${songId}/stream`,
+                cover: data.cover || "https://via.placeholder.com/150"
+            };
+        } catch (err) {
+            console.error("Lỗi lấy thông tin bài hát:", err);
+            return false;
+        }
+    }
+
+    queueList.push(song);
+    saveQueueToLocalStorage();
+    renderQueueSidebar();
+
+    // Hiển thị thông báo (toast đơn giản)
+    showToast(`Đã thêm "${song.title}" vào danh sách chờ`);
+    return true;
+}
+
+// Xóa bài khỏi queue theo index
+function removeFromQueue(index) {
+    if (index >= 0 && index < queueList.length) {
+        const removed = queueList.splice(index, 1)[0];
+        saveQueueToLocalStorage();
+        renderQueueSidebar();
+        showToast(`Đã xóa "${removed.title}" khỏi danh sách chờ`);
+    }
+}
+
+// Lấy bài đầu tiên trong queue và xóa nó (dùng khi chuyển bài)
+function getNextFromQueue() {
+    if (queueList.length === 0) return null;
+    const nextSong = queueList.shift();
+    saveQueueToLocalStorage();
+    renderQueueSidebar();
+    return nextSong;
+}
+
+// Hàm hiển thị thông báo tạm thời
+let toastTimeout = null;
+function showToast(message) {
+    let toast = document.getElementById('custom-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'custom-toast';
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 10000;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            opacity: 0;
+        `;
+        document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.style.opacity = '1';
+    if (toastTimeout) clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => {
+        toast.style.opacity = '0';
+    }, 2000);
+}
+
+// Helper escapeHtml để tránh XSS
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
 }
 
 //HÀM PHỤ: LƯU TRẠNG THÁI PLAYER
@@ -279,14 +434,55 @@ if (prevBtn) prevBtn.onclick = () => changeSong(-1);
 // CHUYỂN BÀI HÁT
 function changeSong(step) {
     if (!songList.length) return;
-    if (isShuffle) {
-        let i;
-        do { i = Math.floor(Math.random() * songList.length); } while (i === currentIndex && songList.length > 1);
-        currentIndex = i;
-    } else {
-        currentIndex = (currentIndex + step + songList.length) % songList.length;
+
+    // Nếu step === 1 (next) hoặc bài kết thúc gọi changeSong(1)
+    if (step === 1) {
+        // Nếu đang bật repeat, lặp lại bài hiện tại
+        if (isRepeat) {
+            audio.currentTime = 0;
+            audio.play();
+            return;
+        }
+
+        // Ưu tiên lấy bài từ queue
+        const nextFromQueue = getNextFromQueue();
+        if (nextFromQueue) {
+            // Thêm bài này vào songList nếu chưa có (để hiển thị và quản lý)
+            let existingIndex = songList.findIndex(s => String(s.id) === String(nextFromQueue.id));
+            if (existingIndex === -1) {
+                songList.push(nextFromQueue);
+                currentIndex = songList.length - 1;
+            } else {
+                currentIndex = existingIndex;
+            }
+            playSongAtIndex(currentIndex);
+            return;
+        }
+
+        // Không có queue, xử lý shuffle hoặc tuần tự
+        if (isShuffle) {
+            let i;
+            do { i = Math.floor(Math.random() * songList.length); } while (i === currentIndex && songList.length > 1);
+            currentIndex = i;
+        } else {
+            currentIndex = (currentIndex + 1) % songList.length;
+        }
+        playSongAtIndex(currentIndex);
+        return;
     }
-    playSongAtIndex(currentIndex);
+
+    // step === -1 (prev) - không ảnh hưởng queue
+    if (step === -1) {
+        if (isShuffle) {
+            let i;
+            do { i = Math.floor(Math.random() * songList.length); } while (i === currentIndex && songList.length > 1);
+            currentIndex = i;
+        } else {
+            currentIndex = (currentIndex - 1 + songList.length) % songList.length;
+        }
+        playSongAtIndex(currentIndex);
+        return;
+    }
 }
 
 async function fetchSongAndPlay(songId, index) {
@@ -346,12 +542,7 @@ function playSongAtIndex(index) {
 
 // KHI BÀI HÁT KẾT THÚC
 audio.onended = () => {
-    if (isRepeat) {
-        audio.currentTime = 0;
-        audio.play();
-    } else {
-        changeSong(1);
-    }
+    changeSong(1);
 };
 
 // LOGIC LIKE (TIM)
@@ -530,9 +721,11 @@ if (volumeIcon) {
 /* KHỞI TẠO & KHÔI PHỤC */
 // Build danh sách bài hát từ HTML
 function buildSongList() {
-    songList = [];
     // Hỗ trợ cả .song-item-row và .chart-row
     const rows = document.querySelectorAll(".song-item-row, .chart-row");
+    if (!rows.length) return;
+
+    const nextSongList = [];
     rows.forEach(row => {
         let songId = row.dataset.id;
         if (!songId) {
@@ -560,7 +753,7 @@ function buildSongList() {
             if (img) cover = img.src;
         }
 
-        songList.push({
+        nextSongList.push({
             id: songId,
             title: title || "Không rõ",
             artist: artist || "Unknown",
@@ -568,12 +761,30 @@ function buildSongList() {
             cover: cover || "https://via.placeholder.com/150"
         });
     });
+    if (nextSongList.length) {
+        songList = nextSongList;
+    }
+
+    if (hasBoundSongRowEvents) return;
+    hasBoundSongRowEvents = true;
 
     // Event delegation cho click vào row (không click vào nút play)
     document.addEventListener("click", (e) => {
+        const btn = e.target.closest(".play-btn");
+        if (btn) {
+            e.preventDefault();
+            e.stopPropagation();
+            const songId = btn.getAttribute("data-id");
+            if (!songId) return;
+            const index = songList.findIndex(s => String(s.id) === String(songId));
+            if (index !== -1) {
+                playSongAtIndex(index);
+            }
+            return;
+        }
+
         const row = e.target.closest(".song-item-row, .chart-row");
         if (!row) return;
-        if (e.target.closest(".play-btn")) return;
         if (e.target.closest(".song-info-link")) return;
         const songId = row.dataset.id || row.querySelector(".play-btn")?.getAttribute("data-id");
         if (!songId) return;
@@ -582,20 +793,79 @@ function buildSongList() {
             playSongAtIndex(index);
         }
     });
+}
 
-    // Gắn sự kiện riêng cho nút play
-    document.querySelectorAll(".play-btn").forEach(btn => {
-        if (btn.hasAttribute("data-listener")) return;
-        btn.setAttribute("data-listener", "true");
-        btn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            let songId = btn.getAttribute("data-id");
-            if (!songId) return;
-            const index = songList.findIndex(s => s.id == songId);
-            if (index !== -1) {
-                playSongAtIndex(index);
-            }
-        });
+function renderDetailLikeButton(isLiked) {
+    const detailLikeBtn = document.querySelector(".spotify-like-btn");
+    if (!detailLikeBtn) return;
+    const icon = detailLikeBtn.querySelector("i");
+    if (!icon) return;
+
+    if (isLiked) {
+        icon.className = "fas fa-heart";
+        detailLikeBtn.classList.add("liked");
+    } else {
+        icon.className = "far fa-heart";
+        detailLikeBtn.classList.remove("liked");
+    }
+}
+
+function initDetailControls() {
+    const detailSongId = document.querySelector(".spotify-play-btn")?.getAttribute("data-id")
+        || document.querySelector(".spotify-like-btn")?.getAttribute("data-id");
+
+    if (detailSongId && isLoggedIn) {
+        getLikeStatusBySongId(detailSongId)
+            .then(renderDetailLikeButton)
+            .catch(err => console.error(err));
+    }
+
+    if (hasBoundDetailEvents) return;
+    hasBoundDetailEvents = true;
+
+    document.addEventListener("click", (e) => {
+        const detailPlayBtn = e.target.closest(".spotify-play-btn");
+        if (detailPlayBtn) {
+            e.preventDefault();
+            const songId = detailPlayBtn.getAttribute("data-id");
+            playSongById(songId);
+            return;
+        }
+
+        const detailLikeBtn = e.target.closest(".spotify-like-btn");
+        if (detailLikeBtn) {
+            e.preventDefault();
+            const songId = detailLikeBtn.getAttribute("data-id");
+            toggleLikeSongById(songId)
+                .then(liked => {
+                    if (liked === null) return;
+                    renderDetailLikeButton(liked);
+                    const currentSong = songList[currentIndex];
+                    if (currentSong && String(currentSong.id) === String(songId)) {
+                        updateLikeIcon(liked);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Có lỗi xảy ra khi cập nhật yêu thích.");
+                });
+        }
+
+        const addToQueueBtn = e.target.closest(".spotify-add-to-queue");
+        if (addToQueueBtn) {
+            e.preventDefault();
+            const songId = addToQueueBtn.getAttribute("data-id");
+            addToQueue(songId)
+                .then(success => {
+                    if (!success) {
+                        alert("Không thể thêm bài hát vào danh sách chờ.");
+                    }
+                })
+                .catch(err => {
+                    console.error("Lỗi thêm vào danh sách chờ:", err);
+                    alert("Có lỗi xảy ra khi thêm vào danh sách chờ.");
+                });
+        }
     });
 }
 
@@ -608,6 +878,9 @@ function updateRowHighlight(songId) {
 
 document.addEventListener("DOMContentLoaded", () => {
     buildSongList();
+    initDetailControls();
+    loadQueueFromLocalStorage();
+    renderQueueSidebar();
 
     // Khôi phục Volume
     const savedVol = localStorage.getItem("playerVolume");
@@ -617,11 +890,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const saved = JSON.parse(localStorage.getItem("currentSong"));
     if (!saved || !saved.src) return;
 
-    // Nếu songList rỗng thì không thể khôi phục
-    if (songList.length === 0) return;
-
-    currentIndex = songList.findIndex(s => s.id == saved.id);
-    if (currentIndex === -1) currentIndex = 0;
+    if (songList.length === 0) {
+        songList = [{
+            id: saved.id,
+            title: saved.title || "Không rõ",
+            artist: saved.artist || "Unknown",
+            src: saved.src,
+            cover: saved.cover || "https://via.placeholder.com/150"
+        }];
+        currentIndex = 0;
+    } else {
+        currentIndex = songList.findIndex(s => s.id == saved.id);
+        if (currentIndex === -1) currentIndex = 0;
+    }
 
     audio.src = saved.src;
     audio.currentTime = saved.currentTime || 0;
@@ -661,8 +942,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+document.addEventListener("spa:content-updated", () => {
+    buildSongList();
+    initDetailControls();
+    renderQueueSidebar();
+});
+
 window.playerFinalApi = {
     playSongById,
     toggleLikeSong: toggleLikeSongById,
-    getLikeStatus: getLikeStatusBySongId
+    getLikeStatus: getLikeStatusBySongId,
+    addToQueue: addToQueue,           
+    getQueue: () => [...queueList],   
+    removeFromQueue: removeFromQueue  
 };
