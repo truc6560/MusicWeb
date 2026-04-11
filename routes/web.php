@@ -7,6 +7,7 @@ use App\Http\Controllers\ArtistController;
 use App\Http\Controllers\SongController;
 use App\Http\Controllers\User\InteractionController;
 use App\Http\Controllers\User\PlaylistController;
+use App\Http\Controllers\NewReleaseController;
 
 // 1. TRANG CHỦ (Đúng chuẩn MVC)
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
@@ -49,3 +50,5 @@ Route::middleware('auth')->group(function () {
     Route::post('/ajax/increment-view', [InteractionController::class, 'incrementPlayCount']);
 });
 
+    //KHU VỰC PHÁT HÀNH MỚI
+    Route::get('/new-releases', [NewReleaseController::class, 'index'])->name('new_releases');
