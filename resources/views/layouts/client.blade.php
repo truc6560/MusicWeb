@@ -1,11 +1,9 @@
-@props(['title' => 'Lumina Audio - SOUNDWAVE'])
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title }}</title>
+    <title>Lumina Audio - SOUNDWAVE</title>
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('image/icon2.png') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -61,9 +59,8 @@
         /* Cột Trái (Menu) */
         .sidebar-left { 
             width: 240px; background: var(--bg-panel); border-right: 1px solid var(--border-color); 
-            padding: 20px 20px 200px 20px; 
+            padding: 20px; flex-shrink: 0; overflow-y: auto; 
         }
-        
         .menu-group h3 { color: var(--text-sub); font-size: 12px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;}
         .menu-item { display: block; padding: 12px 15px; color: var(--text-sub); text-decoration: none; margin-bottom: 5px; border-radius: 8px; font-size: 14px; transition: 0.3s; }
         .menu-item.active, .menu-item:hover { background: rgba(0, 209, 255, 0.1); color: #00d1ff; font-weight: bold; border-left: 3px solid #00d1ff; }
@@ -182,91 +179,16 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(0, 209, 255, 0.5) !important; 
         }
-
-        /* Danh sách chờ */
-        #queue-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        #queue-list-container {
-            padding-bottom: 20px;
-        }
-        .queue-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 12px;
-            border-radius: 8px;
-            margin-bottom: 5px;
-            background: rgba(255,255,255,0.03);
-            transition: 0.2s;
-            cursor: pointer;
-        }
-        .queue-item:hover {
-            background: rgba(255,255,255,0.08);
-        }
-        .queue-item-img {
-            width: 40px;
-            height: 40px;
-            border-radius: 6px;
-            object-fit: cover;
-        }
-        .queue-item-info {
-            flex: 1;
-            overflow: hidden;
-        }
-        .queue-item-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: #fff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .queue-item-artist {
-            font-size: 11px;
-            color: var(--text-sub);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .queue-item-remove {
-            color: var(--text-sub);
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 20px;
-            transition: 0.2s;
-        }
-        .queue-item-remove:hover {
-            color: #ff007a;
-            background: rgba(255,0,122,0.1);
-        }
-
-        #queue-list-container {
-            max-height: 300px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-            overscroll-behavior: contain;
-            padding-right: 4px;
-        }
-
-        #queue-list {
-            padding: 0;
-            margin: 0;
-        }
     </style>
 </head>
-<body data-auth="{{ auth()->check() ? '1' : '0' }}">
+<body>
 
     <header class="header">
         <div class="header-left">
             <div class="logo-neon"><span class="music-icon">🎵</span> SOUNDWAVE</div>
             <nav class="main-nav">
                 <a href="{{ route('client.home') }}" class="{{ request()->is('/') ? 'active' : '' }}">Trang chủ</a>
-                <a href="{{ route('albums.index') }}" class="{{ request()->is('albums*') ? 'active' : '' }}">Albums</a>
+                <a href="#">Albums</a>
                 <a href="#">Bảng xếp hạng</a>
                 <a href="#">Phát hành mới</a>
                 <a href="#">Nghệ sĩ</a>
@@ -328,30 +250,24 @@
         <aside class="sidebar-left">
             <div class="menu-group">
                 <h3>MUSIC</h3>
-                @auth
-                    <a href="{{ route('playlist.index') }}" class="menu-item {{ request()->routeIs('playlist.*') ? 'active' : '' }}">Playlist</a>
-                @else
-                    <a href="#" class="menu-item" onclick="event.preventDefault(); alert('Vui lòng đăng nhập để dùng Playlist.');">Playlist</a>
-                @endauth
+                <a href="#" class="menu-item active">Playlist</a>
                 <a href="#" class="menu-item">Favorite Songs</a>
                 <a href="#" class="menu-item">Favorites Artists</a>
                 <a href="#" class="menu-item">Listening History</a>
             </div>
             <div class="menu-group" style="margin-top: 30px;">
                 <h3>DANH SÁCH CHỜ</h3>
-                <div id="queue-list-container">
-                    <div id="queue-list" style="color: #666; font-size: 13px;">Chưa có bài hát nào...</div>
-                </div>
+                <div style="color: #666; font-size: 13px; padding-left: 15px;">Chưa có bài hát nào...</div>
             </div>
         </aside>
 
         <main class="content-area">
-            {{ $slot }}
+            @yield('content')
         </main>
 
         <aside class="sidebar-right">
             <h3 style="color: #fff; font-size: 16px; margin-bottom: 20px; text-transform: uppercase;">Lời Bài Hát</h3>
-            <img id="rightCover" class="song-cover" src="{{ asset('image/icon2.png') }}">
+            <img id="rightCover" class="song-cover" src="{{ asset('image/default-cover.jpg') }}">
             <h4 id="rightTitle" style="color: #fff; margin-bottom: 5px;">Chưa chọn bài hát</h4>
             <p id="rightArtist" style="color: var(--text-sub); font-size: 13px;">--</p>
             
@@ -366,291 +282,33 @@
     <footer>
         <div class="player-bar">
             <div class="player-left">
-<<<<<<< HEAD
-                <img id="nowCover" src="{{ asset('image/default-cover.jpg') }}" class="player-song-img">
+                <img src="{{ asset('image/default-cover.jpg') }}" class="player-song-img">
                 <div>
-                    <div id="now-title" style="color: #fff; font-size: 14px; font-weight: bold;">Tên bài hát</div>
-                    <div id="now-artist" style="color: var(--text-sub); font-size: 12px;">Tên nghệ sĩ</div>
+                    <div style="color: #fff; font-size: 14px; font-weight: bold;">Tên bài hát</div>
+                    <div style="color: var(--text-sub); font-size: 12px;">Tên nghệ sĩ</div>
                 </div>
-                <button type="button" class="player-like-btn" style="background: none; border: none; margin-left: 20px; cursor: pointer;">
-                    <i class="far fa-heart" style="color: var(--text-sub);"></i>
-                </button>
-=======
-                <img id="nowCover" src="{{ asset('image/icon2.png') }}" class="player-song-img">
-                <div>
-                    <div id="now-title" style="color: #fff; font-size: 14px; font-weight: bold;">Tên bài hát</div>
-                    <div id="now-artist" style="color: var(--text-sub); font-size: 12px;">Tên nghệ sĩ</div>
-                </div>
-                <div class="player-like-btn" style="margin-left: 20px; cursor: pointer;">
-                    <i class="far fa-heart" style="color: var(--text-sub); font-size: 18px;"></i>
-                </div>
->>>>>>> c7026f56e8017c1d21879fe7bd2374dd1ddb6ba5
+                <i class="far fa-heart" style="color: var(--text-sub); margin-left: 20px; cursor: pointer;"></i>
             </div>
             <div class="player-center">
                 <div class="player-controls">
-                    <i id="shuffleBtn" class="fas fa-random control-icon"></i>
-                    <i id="prevBtn" class="fas fa-step-backward control-icon"></i>
-<<<<<<< HEAD
-                    <div id="playBtnToggle" class="play-btn-wrapper"><i id="playIcon" class="fas fa-play"></i></div>
-=======
-                    <div id="playBtnToggle" class="play-btn-wrapper">
-                    <i id="playIcon" class="fas fa-play"></i></div>
->>>>>>> c7026f56e8017c1d21879fe7bd2374dd1ddb6ba5
-                    <i id="nextBtn" class="fas fa-step-forward control-icon"></i>
-                    <i id="repeatBtn" class="fas fa-redo control-icon"></i>
+                    <i class="fas fa-random control-icon"></i>
+                    <i class="fas fa-step-backward control-icon"></i>
+                    <div class="play-btn-wrapper"><i class="fas fa-play"></i></div>
+                    <i class="fas fa-step-forward control-icon"></i>
+                    <i class="fas fa-redo control-icon"></i>
                 </div>
                 <div class="progress-area">
-                    <span id="currentTime" style="font-size: 11px; color: var(--text-sub);">0:00</span>
-                    <div id="progress" class="progress-container"><div id="progressBar" class="progress-bar-fill"></div></div>
-                    <span id="duration" style="font-size: 11px; color: var(--text-sub);">0:00</span>
+                    <span style="font-size: 11px; color: var(--text-sub);">0:00</span>
+                    <div class="progress-container"><div class="progress-bar-fill"></div></div>
+                    <span style="font-size: 11px; color: var(--text-sub);">3:45</span>
                 </div>
             </div>
             <div class="player-right">
-<<<<<<< HEAD
-                <i id="volumeIcon" class="fas fa-volume-up" style="color: var(--text-sub);"></i>
+                <i class="fas fa-volume-up" style="color: var(--text-sub);"></i>
                 <div class="volume-slider"><div class="volume-fill"></div></div>
-=======
-                <i id="volumeIcon" class="fas fa-volume-up" style="color: var(--text-sub); cursor: pointer;"></i>
-                <div id="volumeSlider" class="volume-slider"><div id="volumeFill" class="volume-fill"></div></div>
->>>>>>> c7026f56e8017c1d21879fe7bd2374dd1ddb6ba5
             </div>
         </div>
     </footer>
-    <audio id="audioPlayer" preload="auto"></audio>
 
-<<<<<<< HEAD
-<audio id="audioPlayer"></audio>
-<script src="{{ asset('js/playerfinal.js') }}"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    // Cấu hình CSRF Token cho tất cả request AJAX của Laravel
-    $.ajaxSetup({
-        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-    });
-
-    // 1. CHỨC NĂNG THẢ TIM (Ví dụ cho nút có class btn-like-song)
-    $('.btn-like-song').click(function(e) {
-        e.preventDefault();
-        let songId = $(this).data('id');
-        let btn = $(this);
-
-        $.post('/ajax/like-song', { song_id: songId }, function(res) {
-            if(res.status === 'success') {
-                btn.toggleClass('liked'); // Đổi màu CSS trái tim
-                alert(res.message);
-            }
-        });
-    });
-
-    // ==========================================
-    // 2. PARTIAL NAVIGATION (GIỮ NGUYÊN LAYOUT)
-    // ==========================================
-    const contentSelector = '.content-area';
-    let navAbortController = null;
-
-    function runScriptsIn(container) {
-        const scripts = container.querySelectorAll('script');
-        scripts.forEach((oldScript) => {
-            const newScript = document.createElement('script');
-
-            if (oldScript.src) {
-                if (document.querySelector(`script[src="${oldScript.src}"]`)) {
-                    return;
-                }
-                newScript.src = oldScript.src;
-            } else {
-                newScript.textContent = oldScript.textContent;
-            }
-
-            document.body.appendChild(newScript);
-            if (!newScript.src) {
-                document.body.removeChild(newScript);
-            }
-        });
-    }
-
-    function refreshPlayerBindings() {
-        if (typeof window.buildSongList === 'function') {
-            window.buildSongList();
-        }
-    }
-
-    async function partialNavigate(url, options = {}) {
-        const target = document.querySelector(contentSelector);
-        if (!target) {
-            window.location.href = url;
-            return;
-        }
-
-        if (typeof window.persistPlayerState === 'function') {
-            window.persistPlayerState();
-        }
-
-        if (navAbortController) {
-            navAbortController.abort();
-        }
-        navAbortController = new AbortController();
-
-        try {
-            target.style.opacity = '0.65';
-
-            const response = await fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                signal: navAbortController.signal
-            });
-
-            if (!response.ok) {
-                window.location.href = url;
-                return;
-            }
-
-            const html = await response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-
-            const nextContent = doc.querySelector(contentSelector);
-            if (!nextContent) {
-                window.location.href = url;
-                return;
-            }
-
-            const currentHeader = document.querySelector('.header');
-            const nextHeader = doc.querySelector('.header');
-            if (currentHeader && nextHeader) {
-                currentHeader.innerHTML = nextHeader.innerHTML;
-            }
-
-            const currentSidebar = document.querySelector('.sidebar-left');
-            const nextSidebar = doc.querySelector('.sidebar-left');
-            if (currentSidebar && nextSidebar) {
-                currentSidebar.innerHTML = nextSidebar.innerHTML;
-            }
-
-            target.innerHTML = nextContent.innerHTML;
-            target.scrollTop = 0;
-            document.title = doc.title || document.title;
-
-            runScriptsIn(target);
-            refreshPlayerBindings();
-
-            if (!options.fromPopState) {
-                history.pushState({ partial: true }, '', url);
-            }
-        } catch (error) {
-            if (error.name !== 'AbortError') {
-                window.location.href = url;
-            }
-        } finally {
-            target.style.opacity = '1';
-        }
-    }
-
-    window.partialNavigate = partialNavigate;
-
-    document.addEventListener('click', (event) => {
-        const link = event.target.closest('a[href]');
-        if (!link) return;
-
-        const href = link.getAttribute('href');
-        if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
-        if (link.target === '_blank' || link.hasAttribute('download') || event.metaKey || event.ctrlKey || event.shiftKey) return;
-        if (link.dataset.noAjax === 'true') return;
-
-        const nextUrl = new URL(link.href, window.location.origin);
-        const isSameOrigin = nextUrl.origin === window.location.origin;
-        const isAdminArea = nextUrl.pathname.startsWith('/admin');
-
-        if (!isSameOrigin || isAdminArea) return;
-
-        event.preventDefault();
-        partialNavigate(nextUrl.href);
-    });
-
-    window.addEventListener('beforeunload', () => {
-        if (typeof window.persistPlayerState === 'function') {
-            window.persistPlayerState();
-        }
-    });
-
-    window.addEventListener('popstate', () => {
-        partialNavigate(window.location.href, { fromPopState: true });
-    });
-</script>
-=======
-    @stack('scripts')
-    <script src="{{ asset('js/playerfinal.js') }}?v={{ filemtime(public_path('js/playerfinal.js')) }}"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        // Cấu hình CSRF Token cho các AJAX khác
-        $.ajaxSetup({
-            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-        });
-
-        // Giữ nguyên player đang phát.
-        (function () {
-            const contentSelector = '.content-area';
-
-            async function navigateWithSpa(url, pushState = true) {
-                const currentContent = document.querySelector(contentSelector);
-                if (!currentContent) {
-                    window.location.href = url;
-                    return;
-                }
-
-                const response = await fetch(url, {
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-
-                const html = await response.text();
-                const doc = new DOMParser().parseFromString(html, 'text/html');
-                const nextContent = doc.querySelector(contentSelector);
-                if (!nextContent) {
-                    window.location.href = url;
-                    return;
-                }
-
-                currentContent.innerHTML = nextContent.innerHTML;
-                document.title = doc.title || document.title;
-
-                if (pushState) {
-                    history.pushState({ spa: true, url: url }, '', url);
-                }
-
-                window.scrollTo({ top: 0, behavior: 'auto' });
-                document.dispatchEvent(new CustomEvent('spa:content-updated', { detail: { url } }));
-            }
-
-            document.addEventListener('click', function (e) {
-                const link = e.target.closest('a.song-info-link, a[data-spa="true"]');
-                if (!link) return;
-                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-                if (link.target && link.target !== '_self') return;
-
-                const href = link.getAttribute('href');
-                if (!href || href.startsWith('#')) return;
-
-                const url = new URL(href, window.location.origin);
-                if (url.origin !== window.location.origin) return;
-
-                e.preventDefault();
-                navigateWithSpa(url.href, true).catch(() => {
-                    window.location.href = url.href;
-                });
-            });
-
-            window.addEventListener('popstate', function () {
-                navigateWithSpa(window.location.href, false).catch(() => {
-                    window.location.reload();
-                });
-            });
-        })();
-    </script>
->>>>>>> c7026f56e8017c1d21879fe7bd2374dd1ddb6ba5
 </body>
 </html>

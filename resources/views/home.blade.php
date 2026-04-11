@@ -56,6 +56,18 @@
         .rank-num { font-size: 18px; font-weight: 900; width: 25px; text-align: center; }
         .rank-1 { color: #ffdb00; } .rank-2 { color: #c0c0c0; } .rank-3 { color: #cd7f32; }
         .chart-img { width: 45px; height: 45px; border-radius: 6px; object-fit: cover; }
+    
+        .song-info-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            text-decoration: none;
+            color: inherit;
+        }
+        .song-info-link:hover {
+            text-decoration: none;
+        }
     </style>
 
     <div class="section-header">
@@ -97,11 +109,13 @@
                 @foreach ($chart_trending as $idx => $song)
                 <div class="chart-row">
                     <div class="rank-num rank-{{ $idx + 1 }}">{{ $idx + 1 }}</div>
-                    <img src="{{ $song->image_url }}" class="chart-img" onerror="this.src='https://via.placeholder.com/45'">
-                    <div style="flex: 1; overflow: hidden;">
-                        <div style="color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->title }}</div>
-                        <div style="color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->artist_name }}</div>
-                    </div>
+                    <a href="{{ route('song.details', ['id' => $song->song_id]) }}" class="song-info-link">
+                        <img src="{{ $song->image_url }}" class="chart-img" onerror="this.src='https://via.placeholder.com/45'">
+                        <div style="flex: 1; overflow: hidden;">
+                            <div style="color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->title }}</div>
+                            <div style="color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->artist_name }}</div>
+                        </div>
+                    </a>
                     <i class="fas fa-play play-btn" data-id="{{ $song->song_id }}" style="color: #00d1ff; font-size: 12px; cursor: pointer;"></i>
                 </div>
                 @endforeach
@@ -114,11 +128,13 @@
                 @foreach ($chart_vn as $idx => $song)
                 <div class="chart-row">
                     <div class="rank-num rank-{{ $idx + 1 }}">{{ $idx + 1 }}</div>
-                    <img src="{{ $song->image_url }}" class="chart-img" onerror="this.src='https://via.placeholder.com/45'">
-                    <div style="flex: 1; overflow: hidden;">
-                        <div style="color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->title }}</div>
-                        <div style="color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->artist_name }}</div>
-                    </div>
+                    <a href="{{ route('song.details', ['id' => $song->song_id]) }}" class="song-info-link">
+                        <img src="{{ $song->image_url }}" class="chart-img" onerror="this.src='https://via.placeholder.com/45'">
+                        <div style="flex: 1; overflow: hidden;">
+                            <div style="color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->title }}</div>
+                            <div style="color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->artist_name }}</div>
+                        </div>
+                    </a>
                     <i class="fas fa-play play-btn" data-id="{{ $song->song_id }}" style="color: #00d1ff; font-size: 12px; cursor: pointer;"></i>
                 </div>
                 @endforeach
@@ -131,17 +147,20 @@
                 @foreach ($chart_usuk as $idx => $song)
                 <div class="chart-row">
                     <div class="rank-num rank-{{ $idx + 1 }}">{{ $idx + 1 }}</div>
-                    <img src="{{ $song->image_url }}" class="chart-img" onerror="this.src='https://via.placeholder.com/45'">
-                    <div style="flex: 1; overflow: hidden;">
-                        <div style="color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->title }}</div>
-                        <div style="color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->artist_name }}</div>
-                    </div>
+                    <a href="{{ route('song.details', ['id' => $song->song_id]) }}" class="song-info-link">
+                        <img src="{{ $song->image_url }}" class="chart-img" onerror="this.src='https://via.placeholder.com/45'">
+                        <div style="flex: 1; overflow: hidden;">
+                            <div style="color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->title }}</div>
+                            <div style="color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->artist_name }}</div>
+                        </div>
+                    </a>
                     <i class="fas fa-play play-btn" data-id="{{ $song->song_id }}" style="color: #00d1ff; font-size: 12px; cursor: pointer;"></i>
                 </div>
                 @endforeach
             </div>
         </div>
     </div>
+<<<<<<< HEAD
 <script>
     // Xử lý click nút phát
     document.querySelectorAll('.play-btn').forEach(btn => {
@@ -155,4 +174,6 @@
         });
     });
 </script>
+=======
+>>>>>>> c7026f56e8017c1d21879fe7bd2374dd1ddb6ba5
 </x-client-layout>

@@ -27,7 +27,11 @@ Route::prefix('admin')->group(function () {
     Route::post('/albums/toggle-like', [AlbumController::class, 'toggleLike'])->name('albums.toggleLike');
 
 //GLOBAL PLAYER
-Route::get('/song/{id}', [SongController::class, 'chitietbaihat'])->name('song.details');
+Route::get('/song/{id}/stream', [SongController::class, 'stream'])->name('song.stream');
+Route::get('/song/{id}', [SongController::class, 'thongtinbaihat'])->name('song.information');
+Route::get('/song/{id}/laylyrics', [SongController::class, 'laylyrics'])->name('song.laylyrics');
+Route::get('/song/{id}/chitiet', [SongController::class, 'chitietbaihat'])->name('song.details');
+
 
 // 3. KHU VỰC NGƯỜI DÙNG (Thả tim, Playlist, Lịch sử nghe)
 Route::middleware('auth')->group(function () {
@@ -36,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/ajax/playlist/add-song', [PlaylistController::class, 'addSongToPlaylist'])->name('playlist.add-song');
 
     //Thả tim
+    Route::get('/ajax/like-song/status', [InteractionController::class, 'likeSongStatus']);
     Route::post('/ajax/like-song', [InteractionController::class, 'toggleLikeSong']);
     Route::post('/ajax/like-artist', [InteractionController::class, 'toggleLikeArtist']);
 
