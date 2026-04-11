@@ -67,6 +67,9 @@
     position: relative;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
     text-align: left;
+    display: block;
+    color: inherit;
+    text-decoration: none;
 }
 
 .album-card:hover {
@@ -119,7 +122,7 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 }
 
-.album-info a {
+.album-title {
     color: #ffffff;
     text-decoration: none;
     font-size: 1.1rem;
@@ -163,17 +166,17 @@
 {{-- BỐ CỤC DANH SÁCH --}}
 <div class="album-container">
     @forelse($albums as $album)
-        <div class="album-card" onclick="window.location.href='{{ route('albums.show', $album->album_id) }}'">
+        <a class="album-card" href="{{ route('albums.show', $album->album_id) }}">
             <div class="album-image-wrapper">
                 <img class="album-image" src="{{ $album->image_url }}" alt="{{ $album->title }}">
                 <div class="play-button"><i class="fas fa-play"></i></div>
             </div>
 
             <div class="album-info">
-                <a>{{ $album->title }}</a>
+                <div class="album-title">{{ $album->title }}</div>
                 <div class="album-artist">{{ $album->artist->name }}</div>
             </div>
-        </div>
+        </a>
     @empty
         <div class="empty-message">Chưa có album nào được tìm thấy.</div>
     @endforelse

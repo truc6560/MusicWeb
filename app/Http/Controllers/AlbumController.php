@@ -23,8 +23,8 @@ class AlbumController extends Controller
     // Hiển thị chi tiết Album và danh sách bài hát 
     public function show($id)
     {
-        // Lấy ID người dùng 
-        $userId = Auth::id() ?: 1;
+        // Lấy ID người dùng nếu đã đăng nhập
+        $userId = Auth::id();
         // Tìm Album, nếu không có trả về 404
         $album = Album::with('artist')->findOrFail($id);
         // Lấy danh sách bài hát và kiểm tra trạng thái Like bằng subquery 
@@ -43,7 +43,14 @@ class AlbumController extends Controller
     // Xử lý AJAX Toggle Like 
     public function toggleLike(Request $request)
     {
-        $userId = Auth::id() ?: 1;
+        if (!Auth::check()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Vui lòng đăng nhập để thêm bài hát vào danh sách yêu thích.'
+            ], 401);
+        }
+
+        $userId = Auth::id();
         $songId = $request->input('song_id');
 
         // Kiểm tra xem đã like chưa

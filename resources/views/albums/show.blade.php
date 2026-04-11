@@ -194,6 +194,12 @@
         const btn = e.currentTarget; 
         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
+        if (!@json(Auth::check())) {
+            alert('Vui lòng đăng nhập để thêm bài hát vào danh sách yêu thích.');
+            btn.classList.remove('liked');
+            return;
+        }
+
         fetch("{{ route('albums.toggleLike') }}", { // Sử dụng route Laravel thay cho file .php lẻ
             method: 'POST',
             headers: {
@@ -208,11 +214,17 @@
         .then(data => {
             if (data.status === 'success') {
                 btn.classList.toggle('liked', data.action === 'liked');
-            } else {
+            } else if (data.message) {
                 alert(data.message);
+            } else {
+                alert('Không thể cập nhật bài hát yêu thích.');
             }
         })
-        .catch(err => console.error("Lỗi tương tác Like:", err));
+        .catch(err => {
+            alert('Vui lòng đăng nhập để thêm bài hát vào danh sách yêu thích.');
+            btn.classList.remove('liked');
+            console.error("Lỗi tương tác Like:", err);
+        });
     }
 
     // 2. XỬ LÝ NÚT PHÁT NGẪU NHIÊN 

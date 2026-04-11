@@ -160,7 +160,6 @@
             </div>
         </div>
     </div>
-<<<<<<< HEAD
 <script>
     // Xử lý click nút phát
     document.querySelectorAll('.play-btn').forEach(btn => {
@@ -174,6 +173,4 @@
         });
     });
 </script>
-=======
->>>>>>> c7026f56e8017c1d21879fe7bd2374dd1ddb6ba5
 </x-client-layout>

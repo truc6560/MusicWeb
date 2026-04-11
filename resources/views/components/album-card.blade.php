@@ -1,6 +1,6 @@
 @props(['album'])
 
-<div class="album-card" onclick="window.location.href='{{ route('albums.show', $album->album_id) }}'">
+<a class="album-card" href="{{ route('albums.show', $album->album_id) }}">
     <div class="album-image-wrapper">
         {{-- Hiển thị ảnh bìa Album --}}
         <img src="{{ $album->image_url }}" class="album-image" alt="{{ $album->title }}">
@@ -13,9 +13,9 @@
     
     <div class="album-info">
         {{-- Tên Album --}}
-        <a>{{ $album->title }}</a>
+        <div class="album-title">{{ $album->title }}</div>
         
         {{-- Tên nghệ sĩ --}}
         <div class="album-artist">{{ $album->artist->name }}</div>
     </div>
-</div>
+</a>

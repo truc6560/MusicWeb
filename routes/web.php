@@ -5,6 +5,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\SongController;
 use App\Http\Controllers\User\InteractionController;
+use App\Http\Controllers\User\LibraryController;
 use App\Http\Controllers\User\PlaylistController;
 
 // 1. TRANG CHỦ (Đúng chuẩn MVC)
@@ -25,6 +26,11 @@ Route::prefix('admin')->group(function () {
 // Trang chi tiết album
     Route::get('/albums/{id}', [AlbumController::class, 'show'])->name('albums.show');
     Route::post('/albums/toggle-like', [AlbumController::class, 'toggleLike'])->name('albums.toggleLike');
+
+// 4. THƯ VIỆN CÁ NHÂN
+Route::get('/library/songs', [LibraryController::class, 'songs'])->name('library.songs');
+Route::get('/library/artists', [LibraryController::class, 'artists'])->name('library.artists');
+Route::get('/library/history', [LibraryController::class, 'history'])->name('library.history');
 
 //GLOBAL PLAYER
 Route::get('/song/{id}/stream', [SongController::class, 'stream'])->name('song.stream');

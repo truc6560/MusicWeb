@@ -253,12 +253,15 @@
                 <h3>MUSIC</h3>
                 @auth
                     <a href="{{ route('playlist.index') }}" class="menu-item {{ request()->routeIs('playlist.*') ? 'active' : '' }}">Playlist</a>
+                    <a href="{{ route('library.songs') }}" class="menu-item {{ request()->routeIs('library.songs') ? 'active' : '' }}">Favorite Songs</a>
+                    <a href="{{ route('library.artists') }}" class="menu-item {{ request()->routeIs('library.artists') ? 'active' : '' }}">Favorite Artists</a>
+                    <a href="{{ route('library.history') }}" class="menu-item {{ request()->routeIs('library.history') ? 'active' : '' }}">Listening History</a>
                 @else
                     <a href="#" class="menu-item" onclick="event.preventDefault(); alert('Vui lòng đăng nhập để dùng Playlist.');">Playlist</a>
+                    <a href="#" class="menu-item" onclick="event.preventDefault(); alert('Vui lòng đăng nhập để xem bài hát yêu thích.');">Favorite Songs</a>
+                    <a href="#" class="menu-item" onclick="event.preventDefault(); alert('Vui lòng đăng nhập để xem nghệ sĩ yêu thích.');">Favorite Artists</a>
+                    <a href="#" class="menu-item" onclick="event.preventDefault(); alert('Vui lòng đăng nhập để xem lịch sử nghe.');">Listening History</a>
                 @endauth
-                <a href="#" class="menu-item">Favorite Songs</a>
-                <a href="#" class="menu-item">Favorites Artists</a>
-                <a href="#" class="menu-item">Listening History</a>
             </div>
             <div class="menu-group" style="margin-top: 30px;">
                 <h3>DANH SÁCH CHỜ</h3>
@@ -328,19 +331,94 @@
         headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
     });
 
-    // 1. CHỨC NĂNG THẢ TIM (Ví dụ cho nút có class btn-like-song)
-    $('.btn-like-song').click(function(e) {
-        e.preventDefault();
-        let songId = $(this).data('id');
-        let btn = $(this);
+    window.isAuthenticated = @json(Auth::check());
+    const isAuthenticated = window.isAuthenticated;
 
-        $.post('/ajax/like-song', { song_id: songId }, function(res) {
-            if(res.status === 'success') {
-                btn.toggleClass('liked'); // Đổi màu CSS trái tim
-                alert(res.message);
+    function showLoginPrompt(message) {
+        alert(message || 'Vui lòng đăng nhập để sử dụng chức năng này.');
+    }
+
+    function setLikeButtonState(button, liked) {
+        if (!button) return;
+
+        button.classList.toggle('liked', liked);
+
+        const icon = button.querySelector('i');
+        if (icon) {
+            icon.classList.toggle('fas', liked);
+            icon.classList.toggle('far', !liked);
+        }
+    }
+
+    function bindSongLikeButtons() {
+        document.querySelectorAll('.btn-like-song').forEach((button) => {
+            const songId = button.dataset.id;
+            if (!songId) return;
+
+            if (isAuthenticated) {
+                $.get('/ajax/like-song/status', { song_id: songId }, function(res) {
+                    if (res.status === 'success') {
+                        setLikeButtonState(button, !!res.liked);
+                    }
+                });
+            } else {
+                setLikeButtonState(button, false);
             }
+
+            button.onclick = function(event) {
+                event.preventDefault();
+
+                if (!isAuthenticated) {
+                    showLoginPrompt('Vui lòng đăng nhập để thêm bài hát vào danh sách yêu thích.');
+                    setLikeButtonState(button, false);
+                    return;
+                }
+
+                $.post('/ajax/like-song', { song_id: songId }, function(res) {
+                    if (res.status === 'success') {
+                        setLikeButtonState(button, res.action === 'liked');
+                    } else {
+                        alert(res.message || 'Không thể cập nhật bài hát yêu thích.');
+                    }
+                }).fail(function(xhr) {
+                    alert(xhr.responseJSON?.message || 'Vui lòng thử lại sau.');
+                    setLikeButtonState(button, false);
+                });
+            };
         });
-    });
+    }
+
+    function bindArtistLikeButtons() {
+        document.querySelectorAll('.btn-like-artist').forEach((button) => {
+            const artistId = button.dataset.id;
+            if (!artistId) return;
+
+            button.onclick = function(event) {
+                event.preventDefault();
+
+                if (!isAuthenticated) {
+                    showLoginPrompt('Vui lòng đăng nhập để thêm nghệ sĩ vào danh sách yêu thích.');
+                    setLikeButtonState(button, false);
+                    return;
+                }
+
+                $.post('/ajax/like-artist', { artist_id: artistId }, function(res) {
+                    if (res.status === 'success') {
+                        setLikeButtonState(button, !button.classList.contains('liked'));
+                    } else {
+                        alert(res.message || 'Không thể cập nhật nghệ sĩ yêu thích.');
+                    }
+                }).fail(function(xhr) {
+                    alert(xhr.responseJSON?.message || 'Vui lòng thử lại sau.');
+                    setLikeButtonState(button, false);
+                });
+            };
+        });
+    }
+
+    // 1. CHỨC NĂNG THẢ TIM
+    bindSongLikeButtons();
+    bindArtistLikeButtons();
 
     // ==========================================
     // 2. LOGIC TRÌNH PHÁT NHẠC (AUDIO PLAYER)
@@ -409,6 +487,8 @@
         if (typeof window.buildSongList === 'function') {
             window.buildSongList();
         }
+        bindSongLikeButtons();
+        bindArtistLikeButtons();
     }
 
     async function partialNavigate(url, options = {}) {

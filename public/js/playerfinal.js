@@ -36,6 +36,9 @@ const currentTimeText = document.getElementById("currentTime");
 // Nút yêu thích bài hát
 const likeBtn = document.querySelector(".player-like-btn"); 
 const likeIcon = likeBtn ? likeBtn.querySelector("i") : null;
+function isAuthenticatedUser() {
+    return window.isAuthenticated === true;
+}
 
 //ÂM LƯỢNG 
 //Thanh điều chỉnh âm lượng
@@ -303,13 +306,16 @@ function updateLikeIcon(isLiked) {
 function checkLikeStatus(songId) {
     if (!songId || !likeIcon) return;
 
+    if (!isAuthenticatedUser()) {
+        updateLikeIcon(false);
+        return;
+    }
+
     // Reset về trạng thái chưa like
     updateLikeIcon(false);
 
-    fetch("/api/like/check", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `song_id=${songId}`
+    fetch("/ajax/like-song/status?song_id=" + encodeURIComponent(songId), {
+        headers: { "Accept": "application/json" }
     })
     .then(r => r.json())
     .then(data => {
@@ -327,13 +333,19 @@ if (likeBtn && likeIcon) {
         const currentSong = songList[currentIndex];
         if (!currentSong) return;
 
+        if (!isAuthenticatedUser()) {
+            alert('Vui lòng đăng nhập để thêm bài hát vào danh sách yêu thích.');
+            updateLikeIcon(false);
+            return;
+        }
+
         // UI mượt: đổi ngay lập tức (optimistic UI)
         const isCurrentlyLiked = likeIcon.classList.contains("fas");
         updateLikeIcon(!isCurrentlyLiked);
 
-        fetch("/api/like/toggle", {
+        fetch("/ajax/like-song", {
             method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            headers: { "Content-Type": "application/x-www-form-urlencoded", "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
             body: `song_id=${currentSong.id}`
         })
         .then(r => r.json())

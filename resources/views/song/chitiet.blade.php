@@ -1,4 +1,8 @@
 <x-client-layout>
+    @php
+        $isLikedArtist = Auth::check() && Auth::user()->likedArtists()->where('artists.artist_id', $song->artist->artist_id)->exists();
+    @endphp
+
     <style>
         /* Reset riêng cho trang detail */
         .spotify-detail {
@@ -78,7 +82,7 @@
         }
 
         .spotify-play-btn {
-            background: #1ed760;
+            background: #d0ecff;
             border: none;
             border-radius: 500px;
             padding: 12px 28px;
@@ -95,7 +99,7 @@
         }
 
         .spotify-play-btn:hover {
-            background: #1fdf64;
+            background: #9ad3f8;
             transform: scale(1.02);
         }
 
@@ -140,7 +144,7 @@
             font-weight: 700;
             color: white;
             margin-bottom: 1.5rem;
-            border-left: 4px solid #1ed760;
+            border-left: 4px solid #d0ecff;
             padding-left: 12px;
         }
 
@@ -221,8 +225,11 @@
                     <button class="spotify-play-btn" data-id="{{ $song->song_id }}">
                         <i class="fas fa-play"></i> PHÁT NHẠC
                     </button>
-                    <button class="spotify-like-btn" data-id="{{ $song->song_id }}">
+                    <button class="spotify-like-btn btn-like-song" data-id="{{ $song->song_id }}">
                         <i class="far fa-heart"></i>
+                    </button>
+                    <button class="spotify-like-btn btn-like-artist {{ $isLikedArtist ? 'liked' : '' }}" data-id="{{ $song->artist->artist_id }}">
+                        <i class="fas fa-user-plus"></i> NGHỆ SĨ
                     </button>
                     <button class="spotify-add-to-queue" data-id="{{ $song->song_id }}">
                         <i class="fas fa-list"></i> THÊM VÀO DANH SÁCH CHỜ
