@@ -57,6 +57,28 @@ let listenSeconds = 0;
 let loggedHistory = false;
 let increasedPlay = false; 
 
+function storeGuestHistory(song) {
+    if (!song || !song.id) return;
+
+    const historyKey = "guest_listen_history";
+    const existing = JSON.parse(localStorage.getItem(historyKey) || "[]");
+    const safeExisting = Array.isArray(existing) ? existing : [];
+
+    const item = {
+        id: song.id,
+        title: song.title || "",
+        artist: song.artist || "Unknown Artist",
+        src: song.src || "",
+        cover: song.cover || "",
+        listened_at: new Date().toISOString()
+    };
+
+    const filtered = safeExisting.filter((entry) => String(entry.id) !== String(song.id));
+    filtered.unshift(item);
+
+    localStorage.setItem(historyKey, JSON.stringify(filtered.slice(0, 50)));
+}
+
 //LOAD BÀI HÁT
 function loadSong(song, autoPlay = true) {
     if (!song || !song.src) return;
@@ -212,16 +234,20 @@ audio.ontimeupdate = () => {
     // LOGIC LỊCH SỬ & LƯỢT NGHE
     listenSeconds = Math.floor(audio.currentTime);
     const currentSong = songList[currentIndex];
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
     
-    if (currentSong) {
+    if (currentSong && isAuthenticatedUser()) {
         // Sau 10s → lưu lịch sử nghe
         if (listenSeconds >= 10 && !loggedHistory) {
             loggedHistory = true;
             savePlayerState(audio.paused ? false : true); // Lưu lại biến loggedHistory vào storage
-            fetch("ajax_interaction.php", {
+            fetch("/ajax/record-history", {
                 method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `action=log_history&song_id=${currentSong.id}`
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRF-TOKEN": csrfToken
+                },
+                body: `song_id=${encodeURIComponent(currentSong.id)}`
             });
         }
         // Sau 30s → tăng lượt nghe
@@ -229,12 +255,21 @@ audio.ontimeupdate = () => {
             increasedPlay = true;
             savePlayerState(audio.paused ? false : true);
 
-            fetch("ajax_interaction.php", {
+            fetch("/ajax/increment-view", {
                 method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `action=increase_play&song_id=${currentSong.id}`
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRF-TOKEN": csrfToken
+                },
+                body: `song_id=${encodeURIComponent(currentSong.id)}`
             });
         }
+    }
+
+    if (currentSong && !isAuthenticatedUser() && listenSeconds >= 10 && !loggedHistory) {
+        loggedHistory = true;
+        savePlayerState(audio.paused ? false : true);
+        storeGuestHistory(currentSong);
     }
     
     // Lưu trạng thái mỗi 5s (để reload không mất)

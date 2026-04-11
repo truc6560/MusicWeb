@@ -3,10 +3,14 @@ use App\Http\Controllers\Admin\AdminArtistController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AlbumController;
+use App\Http\Controllers\ArtistController;
 use App\Http\Controllers\SongController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\User\InteractionController;
 use App\Http\Controllers\User\LibraryController;
 use App\Http\Controllers\User\PlaylistController;
+use App\Http\Controllers\NewReleaseController;
+use App\Http\Controllers\ChartController;
 
 // 1. TRANG CHỦ (Đúng chuẩn MVC)
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
@@ -27,10 +31,18 @@ Route::prefix('admin')->group(function () {
     Route::get('/albums/{id}', [AlbumController::class, 'show'])->name('albums.show');
     Route::post('/albums/toggle-like', [AlbumController::class, 'toggleLike'])->name('albums.toggleLike');
 
+// Tìm kiếm gợi ý
+Route::get('/search/suggestions', [SearchController::class, 'suggestions'])->name('search.suggestions');
+
 // 4. THƯ VIỆN CÁ NHÂN
 Route::get('/library/songs', [LibraryController::class, 'songs'])->name('library.songs');
 Route::get('/library/artists', [LibraryController::class, 'artists'])->name('library.artists');
 Route::get('/library/history', [LibraryController::class, 'history'])->name('library.history');
+
+// 4. KHU VỰC NGHỆ SĨ
+    Route::get('/artists', [ArtistController::class, 'index'])->name('artists.index');
+    Route::get('/artists/{id}', [ArtistController::class, 'show'])->name('artists.show');
+    Route::post('/artists/toggle-follow', [ArtistController::class, 'toggleFollow'])->name('artists.toggleFollow');
 
 //GLOBAL PLAYER
 Route::get('/song/{id}/stream', [SongController::class, 'stream'])->name('song.stream');
@@ -55,3 +67,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/ajax/increment-view', [InteractionController::class, 'incrementPlayCount']);
 });
 
+    //KHU VỰC PHÁT HÀNH MỚI
+    Route::get('/new-releases', [NewReleaseController::class, 'index'])->name('new_releases');
+    //Khu vực bảng xếp hạng
+    Route::get('/charts', [ChartController::class, 'index'])->name('charts');

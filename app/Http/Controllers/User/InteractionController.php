@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Song;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class InteractionController extends Controller
 {
@@ -60,12 +61,20 @@ class InteractionController extends Controller
     // 3. Lưu lịch sử nghe (Gọi sau khi nghe được X giây)
     public function recordHistory(Request $request)
     {
-        $user = Auth::user();
-        $songId = $request->song_id;
+        $songId = (int) $request->song_id;
+        $userId = Auth::id();
+
+        if (!$userId || !$songId) {
+            return response()->json(['status' => 'error', 'message' => 'Thiếu dữ liệu lịch sử nghe.'], 422);
+        }
+
+        if (!Schema::hasTable('listen_history')) {
+            return response()->json(['status' => 'error', 'message' => 'Thiếu bảng listen_history.'], 500);
+        }
 
         // Lưu vào bảng listen_history (bạn nhớ tạo bảng này nhé)
         DB::table('listen_history')->updateOrInsert(
-            ['user_id' => $user->id, 'song_id' => $songId],
+            ['user_id' => $userId, 'song_id' => $songId],
             ['listened_at' => now()]
         );
 

@@ -54,13 +54,11 @@ class LibraryController extends Controller
 
     public function history()
     {
-        if (!Auth::check()) {
-            abort(403, 'Vui lòng đăng nhập để xem lịch sử nghe.');
-        }
+        $isGuestHistory = !Auth::check();
 
         $historyItems = collect();
 
-        if (Schema::hasTable('listen_history')) {
+        if (!$isGuestHistory && Schema::hasTable('listen_history')) {
             $historyItems = DB::table('listen_history')
                 ->join('songs', 'listen_history.song_id', '=', 'songs.song_id')
                 ->leftJoin('artists', 'songs.artist_id', '=', 'artists.artist_id')
@@ -84,6 +82,7 @@ class LibraryController extends Controller
             'likedSongs' => collect(),
             'likedArtists' => collect(),
             'historyItems' => $historyItems,
+            'isGuestHistory' => $isGuestHistory,
         ]);
     }
 }

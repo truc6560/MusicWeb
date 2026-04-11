@@ -39,8 +39,91 @@
         .main-nav a { color: var(--text-sub); text-decoration: none; margin-right: 20px; font-weight: 500; font-size: 14px; transition: 0.3s; }
         .main-nav a.active, .main-nav a:hover { color: #00d1ff; border-bottom: 2px solid #00d1ff; padding-bottom: 5px; }
         
-        .search-bar { background: rgba(255, 255, 255, 0.1); padding: 8px 15px; border-radius: 20px; width: 350px; display: flex; align-items: center; }
-        .search-bar input { border: none; background: transparent; color: #fff; margin-left: 10px; width: 100%; outline: none; }
+        .search-bar {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            width: 350px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        .search-bar input {
+            border: none;
+            background: transparent;
+            color: #fff;
+            margin-left: 10px;
+            width: 100%;
+            outline: none;
+        }
+        .search-suggestions {
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            right: 0;
+            background: #11141d;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+            overflow: hidden;
+            z-index: 50;
+            display: none;
+        }
+        .search-suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            text-decoration: none;
+            color: #fff;
+            transition: background 0.2s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .search-suggestion-item:last-child {
+            border-bottom: none;
+        }
+        .search-suggestion-item:hover {
+            background: rgba(0, 209, 255, 0.08);
+        }
+        .search-suggestion-cover {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .search-suggestion-meta {
+            min-width: 0;
+            flex: 1;
+        }
+        .search-suggestion-title {
+            font-size: 14px;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .search-suggestion-subtitle {
+            font-size: 12px;
+            color: var(--text-sub);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px;
+        }
+        .search-suggestion-type {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #00d1ff;
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+        .search-suggestion-empty {
+            padding: 12px 14px;
+            color: var(--text-sub);
+            font-size: 13px;
+        }
 
         /* NÚT BẤM & USER CONTROL */
         .btn-action { padding: 8px 20px; border-radius: 50px; text-decoration: none; font-weight: 500; font-size: 13px; cursor: pointer; }
@@ -190,15 +273,18 @@
             <nav class="main-nav">
                 <a href="{{ route('client.home') }}" class="{{ request()->is('/') ? 'active' : '' }}">Trang chủ</a>
                 <a href="{{ route('albums.index') }}" class="{{ request()->is('albums*') ? 'active' : '' }}">Albums</a>
-                <a href="#">Bảng xếp hạng</a>
-                <a href="#">Phát hành mới</a>
-                <a href="#">Nghệ sĩ</a>
+                <a href="{{ route('charts') }}" class="{{ request()->is('charts') ? 'active' : '' }}">Bảng xếp hạng</a>
+                <a href="{{ route('new_releases') }}" class="{{ request()->is('new-releases') ? 'active' : '' }}">Phát hành mới</a>
+                <a href="{{ route('artists.index') }}" class="{{ request()->is('artists*') ? 'active' : '' }}">Nghệ sĩ</a>
             </nav>
         </div>
 
         <div class="search-bar">
             <span>🔍</span>
-            <input type="text" placeholder="Tìm kiếm bài hát, nghệ sĩ, album...">
+            <form id="siteSearchForm" style="flex: 1; position: relative;">
+                <input id="siteSearchInput" type="text" placeholder="Tìm kiếm bài hát, nghệ sĩ..." autocomplete="off">
+                <div id="searchSuggestions" class="search-suggestions" aria-live="polite"></div>
+            </form>
         </div>
 
         <div class="header-right" style="display: flex; align-items: center; gap: 20px;">
@@ -260,7 +346,7 @@
                     <a href="#" class="menu-item" onclick="event.preventDefault(); alert('Vui lòng đăng nhập để dùng Playlist.');">Playlist</a>
                     <a href="#" class="menu-item" onclick="event.preventDefault(); alert('Vui lòng đăng nhập để xem bài hát yêu thích.');">Favorite Songs</a>
                     <a href="#" class="menu-item" onclick="event.preventDefault(); alert('Vui lòng đăng nhập để xem nghệ sĩ yêu thích.');">Favorite Artists</a>
-                    <a href="#" class="menu-item" onclick="event.preventDefault(); alert('Vui lòng đăng nhập để xem lịch sử nghe.');">Listening History</a>
+                    <a href="{{ route('library.history') }}" class="menu-item {{ request()->routeIs('library.history') ? 'active' : '' }}">Listening History</a>
                 @endauth
             </div>
             <div class="menu-group" style="margin-top: 30px;">
@@ -320,8 +406,6 @@
         </div>
     </footer>
     
-@stack('scripts')
-
 <audio id="audioPlayer"></audio>
 <script src="{{ asset('js/playerfinal.js') }}"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -416,9 +500,151 @@
         });
     }
 
+    function bindDetailPlayButtons() {
+        document.querySelectorAll('.spotify-play-btn').forEach((button) => {
+            const songId = button.dataset.id;
+            if (!songId) return;
+
+            button.onclick = function(event) {
+                event.preventDefault();
+
+                if (typeof window.playSong === 'function') {
+                    window.playSong(songId);
+                    return;
+                }
+
+                window.location.href = `{{ url('/song') }}/${songId}/chitiet`;
+            };
+        });
+    }
+
+    let searchDebounceTimer = null;
+    let searchResultsCache = [];
+    let searchOutsideClickBound = false;
+
+    function clearSearchSuggestions() {
+        const suggestions = document.getElementById('searchSuggestions');
+        if (!suggestions) return;
+        suggestions.innerHTML = '';
+        suggestions.style.display = 'none';
+        searchResultsCache = [];
+    }
+
+    function renderSearchSuggestions(results) {
+        const suggestions = document.getElementById('searchSuggestions');
+        if (!suggestions) return;
+
+        searchResultsCache = Array.isArray(results) ? results : [];
+
+        if (!searchResultsCache.length) {
+            suggestions.innerHTML = '<div class="search-suggestion-empty">Không tìm thấy kết quả phù hợp.</div>';
+            suggestions.style.display = 'block';
+            return;
+        }
+
+        suggestions.innerHTML = searchResultsCache.map((item) => `
+            <a href="${item.url}" class="search-suggestion-item" data-no-ajax="false">
+                <img src="${item.image}" class="search-suggestion-cover" alt="${item.title}">
+                <div class="search-suggestion-meta">
+                    <div class="search-suggestion-title">${item.title}</div>
+                    <div class="search-suggestion-subtitle">${item.subtitle}</div>
+                </div>
+                <div class="search-suggestion-type">${item.type}</div>
+            </a>
+        `).join('');
+
+        suggestions.style.display = 'block';
+    }
+
+    function bindSearchAutocomplete() {
+        const input = document.getElementById('siteSearchInput');
+        const form = document.getElementById('siteSearchForm');
+        const suggestions = document.getElementById('searchSuggestions');
+
+        if (!input || !form || !suggestions) return;
+
+        input.oninput = function() {
+            const query = this.value.trim();
+
+            if (searchDebounceTimer) {
+                clearTimeout(searchDebounceTimer);
+            }
+
+            if (query.length === 0) {
+                clearSearchSuggestions();
+                return;
+            }
+
+            searchDebounceTimer = setTimeout(async () => {
+                try {
+                    const response = await fetch(`{{ route('search.suggestions') }}?q=${encodeURIComponent(query)}`, {
+                        headers: { 'Accept': 'application/json' }
+                    });
+
+                    if (!response.ok) {
+                        renderSearchSuggestions([]);
+                        return;
+                    }
+
+                    const data = await response.json();
+                    renderSearchSuggestions(data.results || []);
+                } catch (error) {
+                    renderSearchSuggestions([]);
+                }
+            }, 180);
+        };
+
+        input.onfocus = function() {
+            if (searchResultsCache.length) {
+                suggestions.style.display = 'block';
+            }
+        };
+
+        input.onkeydown = function(event) {
+            if (event.key !== 'Enter') return;
+
+            event.preventDefault();
+            const firstResult = searchResultsCache[0];
+
+            if (firstResult && firstResult.url) {
+                clearSearchSuggestions();
+                if (typeof window.partialNavigate === 'function') {
+                    window.partialNavigate(firstResult.url);
+                } else {
+                    window.location.href = firstResult.url;
+                }
+            }
+        };
+
+        if (!searchOutsideClickBound) {
+            document.addEventListener('click', function(event) {
+                const currentForm = document.getElementById('siteSearchForm');
+                if (!currentForm || currentForm.contains(event.target)) {
+                    return;
+                }
+
+                clearSearchSuggestions();
+            });
+            searchOutsideClickBound = true;
+        }
+
+        suggestions.onclick = function(event) {
+            const link = event.target.closest('a[href]');
+            if (!link) return;
+
+            clearSearchSuggestions();
+            if (typeof window.partialNavigate === 'function') {
+                event.preventDefault();
+                window.partialNavigate(link.href);
+            }
+        };
+    }
+
     // 1. CHỨC NĂNG THẢ TIM
     bindSongLikeButtons();
     bindArtistLikeButtons();
+    bindDetailPlayButtons();
+    bindSearchAutocomplete();
 
     // ==========================================
     // 2. LOGIC TRÌNH PHÁT NHẠC (AUDIO PLAYER)
@@ -436,6 +662,10 @@
     if(trackingAudio) {
         // Sự kiện: Khi đang phát nhạc (Tự động lưu lịch sử sau 30 giây)
         trackingAudio.addEventListener('timeupdate', function() {
+            if (!isAuthenticated) {
+                return;
+            }
+
             // Nếu nghe được hơn 30 giây và chưa lưu lịch sử cho bài này
             if (trackingAudio.currentTime > 30 && !hasRecordedHistory && currentSongId) {
                 $.post('/ajax/record-history', { song_id: currentSongId });
@@ -445,6 +675,10 @@
 
         // Sự kiện: Khi bài hát kết thúc (Cộng 1 lượt nghe)
         trackingAudio.addEventListener('ended', function() {
+            if (!isAuthenticated) {
+                return;
+            }
+
             if (currentSongId) {
                 $.post('/ajax/increment-view', { song_id: currentSongId }, function(res) {
                     if(res.status === 'success') {
@@ -489,6 +723,8 @@
         }
         bindSongLikeButtons();
         bindArtistLikeButtons();
+        bindDetailPlayButtons();
+        bindSearchAutocomplete();
     }
 
     async function partialNavigate(url, options = {}) {

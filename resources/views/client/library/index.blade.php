@@ -114,17 +114,16 @@
         <p class="library-subtitle">{{ $subtitle }}</p>
     </div>
 
-    <div class="library-tabs">
-        <a class="library-tab {{ $section === 'songs' ? 'active' : '' }}" href="{{ route('library.songs') }}">
-            <i class="fas fa-heart"></i> Bài hát yêu thích
-        </a>
-        <a class="library-tab {{ $section === 'artists' ? 'active' : '' }}" href="{{ route('library.artists') }}">
-            <i class="fas fa-microphone-alt"></i> Nghệ sĩ yêu thích
-        </a>
-        <a class="library-tab {{ $section === 'history' ? 'active' : '' }}" href="{{ route('library.history') }}">
-            <i class="fas fa-history"></i> Lịch sử nghe
-        </a>
-    </div>
+    @if($section !== 'history')
+        <div class="library-tabs">
+            <a class="library-tab {{ $section === 'songs' ? 'active' : '' }}" href="{{ route('library.songs') }}">
+                <i class="fas fa-heart"></i> Bài hát yêu thích
+            </a>
+            <a class="library-tab {{ $section === 'artists' ? 'active' : '' }}" href="{{ route('library.artists') }}">
+                <i class="fas fa-microphone-alt"></i> Nghệ sĩ yêu thích
+            </a>
+        </div>
+    @endif
 
     <div class="library-panel">
         @if($section === 'songs')
@@ -177,41 +176,96 @@
                 </div>
             @endif
         @else
-            @if($historyItems->isEmpty())
-                <div class="empty-box">Chưa có lịch sử nghe nào được ghi nhận.</div>
-            @else
-                <table class="song-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Bài hát</th>
-                            <th>Đã nghe lúc</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($historyItems as $index => $item)
-                            <tr class="song-item-row"
-                                data-id="{{ $item->song_id }}"
-                                data-title="{{ $item->title }}"
-                                data-artist="{{ $item->artist_name ?? 'Unknown Artist' }}"
-                                data-src="{{ asset('audio/' . ltrim($item->audio_file, '/')) }}"
-                                data-cover="{{ $item->image_url ?: asset('image/default-cover.jpg') }}">
-                                <td>{{ $index + 1 }}</td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 10px;">
-                                        <img src="{{ $item->image_url ?: asset('image/default-cover.jpg') }}" class="song-thumb" alt="{{ $item->title }}">
-                                        <div>
-                                            <div class="song-title">{{ $item->title }}</div>
-                                            <div class="song-artist">{{ $item->artist_name ?? 'Unknown Artist' }}</div>
-                                        </div>
+            <div id="guestHistoryEmpty" class="empty-box" style="display: none;">Chưa có lịch sử nghe nào được ghi nhận.</div>
+            <table class="song-table" id="historyTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Bài hát</th>
+                        <th>Đã nghe lúc</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                    @foreach($historyItems as $index => $item)
+                        <tr class="song-item-row"
+                            data-id="{{ $item->song_id }}"
+                            data-title="{{ $item->title }}"
+                            data-artist="{{ $item->artist_name ?? 'Unknown Artist' }}"
+                            data-src="{{ asset('audio/' . ltrim($item->audio_file, '/')) }}"
+                            data-cover="{{ $item->image_url ?: asset('image/default-cover.jpg') }}">
+                            <td>{{ $index + 1 }}</td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <img src="{{ $item->image_url ?: asset('image/default-cover.jpg') }}" class="song-thumb" alt="{{ $item->title }}">
+                                    <div>
+                                        <div class="song-title">{{ $item->title }}</div>
+                                        <div class="song-artist">{{ $item->artist_name ?? 'Unknown Artist' }}</div>
                                     </div>
-                                </td>
-                                <td class="song-meta">{{ $item->listened_at }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @endif
+                                </div>
+                            </td>
+                            <td class="song-meta">{{ $item->listened_at }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         @endif
     </div>
+
+    @if($section === 'history')
+        <script>
+            (function () {
+                const isGuestHistory = @json($isGuestHistory ?? false);
+                const table = document.getElementById('historyTable');
+                const tbody = document.getElementById('historyTableBody');
+                const empty = document.getElementById('guestHistoryEmpty');
+
+                if (!table || !tbody || !empty) return;
+
+                if (!isGuestHistory) {
+                    const hasRows = tbody.children.length > 0;
+                    table.style.display = hasRows ? 'table' : 'none';
+                    empty.style.display = hasRows ? 'none' : 'block';
+                    return;
+                }
+
+                const guestHistory = JSON.parse(localStorage.getItem('guest_listen_history') || '[]');
+                if (!Array.isArray(guestHistory) || guestHistory.length === 0) {
+                    table.style.display = 'none';
+                    empty.style.display = 'block';
+                    return;
+                }
+
+                tbody.innerHTML = guestHistory.map((item, index) => {
+                    const listenedAt = item.listened_at ? new Date(item.listened_at).toLocaleString('vi-VN') : '--';
+                    const cover = item.cover || '{{ asset('image/default-cover.jpg') }}';
+                    const artist = item.artist || 'Unknown Artist';
+                    const src = item.src || '';
+
+                    return `
+                        <tr class="song-item-row"
+                            data-id="${item.id || ''}"
+                            data-title="${item.title || ''}"
+                            data-artist="${artist}"
+                            data-src="${src}"
+                            data-cover="${cover}">
+                            <td>${index + 1}</td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <img src="${cover}" class="song-thumb" alt="${item.title || ''}">
+                                    <div>
+                                        <div class="song-title">${item.title || ''}</div>
+                                        <div class="song-artist">${artist}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="song-meta">${listenedAt}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                table.style.display = 'table';
+                empty.style.display = 'none';
+            })();
+        </script>
+    @endif
 </x-client-layout>

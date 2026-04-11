@@ -59,7 +59,7 @@
     
         .song-info-link {
             display: flex;
-            align-items: center;
+            align-itesms: center;
             gap: 10px;
             flex: 1;
             text-decoration: none;

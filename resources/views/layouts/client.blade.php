@@ -273,7 +273,7 @@
             
             <div id="lyricsBox">
                 <span class="lyrics-line">Hãy phát một bài hát</span>
-                <span class="lyrics-line">để xem lời tại đây nhé!</span>
+                <span class="lyrics-line">xem lời tại đây nhé!</span>
             </div>
         </aside>
 
