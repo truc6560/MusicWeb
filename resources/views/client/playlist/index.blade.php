@@ -255,7 +255,12 @@
                                 <td>{{ $idx + 1 }}</td>
                                 <td>
                                     <div style="display: flex; align-items: center; gap: 10px;">
-                                        <img src="{{ $cover }}" class="song-thumb" alt="{{ $song->title }}">
+                                        <button type="button" class="song-play-btn" style="width: 30px; height: 30px; border: none; border-radius: 50%; background: #00d1ff; color: #06131a; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-play" style="font-size: 11px;"></i>
+                                        </button>
+                                        <a href="{{ route('song.details', ['id' => $song->song_id]) }}" style="display: inline-flex; line-height: 0;" data-no-ajax="false">
+                                            <img src="{{ $cover }}" class="song-thumb" alt="{{ $song->title }}">
+                                        </a>
                                         <div>
                                             <div class="song-title">{{ $song->title }}</div>
                                             <div class="song-artist">{{ $song->artist->name ?? 'Unknown Artist' }}</div>
@@ -315,11 +320,16 @@
                                          data-artist="{{ $song->artist->name ?? 'Unknown Artist' }}"
                                          data-src="{{ asset('audio/' . ltrim($song->audio_file, '/')) }}"
                                          data-cover="{{ $song->image_url ?: asset('image/default-cover.jpg') }}">
-                                        <div class="meta">
+                                        <button type="button" class="song-play-btn" style="width: 30px; height: 30px; border: none; border-radius: 50%; background: #00d1ff; color: #06131a; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                            <i class="fas fa-play" style="font-size: 11px;"></i>
+                                        </button>
+                                        <a href="{{ route('song.details', ['id' => $song->song_id]) }}" style="display: inline-flex; line-height: 0; flex-shrink: 0;" data-no-ajax="false">
+                                            <img src="{{ $song->image_url ?: asset('image/default-cover.jpg') }}" class="song-thumb" alt="{{ $song->title }}">
+                                        </a>
+                                        <div class="meta" style="flex: 1;">
                                             <strong>{{ $song->title }}</strong>
                                             <span>{{ $song->artist->name ?? 'Unknown Artist' }}</span>
                                         </div>
-                                        <i class="fas fa-play" style="color:#00d1ff"></i>
                                     </div>
                                 @endforeach
                             </div>

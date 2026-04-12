@@ -498,11 +498,16 @@ function buildSongList() {
 
         songList.push(song);
 
-        // Click vào row để phát nhạc
-        row.addEventListener("click", () => {
-            currentIndex = index;
-            loadSong(song);
-        });
+        const playButton = row.querySelector(".song-play-btn");
+        if (playButton && !playButton.dataset.boundPlayerClick) {
+            playButton.addEventListener("click", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                currentIndex = index;
+                loadSong(song);
+            });
+            playButton.dataset.boundPlayerClick = "1";
+        }
     });
 
     // Giữ metadata bài đang phát khi đổi trang và danh sách hiển thị thay đổi

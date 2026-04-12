@@ -199,7 +199,12 @@
                         
                         <td>
                             <div class="song-info-cell">
-                                <img src="{{ $img }}" class="song-thumb-mini">
+                                <button type="button" class="song-play-btn" style="width: 30px; height: 30px; border: none; border-radius: 50%; background: #00d1ff; color: #041018; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fas fa-play" style="font-size: 11px;"></i>
+                                </button>
+                                <a href="{{ route('song.details', ['id' => $song->song_id]) }}" style="display: inline-flex; line-height: 0;" data-no-ajax="false">
+                                    <img src="{{ $img }}" class="song-thumb-mini">
+                                </a>
                                 <div>
                                     <span class="song-name-text">{{ $song->title }}</span>
                                     <span class="artist-name-text">{{ $song->artist->name }}</span>
@@ -223,21 +228,4 @@
     </div>
 </div>
 
-{{-- Script để tích hợp với Global Player của bạn --}}
-<script>
-    document.querySelectorAll('.song-item-row').forEach(row => {
-        row.addEventListener('click', function() {
-            if (typeof playSong === "function") {
-                const songData = {
-                    id: this.dataset.id,
-                    title: this.dataset.title,
-                    artist: this.dataset.artist,
-                    src: this.dataset.src,
-                    cover: this.dataset.cover
-                };
-                playSong(songData);
-            }
-        });
-    });
-</script>
 </x-client-layout>

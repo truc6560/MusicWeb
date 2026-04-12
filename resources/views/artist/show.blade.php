@@ -108,7 +108,12 @@
                         <td style="color:#888; width: 50px;">{{ $index + 1 }}</td>
                         <td>
                             <div class="song-info-flex">
-                                <img src="{{ $song->image_url ?: asset('image/default_cover.png') }}" class="song-thumb-small">
+                                <button type="button" class="song-play-btn" style="width: 30px; height: 30px; border: none; border-radius: 50%; background: #00d1ff; color: #041018; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-play" style="font-size: 11px;"></i>
+                                </button>
+                                <a href="{{ route('song.details', ['id' => $song->song_id]) }}" style="display: inline-flex; line-height: 0;" data-no-ajax="false">
+                                    <img src="{{ $song->image_url ?: asset('image/default_cover.png') }}" class="song-thumb-small">
+                                </a>
                                 <div>
                                     <div class="song-title-row">{{ $song->title }}</div>
                                     <div class="song-artist-row">{{ $artist->name }}</div>

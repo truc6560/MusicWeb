@@ -170,7 +170,12 @@
                         <td>{{ $index + 1 }}</td>
                         <td>
                             <div class="song-meta">
-                                <img src="{{ $cover }}" class="song-cover" alt="{{ $song->title }}">
+                                <button type="button" class="song-play-btn" style="width: 30px; height: 30px; border: none; border-radius: 50%; background: var(--accent-a); color: #09111d; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fas fa-play" style="font-size: 11px;"></i>
+                                </button>
+                                <a href="{{ route('song.details', ['id' => $song->song_id]) }}" style="display: inline-flex; line-height: 0;" data-no-ajax="false">
+                                    <img src="{{ $cover }}" class="song-cover" alt="{{ $song->title }}">
+                                </a>
                                 <div>
                                     <div class="song-title">{{ $song->title }}</div>
                                     <div class="song-artist">{{ $song->artist->name ?? 'Unknown Artist' }}</div>

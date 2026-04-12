@@ -149,7 +149,12 @@
                                 <td>{{ $index + 1 }}</td>
                                 <td>
                                     <div style="display: flex; align-items: center; gap: 10px;">
-                                        <img src="{{ $song->image_url ?: asset('image/default-cover.jpg') }}" class="song-thumb" alt="{{ $song->title }}">
+                                        <button type="button" class="song-play-btn" style="width: 30px; height: 30px; border: none; border-radius: 50%; background: #00d1ff; color: #06131a; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-play" style="font-size: 11px;"></i>
+                                        </button>
+                                        <a href="{{ route('song.details', ['id' => $song->song_id]) }}" style="display: inline-flex; line-height: 0;" data-no-ajax="false">
+                                            <img src="{{ $song->image_url ?: asset('image/default-cover.jpg') }}" class="song-thumb" alt="{{ $song->title }}">
+                                        </a>
                                         <div>
                                             <div class="song-title">{{ $song->title }}</div>
                                             <div class="song-artist">{{ $song->artist->name ?? 'Unknown Artist' }}</div>
@@ -196,7 +201,12 @@
                             <td>{{ $index + 1 }}</td>
                             <td>
                                 <div style="display: flex; align-items: center; gap: 10px;">
-                                    <img src="{{ $item->image_url ?: asset('image/default-cover.jpg') }}" class="song-thumb" alt="{{ $item->title }}">
+                                    <button type="button" class="song-play-btn" style="width: 30px; height: 30px; border: none; border-radius: 50%; background: #00d1ff; color: #06131a; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-play" style="font-size: 11px;"></i>
+                                    </button>
+                                    <a href="{{ route('song.details', ['id' => $item->song_id]) }}" style="display: inline-flex; line-height: 0;" data-no-ajax="false">
+                                        <img src="{{ $item->image_url ?: asset('image/default-cover.jpg') }}" class="song-thumb" alt="{{ $item->title }}">
+                                    </a>
                                     <div>
                                         <div class="song-title">{{ $item->title }}</div>
                                         <div class="song-artist">{{ $item->artist_name ?? 'Unknown Artist' }}</div>
@@ -251,7 +261,12 @@
                             <td>${index + 1}</td>
                             <td>
                                 <div style="display: flex; align-items: center; gap: 10px;">
-                                    <img src="${cover}" class="song-thumb" alt="${item.title || ''}">
+                                    <button type="button" class="song-play-btn" style="width: 30px; height: 30px; border: none; border-radius: 50%; background: #00d1ff; color: #06131a; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-play" style="font-size: 11px;"></i>
+                                    </button>
+                                    <a href="/song/${item.id || 0}/chitiet" style="display: inline-flex; line-height: 0;" data-no-ajax="false">
+                                        <img src="${cover}" class="song-thumb" alt="${item.title || ''}">
+                                    </a>
                                     <div>
                                         <div class="song-title">${item.title || ''}</div>
                                         <div class="song-artist">${artist}</div>

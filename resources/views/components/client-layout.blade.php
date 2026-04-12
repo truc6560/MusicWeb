@@ -186,6 +186,22 @@
         .volume-slider { width: 100px; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
         .volume-fill { height: 100%; background: var(--primary-gradient); border-radius: 10px; width: 70%; }
 
+        /* Nút play trong các danh sách bài hát */
+        .song-play-btn {
+            transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+        }
+
+        .song-play-btn:hover {
+            transform: translateY(-1px) scale(1.06);
+            filter: brightness(1.12);
+            box-shadow: 0 8px 18px rgba(0, 209, 255, 0.35);
+        }
+
+        .song-play-btn:active {
+            transform: scale(0.97);
+            filter: brightness(0.98);
+        }
+
         /* 5. THANH THỂ LOẠI (GENRE NAV) - BẢN NHỎ GỌN */
         .genre-nav {
             display: flex; gap: 20px; padding: 12px 30px; 

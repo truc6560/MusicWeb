@@ -176,7 +176,8 @@
                             $rank = $index + 1;
                             $rankClass = ($rank <= 3) ? "rank-$rank" : "";
                             $img = $song->image_url ?: asset('image/default_cover.png');
-                            $artistName = $song->artist->name ?? 'Unknown Artist';
+                            $artistName = $song->artist_name ?? $song->artist->name ?? 'Unknown Artist';
+                            $listenCount = $song->listen_count ?? $song->listen_histories_count ?? 0;
                         @endphp
                         <tr class="song-item-row"
                             data-id="{{ $song->song_id }}"
@@ -187,7 +188,12 @@
                             <td class="rank-col {{ $rankClass }}">{{ $rank }}</td>
                             <td>
                                 <div class="song-info-flex">
-                                    <img src="{{ $img }}" class="song-cover-mini" alt="{{ $song->title }}">
+                                    <button type="button" class="song-play-btn" style="width: 30px; height: 30px; border: none; border-radius: 50%; background: #00d1ff; color: #041018; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <i class="fas fa-play" style="font-size: 11px;"></i>
+                                    </button>
+                                    <a href="{{ route('song.details', ['id' => $song->song_id]) }}" style="display: inline-flex; line-height: 0;" data-no-ajax="false">
+                                        <img src="{{ $img }}" class="song-cover-mini" alt="{{ $song->title }}">
+                                    </a>
                                     <div>
                                         <span class="song-name-text">{{ $song->title }}</span>
                                         <span class="artist-name-text">{{ $artistName }}</span>
@@ -195,7 +201,7 @@
                                 </div>
                             </td>
                             <td style="text-align: right; padding-right: 20px;">
-                                <span class="plays-text">{{ number_format($song->plays, 0, ',', '.') }}</span>
+                                <span class="plays-text">{{ number_format($listenCount, 0, ',', '.') }}</span>
                             </td>
                         </tr>
                     @empty
@@ -220,7 +226,8 @@
                             $rank = $index + 1;
                             $rankClass = ($rank <= 3) ? "rank-$rank" : "";
                             $img = $song->image_url ?: asset('image/default_cover.png');
-                            $artistName = $song->artist->name ?? 'Unknown Artist';
+                            $artistName = $song->artist_name ?? $song->artist->name ?? 'Unknown Artist';
+                            $listenCount = $song->listen_count ?? $song->listen_histories_count ?? 0;
                         @endphp
                         <tr class="song-item-row"
                             data-id="{{ $song->song_id }}"
@@ -231,7 +238,12 @@
                             <td class="rank-col {{ $rankClass }}">{{ $rank }}</td>
                             <td>
                                 <div class="song-info-flex">
-                                    <img src="{{ $img }}" class="song-cover-mini" alt="{{ $song->title }}">
+                                    <button type="button" class="song-play-btn" style="width: 30px; height: 30px; border: none; border-radius: 50%; background: #00d1ff; color: #041018; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <i class="fas fa-play" style="font-size: 11px;"></i>
+                                    </button>
+                                    <a href="{{ route('song.details', ['id' => $song->song_id]) }}" style="display: inline-flex; line-height: 0;" data-no-ajax="false">
+                                        <img src="{{ $img }}" class="song-cover-mini" alt="{{ $song->title }}">
+                                    </a>
                                     <div>
                                         <span class="song-name-text">{{ $song->title }}</span>
                                         <span class="artist-name-text">{{ $artistName }}</span>
@@ -239,7 +251,7 @@
                                 </div>
                             </td>
                             <td style="text-align: right; padding-right: 20px;">
-                                <span class="plays-text">{{ number_format($song->plays, 0, ',', '.') }}</span>
+                                <span class="plays-text">{{ number_format($listenCount, 0, ',', '.') }}</span>
                             </td>
                         </tr>
                     @empty
@@ -264,7 +276,8 @@
                             $rank = $index + 1;
                             $rankClass = ($rank <= 3) ? "rank-$rank" : "";
                             $img = $song->image_url ?: asset('image/default_cover.png');
-                            $artistName = $song->artist->name ?? 'Unknown Artist';
+                            $artistName = $song->artist_name ?? $song->artist->name ?? 'Unknown Artist';
+                            $listenCount = $song->listen_count ?? $song->listen_histories_count ?? 0;
                         @endphp
                         <tr class="song-item-row"
                             data-id="{{ $song->song_id }}"
@@ -275,7 +288,12 @@
                             <td class="rank-col {{ $rankClass }}">{{ $rank }}</td>
                             <td>
                                 <div class="song-info-flex">
-                                    <img src="{{ $img }}" class="song-cover-mini" alt="{{ $song->title }}">
+                                    <button type="button" class="song-play-btn" style="width: 30px; height: 30px; border: none; border-radius: 50%; background: #00d1ff; color: #041018; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <i class="fas fa-play" style="font-size: 11px;"></i>
+                                    </button>
+                                    <a href="{{ route('song.details', ['id' => $song->song_id]) }}" style="display: inline-flex; line-height: 0;" data-no-ajax="false">
+                                        <img src="{{ $img }}" class="song-cover-mini" alt="{{ $song->title }}">
+                                    </a>
                                     <div>
                                         <span class="song-name-text">{{ $song->title }}</span>
                                         <span class="artist-name-text">{{ $artistName }}</span>
@@ -283,7 +301,7 @@
                                 </div>
                             </td>
                             <td style="text-align: right; padding-right: 20px;">
-                                <span class="plays-text">{{ number_format($song->plays, 0, ',', '.') }}</span>
+                                <span class="plays-text">{{ number_format($listenCount, 0, ',', '.') }}</span>
                             </td>
                         </tr>
                     @empty
@@ -296,14 +314,6 @@
 </div>
 
 <script>
-    document.querySelectorAll('.song-item-row').forEach((row) => {
-        row.addEventListener('click', function () {
-            if (typeof window.playSong === 'function') {
-                window.playSong(this.dataset.id);
-            }
-        });
-    });
-
     document.querySelectorAll('.chart-tab').forEach((tab) => {
         tab.addEventListener('click', function () {
             const targetId = this.dataset.target;

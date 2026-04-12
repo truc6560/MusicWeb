@@ -20,8 +20,13 @@
 
     <td>
         <div class="song-info-flex">
+            <button type="button" class="song-play-btn" style="width: 30px; height: 30px; border: none; border-radius: 50%; background: #00d1ff; color: #041018; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <i class="fas fa-play" style="font-size: 11px;"></i>
+            </button>
             {{-- Ảnh nhỏ bài hát --}}
-            <img src="{{ $albumImage }}" class="song-thumb-small" alt="Thumb">
+            <a href="{{ route('song.details', ['id' => $song->song_id]) }}" style="display: inline-flex; line-height: 0;" data-no-ajax="false">
+                <img src="{{ $albumImage }}" class="song-thumb-small" alt="Thumb">
+            </a>
             <div>
                 {{-- Tiêu đề bài hát --}}
                 <div class="song-title-row">{{ $song->title }}</div>
