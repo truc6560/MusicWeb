@@ -306,27 +306,32 @@
 
     <nav class="genre-nav">
         @php
-            $fakeGenres = [
-                ['name' => 'Pop', 'icon' => '<i class="fas fa-microphone-alt"></i>'], 
-                ['name' => 'Ballad', 'icon' => '<i class="fas fa-guitar"></i>'],
-                ['name' => 'Rock', 'icon' => '<i class="fas fa-bolt"></i>'], 
-                ['name' => 'Hip Hop', 'icon' => '<i class="fas fa-compact-disc"></i>'],
-                ['name' => 'R&B', 'icon' => '<i class="fas fa-heart"></i>'], 
-                ['name' => 'EDM', 'icon' => '<i class="fas fa-headphones"></i>'],
-                ['name' => 'Acoustic', 'icon' => '<i class="fas fa-leaf"></i>'], 
-                ['name' => 'Indie', 'icon' => '<i class="fas fa-feather-alt"></i>'],
-                ['name' => 'Jazz', 'icon' => '<i class="fas fa-wine-glass-alt"></i>'], 
-                ['name' => 'Classical', 'icon' => '<i class="fas fa-music"></i>'],
-                ['name' => 'K Pop', 'icon' => '<i class="fas fa-crown"></i>'], 
-                ['name' => 'V Pop', 'icon' => '<i class="fas fa-star"></i>']
+            $genreList = \App\Models\Genre::query()->orderBy('name')->limit(12)->get();
+            $genreIcons = [
+                'pop' => 'fas fa-microphone-alt',
+                'ballad' => 'fas fa-guitar',
+                'rock' => 'fas fa-bolt',
+                'hip hop' => 'fas fa-compact-disc',
+                'r&b' => 'fas fa-heart',
+                'edm' => 'fas fa-headphones',
+                'acoustic' => 'fas fa-leaf',
+                'indie' => 'fas fa-feather-alt',
+                'jazz' => 'fas fa-wine-glass-alt',
+                'classical' => 'fas fa-music',
+                'k pop' => 'fas fa-crown',
+                'v pop' => 'fas fa-star',
             ];
         @endphp
 
-        @foreach($fakeGenres as $genre)
-        <a href="#" style="text-decoration: none;">
+        @foreach($genreList as $genre)
+        @php
+            $normalizedName = strtolower(trim((string) $genre->name));
+            $iconClass = $genreIcons[$normalizedName] ?? 'fas fa-music';
+        @endphp
+        <a href="{{ route('genres.show', ['id' => $genre->genre_id]) }}" style="text-decoration: none;" class="{{ request()->routeIs('genres.show') && (int) request()->route('id') === (int) $genre->genre_id ? 'active' : '' }}">
             <div class="genre-card">
-                <div class="genre-icon">{!! $genre['icon'] !!}</div>
-                <div class="genre-name">{{ $genre['name'] }}</div>
+                <div class="genre-icon"><i class="{{ $iconClass }}"></i></div>
+                <div class="genre-name">{{ $genre->name }}</div>
             </div>
         </a>
         @endforeach

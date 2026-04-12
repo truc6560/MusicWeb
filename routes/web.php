@@ -17,6 +17,7 @@ use App\Http\Controllers\User\LibraryController;
 use App\Http\Controllers\User\PlaylistController;
 use App\Http\Controllers\NewReleaseController;
 use App\Http\Controllers\ChartController;
+use App\Http\Controllers\GenreController;
 
 // 1. TRANG CHỦ (Đúng chuẩn MVC)
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
@@ -80,6 +81,9 @@ Route::get('/library/history', [LibraryController::class, 'history'])->name('lib
     Route::get('/artists', [ArtistController::class, 'index'])->name('artists.index');
     Route::get('/artists/{id}', [ArtistController::class, 'show'])->name('artists.show');
     Route::post('/artists/toggle-follow', [ArtistController::class, 'toggleFollow'])->name('artists.toggleFollow');
+
+// 5. KHU VỰC THỂ LOẠI
+Route::get('/genres/{id}', [GenreController::class, 'show'])->name('genres.show');
 
 //GLOBAL PLAYER
 Route::get('/song/{id}/stream', [SongController::class, 'stream'])->name('song.stream');
