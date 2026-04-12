@@ -176,8 +176,7 @@
                             $rank = $index + 1;
                             $rankClass = ($rank <= 3) ? "rank-$rank" : "";
                             $img = $song->image_url ?: asset('image/default_cover.png');
-                            $artistName = $song->artist_name ?? $song->artist->name ?? 'Unknown Artist';
-                            $listenCount = $song->listen_count ?? $song->listen_histories_count ?? 0;
+                            $artistName = $song->artist_name ?? ($song->artist->name ?? 'Unknown Artist');
                         @endphp
                         <tr class="song-item-row"
                             data-id="{{ $song->song_id }}"
@@ -201,7 +200,7 @@
                                 </div>
                             </td>
                             <td style="text-align: right; padding-right: 20px;">
-                                <span class="plays-text">{{ number_format($listenCount, 0, ',', '.') }}</span>
+                                <span class="plays-text">{{ number_format($song->listen_count ?? 0, 0, ',', '.') }}</span>
                             </td>
                         </tr>
                     @empty
@@ -226,8 +225,7 @@
                             $rank = $index + 1;
                             $rankClass = ($rank <= 3) ? "rank-$rank" : "";
                             $img = $song->image_url ?: asset('image/default_cover.png');
-                            $artistName = $song->artist_name ?? $song->artist->name ?? 'Unknown Artist';
-                            $listenCount = $song->listen_count ?? $song->listen_histories_count ?? 0;
+                            $artistName = $song->artist_name ?? ($song->artist->name ?? 'Unknown Artist');
                         @endphp
                         <tr class="song-item-row"
                             data-id="{{ $song->song_id }}"
@@ -251,7 +249,7 @@
                                 </div>
                             </td>
                             <td style="text-align: right; padding-right: 20px;">
-                                <span class="plays-text">{{ number_format($listenCount, 0, ',', '.') }}</span>
+                                <span class="plays-text">{{ number_format($song->listen_count ?? 0, 0, ',', '.') }}</span>
                             </td>
                         </tr>
                     @empty
@@ -276,8 +274,7 @@
                             $rank = $index + 1;
                             $rankClass = ($rank <= 3) ? "rank-$rank" : "";
                             $img = $song->image_url ?: asset('image/default_cover.png');
-                            $artistName = $song->artist_name ?? $song->artist->name ?? 'Unknown Artist';
-                            $listenCount = $song->listen_count ?? $song->listen_histories_count ?? 0;
+                            $artistName = $song->artist_name ?? ($song->artist->name ?? 'Unknown Artist');
                         @endphp
                         <tr class="song-item-row"
                             data-id="{{ $song->song_id }}"
@@ -301,7 +298,7 @@
                                 </div>
                             </td>
                             <td style="text-align: right; padding-right: 20px;">
-                                <span class="plays-text">{{ number_format($listenCount, 0, ',', '.') }}</span>
+                                <span class="plays-text">{{ number_format($song->listen_count ?? 0, 0, ',', '.') }}</span>
                             </td>
                         </tr>
                     @empty
