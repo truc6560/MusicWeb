@@ -1,4 +1,5 @@
-<x-admin-layout>
+
+<x-admin-layout title="Quản lý Nghệ sĩ">
 <style>
     /* Toolbar chứa các nút lọc và tìm kiếm */
 .toolbar {

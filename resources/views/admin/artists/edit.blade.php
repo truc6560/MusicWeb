@@ -1,4 +1,5 @@
-<x-admin-layout>
+
+<x-admin-layout title="Quản lý Nghệ sĩ">
 <div class="card" style="max-width: 600px; margin: 0 auto;">
     <div class="card-header" style="border-bottom: none; margin-bottom: 0;">
         <h2 style="color: #ffd000; text-align: center; width: 100%;"><i class="fas fa-edit"></i> Chỉnh Sửa Nghệ Sĩ</h2>
