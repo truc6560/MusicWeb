@@ -21,6 +21,7 @@ const progressBar = document.getElementById("progressBar");
 const nowTitle = document.getElementById("now-title");
 const nowArtist = document.getElementById("now-artist");
 const nowCover = document.getElementById("nowCover");
+const nowCoverLink = document.getElementById("nowCoverLink");
 
 // Panel bên phải (lyrics + info)
 const rightCover = document.getElementById("rightCover");
@@ -51,6 +52,7 @@ let songList = [];
 let currentIndex = 0;
 let isShuffle = false;
 let isRepeat = false;
+let currentSongData = null;
 
 // Biến theo dõi thời gian nghe 
 let listenSeconds = 0;
@@ -79,9 +81,29 @@ function storeGuestHistory(song) {
     localStorage.setItem(historyKey, JSON.stringify(filtered.slice(0, 50)));
 }
 
+function updateNowCoverLink(songId) {
+    if (!nowCoverLink || !songId || !window.songDetailsBaseUrl) return;
+    nowCoverLink.href = `${window.songDetailsBaseUrl}/${songId}/chitiet`;
+}
+
 //LOAD BÀI HÁT
 function loadSong(song, autoPlay = true) {
     if (!song || !song.src) return;
+
+    const isSameSong = currentSongData && String(currentSongData.id) === String(song.id);
+    if (isSameSong) {
+        currentSongData = song;
+        updateRowHighlight(song.id);
+        savePlayerState(!audio.paused);
+
+        if (autoPlay && audio.paused) {
+            audio.play().catch(err => console.log("Autoplay blocked:", err));
+            if (playIcon) playIcon.classList.replace("fa-play", "fa-pause");
+        }
+        return;
+    }
+
+    currentSongData = song;
 
     audio.src = song.src;
     audio.load();
@@ -95,6 +117,7 @@ function loadSong(song, autoPlay = true) {
     if (nowTitle) nowTitle.textContent = song.title;
     if (nowArtist) nowArtist.textContent = song.artist;
     if (nowCover) nowCover.src = coverImage;
+    updateNowCoverLink(song.id);
 
     // Panel phải
     if (rightCover) rightCover.src = coverImage;
@@ -126,7 +149,7 @@ function loadSong(song, autoPlay = true) {
 
 //HÀM PHỤ: LƯU TRẠNG THÁI PLAYER
 function savePlayerState(isPlaying = false) {
-    const currentSong = songList[currentIndex];
+    const currentSong = currentSongData || songList[currentIndex];
     if (!currentSong) return;
 
     const state = {
@@ -142,6 +165,10 @@ function savePlayerState(isPlaying = false) {
 function persistPlayerState() {
     if (!audio) return;
     savePlayerState(!audio.paused);
+}
+
+function getCurrentSongData() {
+    return currentSongData || (songList[currentIndex] || null);
 }
 
 //LẤY LỜI BÀI HÁT
@@ -192,6 +219,7 @@ window.loadSong = loadSong;
 window.updateRowHighlight = updateRowHighlight;
 window.buildSongList = buildSongList;
 window.persistPlayerState = persistPlayerState;
+window.getCurrentSongData = getCurrentSongData;
 
 //FORMAT THỜI GIAN
 function formatTime(sec) {
@@ -476,6 +504,15 @@ function buildSongList() {
             loadSong(song);
         });
     });
+
+    // Giữ metadata bài đang phát khi đổi trang và danh sách hiển thị thay đổi
+    if (currentSongData && currentSongData.id) {
+        const syncedIndex = songList.findIndex((s) => String(s.id) === String(currentSongData.id));
+        if (syncedIndex !== -1) {
+            currentIndex = syncedIndex;
+            currentSongData = songList[syncedIndex];
+        }
+    }
 }
 
 // Highlight bài đang phát
@@ -496,11 +533,43 @@ document.addEventListener("DOMContentLoaded", () => {
     const saved = JSON.parse(localStorage.getItem("currentSong"));
     if (!saved || !saved.src) return;
 
+    currentSongData = {
+        id: saved.id,
+        title: saved.title,
+        artist: saved.artist,
+        src: saved.src,
+        cover: saved.cover
+    };
+
     currentIndex = songList.findIndex(s => s.id == saved.id);
-    if (currentIndex === -1) currentIndex = 0;
+    if (currentIndex === -1) {
+        currentIndex = 0;
+    } else {
+        currentSongData = songList[currentIndex];
+    }
 
     audio.src = saved.src;
-    audio.currentTime = saved.currentTime || 0;
+    const savedCurrentTime = Number(saved.currentTime) || 0;
+
+    const resumeAfterMetadata = () => {
+        const hasDuration = Number.isFinite(audio.duration) && audio.duration > 0;
+        if (savedCurrentTime > 0 && hasDuration) {
+            audio.currentTime = Math.min(savedCurrentTime, audio.duration - 0.25);
+        }
+
+        if (saved.isPlaying) {
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(() => console.log("Trình duyệt chặn autoplay"));
+            }
+        }
+    };
+
+    if (audio.readyState >= 1) {
+        resumeAfterMetadata();
+    } else {
+        audio.addEventListener("loadedmetadata", resumeAfterMetadata, { once: true });
+    }
 
     // Khôi phục trạng thái lịch sử
     loggedHistory = saved.loggedHistory || false;
@@ -514,6 +583,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (nowTitle) nowTitle.textContent = saved.title;
     if (nowArtist) nowArtist.textContent = saved.artist;
     if (nowCover) nowCover.src = coverImage;
+    updateNowCoverLink(saved.id);
     if (rightCover) rightCover.src = coverImage;
     if (rightTitle) rightTitle.textContent = saved.title;
     if (rightArtist) rightArtist.textContent = saved.artist;
@@ -528,11 +598,12 @@ document.addEventListener("DOMContentLoaded", () => {
         checkLikeStatus(saved.id); // <-- QUAN TRỌNG: Check lại tim khi F5
     }
 
-    // Tự play nếu trước đó đang phát
-    if (saved.isPlaying) {
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(error => console.log("Trình duyệt chặn autoplay"));
-        }
+    // Nếu trước đó đang pause thì chỉ khôi phục vị trí, không tự phát
+});
+
+window.addEventListener("pagehide", persistPlayerState);
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+        persistPlayerState();
     }
 });

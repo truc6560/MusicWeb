@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Song;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB; // Phải có dòng này để gọi Database
 
@@ -12,13 +13,9 @@ class HomeController extends Controller
         // 1. LẤY TIN TỨC (10 tin mới nhất)
         $news_list = DB::table('news')->orderBy('post_date', 'desc')->limit(10)->get();
 
-        // 2. LẤY TOP THỊNH HÀNH (Chỉ lấy 3 bài để hiển thị cột 1)
-        $chart_trending = DB::table('songs')
-            ->join('artists', 'songs.artist_id', '=', 'artists.artist_id')
-            ->leftJoin('listen_history', 'songs.song_id', '=', 'listen_history.song_id')
-            ->select('songs.song_id', 'songs.title', 'songs.image_url', 'artists.name as artist_name', DB::raw('COUNT(listen_history.song_id) as listen_count'))
-            ->groupBy('songs.song_id', 'songs.title', 'songs.image_url', 'artists.name')
-            ->orderByDesc('listen_count')
+        // 2. LẤY TOP THỊNH HÀNH (cùng nguồn với trang bảng xếp hạng, chỉ hiển thị 3 bài)
+        $chart_trending = Song::with('artist')
+            ->orderBy('plays', 'desc')
             ->limit(3)
             ->get();
 

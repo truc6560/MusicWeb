@@ -17,6 +17,25 @@
     
     .back-link { color: #bd00ff; text-decoration: none; font-weight: 700; transition: 0.3s; }
     .back-link:hover { color: #d633ff; text-shadow: 0 0 10px rgba(189, 0, 255, 0.4); }
+
+    .artist-follow-btn {
+        margin-top: 18px;
+        border: 1px solid #bd00ff;
+        background: transparent;
+        color: #ffffff;
+        font-weight: 700;
+        border-radius: 999px;
+        padding: 10px 18px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .artist-follow-btn:hover {
+        background: rgba(189, 0, 255, 0.2);
+    }
+    .artist-follow-btn.liked {
+        border-color: #00d1ff;
+        background: rgba(0, 209, 255, 0.15);
+    }
 </style>
 
 <div class="main-content" style="padding: 20px;">
@@ -41,6 +60,16 @@
             <div class="artist-bio">
                 {{ $artist->bio ?: 'Chưa có thông tin tiểu sử cho nghệ sĩ này.' }}
             </div>
+
+            <button class="artist-follow-btn btn-like-artist {{ $isFollowed ? 'liked' : '' }}"
+                    data-id="{{ $artist->artist_id }}"
+                    type="button">
+                @if($isFollowed)
+                    <i class="fas fa-check"></i> Đang theo dõi
+                @else
+                    <i class="fas fa-plus"></i> Theo dõi
+                @endif
+            </button>
         </div>
     </div>
 
@@ -99,23 +128,4 @@
         </table>
     </div>
 </div>
-
-{{-- Script để tích hợp với Player (nếu bạn dùng chung trình phát nhạc ở footer) --}}
-<script>
-    document.querySelectorAll('.song-item-row').forEach(row => {
-        row.addEventListener('click', function() {
-            // Nếu bạn có hàm playSong global ở layout:
-            if (typeof playSong === "function") {
-                const songData = {
-                    id: this.dataset.id,
-                    title: this.dataset.title,
-                    artist: this.dataset.artist,
-                    src: this.dataset.src,
-                    cover: this.dataset.cover
-                };
-                playSong(songData);
-            }
-        });
-    });
-</script>
 </x-client-layout>

@@ -1,6 +1,6 @@
 @props(['artist'])
 
-<div class='artist-card' onclick="location.href='{{ route('artists.show', $artist->artist_id) }}'">
+<a class="artist-card" href="{{ route('artists.show', $artist->artist_id) }}">
     <img src='{{ $artist->image_url ?: asset('image/default_artist.png') }}' 
          class='artist-img' 
          onerror="this.src='{{ asset('image/default_artist.png') }}'">
@@ -13,4 +13,4 @@
             onclick="toggleFollow(event, {{ $artist->artist_id }})">
         {!! $artist->is_followed ? '<i class="fas fa-check"></i> Đang theo dõi' : '<i class="fas fa-plus"></i> Theo dõi' !!}
     </button>
-</div>
+</a>

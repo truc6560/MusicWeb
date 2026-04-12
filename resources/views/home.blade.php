@@ -68,6 +68,32 @@
         .song-info-link:hover {
             text-decoration: none;
         }
+        
+        .charts-more-wrap {
+            display: flex;
+            justify-content: center;
+            margin-top: 24px;
+        }
+        
+        .charts-more-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 22px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #bd00ff, #00d1ff);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 10px 24px rgba(0, 209, 255, 0.18);
+        }
+        
+        .charts-more-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 28px rgba(189, 0, 255, 0.22);
+        }
     </style>
 
     <div class="section-header">
@@ -113,7 +139,7 @@
                         <img src="{{ $song->image_url }}" class="chart-img" onerror="this.src='https://via.placeholder.com/45'">
                         <div style="flex: 1; overflow: hidden;">
                             <div style="color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->title }}</div>
-                            <div style="color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->artist_name }}</div>
+                            <div style="color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->artist->name ?? 'Unknown Artist' }}</div>
                         </div>
                     </a>
                     <i class="fas fa-play play-btn" data-id="{{ $song->song_id }}" style="color: #00d1ff; font-size: 12px; cursor: pointer;"></i>
@@ -158,6 +184,13 @@
                 </div>
                 @endforeach
             </div>
+        </div>
+    
+        <div class="charts-more-wrap">
+            <a href="{{ route('charts') }}" class="charts-more-btn">
+                <i class="fas fa-chart-line"></i>
+                Xem thêm bảng xếp hạng
+            </a>
         </div>
     </div>
 <script>

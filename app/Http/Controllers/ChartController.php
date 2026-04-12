@@ -10,11 +10,29 @@ use Illuminate\Support\Facades\DB;
 class ChartController extends Controller{
    public function index()
     {
-    $songs = Song::with('artist') 
+    $chart_trending = Song::with('artist')
         ->orderBy('plays', 'desc')
         ->limit(10)
         ->get();
 
-    return view('charts', compact('songs'));
+    $chart_vn = Song::with('artist')
+        ->whereHas('artist', function ($query) {
+            $query->where('country', 'LIKE', '%Viet%')
+                  ->orWhere('country', '=', 'VN');
+        })
+        ->orderBy('plays', 'desc')
+        ->limit(10)
+        ->get();
+
+    $chart_usuk = Song::with('artist')
+        ->whereHas('artist', function ($query) {
+            $query->where('country', 'NOT LIKE', '%Viet%')
+                  ->where('country', '!=', 'VN');
+        })
+        ->orderBy('plays', 'desc')
+        ->limit(10)
+        ->get();
+
+    return view('charts', compact('chart_trending', 'chart_vn', 'chart_usuk'));
     }
 }

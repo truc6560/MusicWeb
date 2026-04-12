@@ -36,15 +36,30 @@ class PlaylistController extends Controller
     public function store(Request $request)
     {
         if (!Auth::check()) {
+            if ($request->expectsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Vui lòng đăng nhập để tạo playlist.'], 401);
+            }
+
             return redirect()->back()->withErrors(['auth' => 'Vui lòng đăng nhập để tạo playlist.']);
         }
 
         $request->validate(['name' => 'required|string|max:255']);
         
-        Playlist::create([
+        $playlist = Playlist::create([
             'user_id' => Auth::id(),
             'name' => $request->name
         ]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Tạo Playlist thành công!',
+                'playlist' => [
+                    'playlist_id' => $playlist->playlist_id,
+                    'name' => $playlist->name,
+                ],
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Tạo Playlist thành công!');
     }

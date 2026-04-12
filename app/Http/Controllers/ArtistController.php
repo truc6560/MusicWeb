@@ -60,8 +60,16 @@ class ArtistController extends Controller
             ->orderBy('plays', 'desc') // Sắp xếp theo lượt nghe (Bài hát phổ biến)
             ->get();
 
+        $isFollowed = false;
+        if ($userId) {
+            $isFollowed = DB::table('favorite_artists')
+                ->where('user_id', $userId)
+                ->where('artist_id', $id)
+                ->exists();
+        }
+
         // Trỏ vào view artist/show.blade.php
-        return view('artist.show', compact('artist', 'songs'));
+        return view('artist.show', compact('artist', 'songs', 'isFollowed'));
     }
 
     /**

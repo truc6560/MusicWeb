@@ -376,7 +376,9 @@
     <footer>
         <div class="player-bar">
             <div class="player-left">
-                <img id="nowCover" src="{{ asset('image/default-cover.jpg') }}" class="player-song-img">
+                <a id="nowCoverLink" href="#" style="display: inline-flex; line-height: 0; text-decoration: none;">
+                    <img id="nowCover" src="{{ asset('image/default-cover.jpg') }}" class="player-song-img">
+                </a>
                 <div>
                     <div id="now-title" style="color: #fff; font-size: 14px; font-weight: bold;">Tên bài hát</div>
                     <div id="now-artist" style="color: var(--text-sub); font-size: 12px;">Tên nghệ sĩ</div>
@@ -384,6 +386,42 @@
                 <button type="button" class="player-like-btn" style="background: none; border: none; margin-left: 20px; cursor: pointer;">
                     <i class="far fa-heart" style="color: var(--text-sub);"></i>
                 </button>
+                @auth
+                    @php
+                        $playerPlaylists = auth()->user()->playlists()->orderBy('name')->get();
+                        $playerPlaylistsData = $playerPlaylists->map(function ($playlist) {
+                            return [
+                                'playlist_id' => $playlist->playlist_id,
+                                'name' => $playlist->name,
+                            ];
+                        })->values();
+                    @endphp
+                    <div class="player-playlist-wrap" style="position: relative; margin-left: 10px;">
+                        <button type="button" id="playerPlaylistBtn" class="player-playlist-btn" style="border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 999px; font-weight: 800; font-size: 12px; white-space: nowrap;">
+                            <i class="fas fa-plus"></i>
+                            <span>Playlist</span>
+                        </button>
+                        <div id="playerPlaylistPopup" style="display:none; position: absolute; right: 0; bottom: calc(100% + 12px); width: 320px; background: #11141d; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.45); overflow: hidden; z-index: 60;">
+                            <div style="padding: 12px 14px; font-size: 12px; font-weight: 800; color: #8f95af; text-transform: uppercase; letter-spacing: .8px; border-bottom: 1px solid rgba(255,255,255,0.05);">Thêm vào playlist</div>
+                            <div style="padding: 10px 12px; max-height: 240px; overflow: auto;" id="playerPlaylistList">
+                                @forelse($playerPlaylists as $playlist)
+                                    <button type="button" class="player-playlist-item" data-playlist-id="{{ $playlist->playlist_id }}" style="width: 100%; text-align: left; padding: 12px 12px; background: transparent; border: none; color: #fff; cursor: pointer; display: block; border-radius: 10px;">
+                                        {{ $playlist->name }}
+                                    </button>
+                                @empty
+                                    <div class="player-playlist-empty" style="padding: 12px 12px; color: #8f95af; font-size: 13px;">Chưa có playlist nào.</div>
+                                @endforelse
+                            </div>
+                            <div style="border-top: 1px solid rgba(255,255,255,0.05); padding: 12px;">
+                                <form id="playerCreatePlaylistForm" style="display: flex; gap: 8px; flex-direction: column;">
+                                    <input id="playerNewPlaylistName" type="text" placeholder="Tạo playlist mới" autocomplete="off" style="width: 100%; background: #0f1220; border: 1px solid #2b2f44; color: #fff; padding: 10px 12px; border-radius: 10px; outline: none;">
+                                    <button type="submit" style="border: none; border-radius: 10px; background: linear-gradient(90deg, #00d1ff 0%, #bd00ff 100%); color: #fff; font-weight: 800; padding: 10px 12px; cursor: pointer;">Tạo playlist mới & thêm bài</button>
+                                </form>
+                                <a href="{{ route('playlist.index') }}" style="display:block; margin-top: 10px; color: #00d1ff; text-decoration:none; font-weight: 700; text-align: center;">Quản lý playlist</a>
+                            </div>
+                        </div>
+                    </div>
+                @endauth
             </div>
             <div class="player-center">
                 <div class="player-controls">
@@ -416,6 +454,8 @@
     });
 
     window.isAuthenticated = @json(Auth::check());
+    window.songDetailsBaseUrl = @json(url('/song'));
+    window.playerPlaylists = @json($playerPlaylistsData ?? []);
     const isAuthenticated = window.isAuthenticated;
 
     function showLoginPrompt(message) {
@@ -426,6 +466,13 @@
         if (!button) return;
 
         button.classList.toggle('liked', liked);
+
+        if (button.classList.contains('artist-follow-btn')) {
+            button.innerHTML = liked
+                ? '<i class="fas fa-check"></i> Đang theo dõi'
+                : '<i class="fas fa-plus"></i> Theo dõi';
+            return;
+        }
 
         const icon = button.querySelector('i');
         if (icon) {
@@ -515,6 +562,127 @@
 
                 window.location.href = `{{ url('/song') }}/${songId}/chitiet`;
             };
+        });
+    }
+
+    function bindPlayerPlaylistMenu() {
+        const toggleButton = document.getElementById('playerPlaylistBtn');
+        const popup = document.getElementById('playerPlaylistPopup');
+        const playlistList = document.getElementById('playerPlaylistList');
+        const createForm = document.getElementById('playerCreatePlaylistForm');
+        const newPlaylistName = document.getElementById('playerNewPlaylistName');
+
+        if (!toggleButton || !popup || !playlistList || !createForm || !newPlaylistName) return;
+
+        const renderPlayerPlaylistList = () => {
+            const playlists = Array.isArray(window.playerPlaylists) ? window.playerPlaylists : [];
+            if (!playlists.length) {
+                playlistList.innerHTML = '<div class="player-playlist-empty" style="padding: 12px 12px; color: #8f95af; font-size: 13px;">Chưa có playlist nào.</div>';
+                return;
+            }
+
+            playlistList.innerHTML = playlists.map((playlist) => `
+                <button type="button" class="player-playlist-item" data-playlist-id="${playlist.playlist_id}" style="width: 100%; text-align: left; padding: 12px 12px; background: transparent; border: none; color: #fff; cursor: pointer; display: block; border-radius: 10px;">
+                    ${playlist.name}
+                </button>
+            `).join('');
+
+            playlistList.querySelectorAll('.player-playlist-item').forEach((button) => {
+                button.addEventListener('click', () => addCurrentSongToPlaylist(button.dataset.playlistId));
+            });
+        };
+
+        const getCurrentSong = () => (typeof window.getCurrentSongData === 'function' ? window.getCurrentSongData() : null);
+
+        const addCurrentSongToPlaylist = async (playlistId) => {
+            const currentSong = getCurrentSong();
+            if (!currentSong || !currentSong.id) {
+                alert('Vui lòng phát một bài hát trước.');
+                return;
+            }
+
+            try {
+                const response = await fetch("{{ route('playlist.add-song') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        playlist_id: playlistId,
+                        song_id: currentSong.id
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok && data.status === 'success') {
+                    alert(data.message || 'Đã thêm vào playlist.');
+                    popup.style.display = 'none';
+                } else {
+                    alert(data.message || 'Không thể thêm bài hát vào playlist.');
+                }
+            } catch (error) {
+                alert('Lỗi kết nối, vui lòng thử lại.');
+            }
+        };
+
+        toggleButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+            if (popup.style.display === 'block') {
+                renderPlayerPlaylistList();
+            }
+        });
+
+        createForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const playlistName = newPlaylistName.value.trim();
+            if (!playlistName) {
+                alert('Vui lòng nhập tên playlist mới.');
+                return;
+            }
+
+            const currentSong = getCurrentSong();
+            if (!currentSong || !currentSong.id) {
+                alert('Vui lòng phát một bài hát trước.');
+                return;
+            }
+
+            try {
+                const response = await fetch("{{ route('playlist.store') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: new URLSearchParams({ name: playlistName }).toString()
+                });
+
+                const data = await response.json();
+                if (!response.ok || data.status !== 'success' || !data.playlist) {
+                    alert(data.message || 'Không thể tạo playlist.');
+                    return;
+                }
+
+                window.playerPlaylists = Array.isArray(window.playerPlaylists) ? window.playerPlaylists : [];
+                window.playerPlaylists.unshift(data.playlist);
+                newPlaylistName.value = '';
+                renderPlayerPlaylistList();
+
+                await addCurrentSongToPlaylist(data.playlist.playlist_id);
+            } catch (error) {
+                alert('Lỗi kết nối, vui lòng thử lại.');
+            }
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!popup.contains(event.target) && !toggleButton.contains(event.target)) {
+                popup.style.display = 'none';
+            }
         });
     }
 
@@ -644,6 +812,7 @@
     bindSongLikeButtons();
     bindArtistLikeButtons();
     bindDetailPlayButtons();
+    bindPlayerPlaylistMenu();
     bindSearchAutocomplete();
 
     // ==========================================

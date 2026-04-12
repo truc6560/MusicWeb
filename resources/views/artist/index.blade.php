@@ -58,6 +58,7 @@
 }
 
 .artist-card {
+    display: block;
     background-color: #1a1c26;
     border-radius: 12px;
     padding: 20px;
@@ -66,6 +67,8 @@
     position: relative;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
     text-align: center; /* Nghệ sĩ thường căn giữa tên */
+    text-decoration: none;
+    color: inherit;
 }
 
 .artist-card:hover {
@@ -143,16 +146,16 @@
 {{-- BỐ CỤC DANH SÁCH --}}
 <div class="artist-container">
     @forelse($artists as $artist)
-        <div class="artist-card" onclick="window.location.href='{{ route('artists.show', $artist->artist_id) }}'">
+        <a class="artist-card" href="{{ route('artists.show', $artist->artist_id) }}">
             <div class="artist-image-wrapper">
                 <img class="artist-image" src="{{ $artist->image_url ?: asset('image/default_artist.png') }}" alt="{{ $artist->name }}">
             </div>
 
             <div class="artist-info">
-                <a>{{ $artist->name }}</a>
+                <span>{{ $artist->name }}</span>
                 <div class="artist-subtitle">{{ $artist->country ?: 'Nghệ sĩ' }}</div>
             </div>
-        </div>
+        </a>
     @empty
         <div class="empty-message">Chưa có nghệ sĩ nào được tìm thấy.</div>
     @endforelse
