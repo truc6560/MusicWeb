@@ -387,7 +387,7 @@
                     </div>
                     
                     <button type="submit" class="btn-save" id="btnSaveProfile">
-                        <i class="fas fa-save"></i> Lưu thay đổi
+                         Lưu thay đổi
                     </button>
                 </div>
             </form>
@@ -418,7 +418,7 @@
                     </div>
                     
                     <button type="submit" class="btn-save" id="btnSaveProfile">
-                        <i class="fas fa-save"></i> Đổi mật khẩu
+                        </i> Đổi mật khẩu
                     </button>
                 </div>
             </form>
