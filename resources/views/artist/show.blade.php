@@ -93,8 +93,8 @@
                         $sec = $song->duration % 60;
                         $time = sprintf("%d:%02d", $min, $sec);
                         
-                        // Đường dẫn audio (giống logic cũ của bạn)
-                        $audioPath = asset('audio/' . ltrim($song->audio_file, '/'));
+                        // Luôn phát qua stream endpoint để xử lý an toàn tên file tiếng Việt
+                        $audioPath = route('song.stream', ['id' => $song->song_id]);
                     @endphp
 
                     {{-- Row bài hát với đầy đủ data attributes cho Player JavaScript --}}

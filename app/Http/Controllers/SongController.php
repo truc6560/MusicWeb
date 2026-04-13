@@ -8,6 +8,56 @@ use App\Models\Artist;
 
 class SongController extends Controller
 {
+    protected function normalizeAudioName(string $value): string
+    {
+        $value = mb_strtolower(trim($value), 'UTF-8');
+        $value = str_replace(['\\', '/'], ' ', $value);
+
+        if (class_exists('Normalizer')) {
+            $normalized = \Normalizer::normalize($value, \Normalizer::FORM_D);
+            if (is_string($normalized) && $normalized !== '') {
+                $value = preg_replace('/\p{Mn}+/u', '', $normalized) ?? $normalized;
+            }
+        }
+
+        $value = str_replace(['đ', 'Đ'], 'd', $value);
+
+        $ascii = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
+        if ($ascii !== false && $ascii !== '') {
+            $value = mb_strtolower($ascii, 'UTF-8');
+        }
+
+        return preg_replace('/[^a-z0-9]+/i', '', $value) ?? '';
+    }
+
+    protected function resolveAudioPath(string $audioDir, string $audioFile): ?string
+    {
+        $relative = ltrim($audioFile, '/\\');
+        $directPath = $audioDir . DIRECTORY_SEPARATOR . $relative;
+        if (is_file($directPath)) {
+            return $directPath;
+        }
+
+        $targetName = basename($relative);
+        $targetKey = $this->normalizeAudioName($targetName);
+        if ($targetKey === '') {
+            return null;
+        }
+
+        foreach (glob($audioDir . DIRECTORY_SEPARATOR . '*') as $candidatePath) {
+            if (!is_file($candidatePath)) {
+                continue;
+            }
+
+            $candidateName = basename($candidatePath);
+            if ($this->normalizeAudioName($candidateName) === $targetKey) {
+                return $candidatePath;
+            }
+        }
+
+        return null;
+    }
+
     public function chitietbaihat($id)
     {
         $song = Song::with('artist')->findOrFail($id);
@@ -54,10 +104,10 @@ class SongController extends Controller
     public function stream($id, Request $request)
     {
         $song = Song::findOrFail($id);
-        $audioFile = ltrim((string) $song->audio_file, '/\\');
+        $audioFile = (string) $song->audio_file;
+        $audioDir = public_path('audio');
+        $path = $this->resolveAudioPath($audioDir, $audioFile);
 
-        // Chỉ cho stream file trong public/audio
-        $path = public_path('audio' . DIRECTORY_SEPARATOR . $audioFile);
         if (!is_file($path)) {
             abort(404);
         }

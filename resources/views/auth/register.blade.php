@@ -1,8 +1,4 @@
-@extends('layouts.client-layout')
-
-@section('title', 'Đăng ký')
-
-@section('content')
+<x-auth-layout title="Đăng ký">
 <h2>Tạo tài khoản mới</h2>
 
 <form method="POST" action="{{ route('register') }}">
@@ -28,7 +24,11 @@
     
     <div class="input-group">
         <label>Mật khẩu</label>
-        <input type="password" name="password" placeholder="Mật khẩu" required>
+        <input type="password" name="password" placeholder="Mật khẩu" autocomplete="new-password" required>
+        <div style="margin-top: 6px; font-size: 12px; color: #9aa3b2; line-height: 1.5;">
+            Yêu cầu mật khẩu: tối thiểu 8 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt
+            (ví dụ: <strong style="color:#cdd6e6;">Abc@1234</strong>).
+        </div>
         @error('password') <div class="error-message">{{ $message }}</div> @enderror
     </div>
     
@@ -53,4 +53,4 @@
 <div class="auth-link">
     Đã có tài khoản? <a href="{{ route('login') }}">Đăng nhập</a>
 </div>
-@endsection
+</x-auth-layout>

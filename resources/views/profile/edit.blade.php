@@ -298,6 +298,13 @@
 </style>
 
 <div class="profile-wrapper">
+    <div style="margin-bottom: 16px;">
+        <a href="{{ route('client.home') }}" data-no-ajax="false" style="display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 999px; text-decoration: none; color: #d6e0f0; background: #141824; border: 1px solid rgba(255, 255, 255, 0.08); font-weight: 700; font-size: 13px;">
+            <i class="fas fa-arrow-left"></i>
+            <span>Quay lại</span>
+        </a>
+    </div>
+
     @if(session('status'))
         <div class="alert-success">
             <i class="fas fa-check-circle"></i> {{ session('status') }}
@@ -317,7 +324,7 @@
         <div class="profile-sidebar">
             <div class="profile-avatar">
                 @if($user->avatar_url)
-                    <img src="{{ asset('storage/' . $user->avatar_url) }}" alt="Avatar" id="profileAvatar">
+                    <img src="{{ asset($user->avatar_url) }}" alt="Avatar" id="profileAvatar">
                 @else
                     <div class="avatar-placeholder" id="profileAvatar">
                         {{ substr($user->full_name ?? $user->username, 0, 1) }}

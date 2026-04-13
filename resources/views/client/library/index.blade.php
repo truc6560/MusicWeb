@@ -84,6 +84,91 @@
             font-size: 13px;
         }
 
+        .history-time-col {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .song-unlike-btn {
+            border: 1px solid rgba(255, 68, 102, 0.28);
+            background: rgba(255, 68, 102, 0.12);
+            color: #ff9bab;
+            border-radius: 999px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .song-unlike-btn:hover {
+            background: rgba(255, 68, 102, 0.2);
+            border-color: rgba(255, 68, 102, 0.5);
+            color: #ffd0db;
+            transform: translateY(-1px);
+        }
+
+        .song-unlike-btn:active {
+            transform: translateY(0);
+        }
+
+        .artist-unlike-btn {
+            width: 100%;
+            border: 1px solid rgba(255, 68, 102, 0.28);
+            background: rgba(255, 68, 102, 0.12);
+            color: #ff9bab;
+            border-radius: 12px;
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .artist-unlike-btn:hover {
+            background: rgba(255, 68, 102, 0.2);
+            border-color: rgba(255, 68, 102, 0.5);
+            color: #ffd0db;
+            transform: translateY(-1px);
+        }
+
+        .artist-unlike-btn:active {
+            transform: translateY(0);
+        }
+
+        .artist-unlike-btn::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 8px);
+            transform: translateX(-50%);
+            background: #1b2030;
+            color: #dbe2f0;
+            padding: 6px 8px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.08);
+            font-size: 12px;
+            line-height: 1;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+            z-index: 20;
+        }
+
+        .artist-unlike-btn:hover::after,
+        .artist-unlike-btn:focus-visible::after {
+            opacity: 1;
+        }
+
         .artist-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -95,11 +180,57 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 12px;
             padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .artist-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(0, 209, 255, 0.35);
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.35);
+        }
+
+        .artist-cover-link {
+            display: block;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+            border-radius: 50%;
+            overflow: hidden;
+            line-height: 0;
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            transition: border-color 0.2s ease;
+        }
+
+        .artist-card:hover .artist-cover-link {
+            border-color: rgba(0, 209, 255, 0.45);
+        }
+
+        .artist-cover {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.25s ease;
+        }
+
+        .artist-cover-link:hover .artist-cover {
+            transform: scale(1.04);
         }
 
         .artist-name {
             font-weight: 700;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+
+        .artist-meta {
+            text-align: center;
+        }
+
+        .artist-card .artist-unlike-btn {
+            position: relative;
         }
 
         .empty-box {
@@ -114,37 +245,25 @@
         <p class="library-subtitle">{{ $subtitle }}</p>
     </div>
 
-    @if($section !== 'history')
-        <div class="library-tabs">
-            <a class="library-tab {{ $section === 'songs' ? 'active' : '' }}" href="{{ route('library.songs') }}">
-                <i class="fas fa-heart"></i> Bài hát yêu thích
-            </a>
-            <a class="library-tab {{ $section === 'artists' ? 'active' : '' }}" href="{{ route('library.artists') }}">
-                <i class="fas fa-microphone-alt"></i> Nghệ sĩ yêu thích
-            </a>
-        </div>
-    @endif
-
     <div class="library-panel">
         @if($section === 'songs')
-            @if($likedSongs->isEmpty())
-                <div class="empty-box">Bạn chưa có bài hát yêu thích nào.</div>
-            @else
-                <table class="song-table">
+            <div id="likedSongsEmpty" class="empty-box" style="{{ $likedSongs->isEmpty() ? '' : 'display:none;' }}">Bạn chưa có bài hát yêu thích nào.</div>
+            <table class="song-table" id="likedSongsTable" style="{{ $likedSongs->isEmpty() ? 'display:none;' : '' }}">
                     <thead>
                         <tr>
                             <th>#</th>
                             <th>Bài hát</th>
+                            <th>Playlist</th>
                             <th>Trạng thái</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($likedSongs as $index => $song)
-                            <tr class="song-item-row"
+                            <tr class="song-item-row" data-liked-song-row="{{ $song->song_id }}"
                                 data-id="{{ $song->song_id }}"
                                 data-title="{{ $song->title }}"
                                 data-artist="{{ $song->artist->name ?? 'Unknown Artist' }}"
-                                data-src="{{ asset('audio/' . ltrim($song->audio_file, '/')) }}"
+                                data-src="{{ route('song.stream', ['id' => $song->song_id]) }}"
                                 data-cover="{{ $song->image_url ?: asset('image/default-cover.jpg') }}">
                                 <td>{{ $index + 1 }}</td>
                                 <td>
@@ -161,25 +280,38 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="song-meta"><i class="fas fa-heart" style="color:#ff007a;"></i> Đã yêu thích</td>
+                                <td></td>
+                                <td class="song-meta">
+                                    <button type="button" class="song-unlike-btn btn-like-song liked" data-id="{{ $song->song_id }}" data-remove-on-unlike="1" title="Bỏ bài hát khỏi yêu thích">
+                                        <i class="fas fa-heart-broken"></i>
+                                        <span>Bỏ thích</span>
+                                    </button>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
-            @endif
         @elseif($section === 'artists')
-            @if($likedArtists->isEmpty())
-                <div class="empty-box">Bạn chưa có nghệ sĩ yêu thích nào.</div>
-            @else
-                <div class="artist-grid">
-                    @foreach($likedArtists as $artist)
-                        <div class="artist-card">
+            <div id="likedArtistsEmpty" class="empty-box" style="{{ $likedArtists->isEmpty() ? '' : 'display:none;' }}">Bạn chưa có nghệ sĩ yêu thích nào.</div>
+            <div class="artist-grid" id="likedArtistsGrid" style="{{ $likedArtists->isEmpty() ? 'display:none;' : '' }}">
+                @foreach($likedArtists as $artist)
+                    <div class="artist-card" data-artist-card="{{ $artist->artist_id }}">
+                        <a class="artist-cover-link" href="{{ route('artists.show', ['id' => $artist->artist_id]) }}" data-no-ajax="false">
+                            <img src="{{ $artist->image_url ?: asset('image/default_artist.png') }}" class="artist-cover" alt="{{ $artist->name }}" onerror="this.src='{{ asset('image/default_artist.png') }}'">
+                        </a>
+
+                        <div class="artist-meta">
                             <div class="artist-name">{{ $artist->name }}</div>
                             <div class="song-meta">Đã thêm vào danh sách yêu thích.</div>
                         </div>
-                    @endforeach
-                </div>
-            @endif
+
+                        <button type="button" class="artist-unlike-btn btn-like-artist liked" data-id="{{ $artist->artist_id }}" data-remove-on-unlike="1" data-tooltip="Bỏ nghệ sĩ khỏi yêu thích" title="Bỏ nghệ sĩ khỏi yêu thích">
+                            <i class="fas fa-heart-broken"></i>
+                            <span>Bỏ yêu thích</span>
+                        </button>
+                    </div>
+                @endforeach
+            </div>
         @else
             <div id="guestHistoryEmpty" class="empty-box" style="display: none;">Chưa có lịch sử nghe nào được ghi nhận.</div>
             <table class="song-table" id="historyTable" style="display: none;">
@@ -187,7 +319,7 @@
                     <tr>
                         <th>#</th>
                         <th>Bài hát</th>
-                        <th>Đã nghe lúc</th>
+                        <th class="history-time-col">Đã nghe lúc</th>
                     </tr>
                 </thead>
                 <tbody id="historyTableBody">
@@ -196,7 +328,7 @@
                             data-id="{{ $item->song_id }}"
                             data-title="{{ $item->title }}"
                             data-artist="{{ $item->artist_name ?? 'Unknown Artist' }}"
-                            data-src="{{ asset('audio/' . ltrim($item->audio_file, '/')) }}"
+                            data-src="{{ route('song.stream', ['id' => $item->song_id]) }}"
                             data-cover="{{ $item->image_url ?: asset('image/default-cover.jpg') }}">
                             <td>{{ $index + 1 }}</td>
                             <td>
@@ -213,7 +345,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="song-meta">{{ $item->listened_at }}</td>
+                            <td class="song-meta history-time-col">{{ $item->listened_at }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -273,7 +405,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="song-meta">${listenedAt}</td>
+                            <td class="song-meta history-time-col">${listenedAt}</td>
                         </tr>
                     `;
                 }).join('');

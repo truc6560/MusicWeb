@@ -84,7 +84,11 @@ class InteractionController extends Controller
     // 4. Cộng 1 lượt nghe (Gọi khi bài hát kết thúc)
     public function incrementPlayCount(Request $request)
     {
-        $song = Song::find($request->song_id);
+        $validated = $request->validate([
+            'song_id' => 'required|integer',
+        ]);
+
+        $song = Song::find($validated['song_id']);
         if ($song) {
             $song->increment('plays');
             return response()->json(['status' => 'success', 'views' => $song->plays]);

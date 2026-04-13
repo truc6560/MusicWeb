@@ -10,6 +10,33 @@
             padding: 2rem 2rem 6rem 2rem;
             border-radius: 0;
             position: relative;
+            overflow: hidden;
+        }
+
+        .spotify-detail::before {
+            content: '';
+            position: absolute;
+            inset: -28px;
+            background-image: var(--song-cover-bg);
+            background-size: cover;
+            background-position: center;
+            filter: blur(24px) saturate(1.15);
+            transform: scale(1.08);
+            opacity: 0.52;
+            z-index: 0;
+        }
+
+        .spotify-detail::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(13, 15, 23, 0.76), rgba(13, 15, 23, 0.44));
+            z-index: 1;
+        }
+
+        .spotify-detail-content {
+            position: relative;
+            z-index: 2;
         }
 
         /* Header giống Spotify */
@@ -204,43 +231,44 @@
 
     @php
         $coverUrl = asset($song->image_url ?? 'image/icon2.png');
-        $gradientStyle = "background: linear-gradient(135deg, #1a1c29 0%, #0d0f17 100%);";
-        $gradientStyle = "background: radial-gradient(circle at 10% 20%, rgba(47,172,255,0.3) 0%, rgba(176,74,255,0.3) 100%), linear-gradient(135deg, #1a1c29 0%, #0d0f17 100%);";
+        $coverBg = "url('" . $coverUrl . "')";
     @endphp
 
-    <div class="spotify-detail" style="{{ $gradientStyle }}">
-        <div class="detail-header">
-            <div class="cover-wrapper">
-                <img src="{{ $coverUrl }}" alt="{{ $song->title }}" class="detail-cover">
-            </div>
-            <div class="detail-info">
-                <div class="detail-type">BÀI HÁT</div>
-                <h1 class="detail-title">{{ $song->title }}</h1>
-                <div class="detail-artist">
-                    <span>{{ $song->artist->name ?? 'Unknown Artist' }}</span>
-                    <span class="dot">•</span>
-                    <span>{{ number_format($song->plays ?? 0) }} lượt nghe</span>
+    <div class="spotify-detail" style="--song-cover-bg: {{ $coverBg }};">
+        <div class="spotify-detail-content">
+            <div class="detail-header">
+                <div class="cover-wrapper">
+                    <img src="{{ $coverUrl }}" alt="{{ $song->title }}" class="detail-cover">
                 </div>
-                <div class="detail-actions">
-                    <button class="spotify-play-btn" data-id="{{ $song->song_id }}">
-                        <i class="fas fa-play"></i> PHÁT NHẠC
-                    </button>
-                    <button class="spotify-like-btn btn-like-song" data-id="{{ $song->song_id }}">
-                        <i class="far fa-heart"></i>
-                    </button>
-                    <button class="spotify-like-btn btn-like-artist {{ $isLikedArtist ? 'liked' : '' }}" data-id="{{ $song->artist->artist_id }}">
-                        <i class="fas fa-user-plus"></i> NGHỆ SĨ
-                    </button>
-                    <button class="spotify-add-to-queue" data-id="{{ $song->song_id }}">
-                        <i class="fas fa-list"></i> THÊM VÀO DANH SÁCH CHỜ
-                    </button>
+                <div class="detail-info">
+                    <div class="detail-type">BÀI HÁT</div>
+                    <h1 class="detail-title">{{ $song->title }}</h1>
+                    <div class="detail-artist">
+                        <span>{{ $song->artist->name ?? 'Unknown Artist' }}</span>
+                        <span class="dot">•</span>
+                        <span>{{ number_format($song->plays ?? 0) }} lượt nghe</span>
+                    </div>
+                    <div class="detail-actions">
+                        <button class="spotify-play-btn" data-id="{{ $song->song_id }}">
+                            <i class="fas fa-play"></i> PHÁT NHẠC
+                        </button>
+                        <button class="spotify-like-btn btn-like-song" data-id="{{ $song->song_id }}">
+                            <i class="far fa-heart"></i>
+                        </button>
+                        <button class="spotify-like-btn btn-like-artist {{ $isLikedArtist ? 'liked' : '' }}" data-id="{{ $song->artist->artist_id }}">
+                            <i class="fas fa-user-plus"></i> NGHỆ SĨ
+                        </button>
+                        <button class="spotify-add-to-queue" data-id="{{ $song->song_id }}">
+                            <i class="fas fa-list"></i> THÊM VÀO DANH SÁCH CHỜ
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="detail-lyrics-section">
-            <h3 class="lyrics-title">Lời bài hát</h3>
-            <div class="lyrics-box">{!! nl2br(e($song->lyrics ?? 'Chưa có lời bài hát')) !!}</div>
+            <div class="detail-lyrics-section">
+                <h3 class="lyrics-title">Lời bài hát</h3>
+                <div class="lyrics-box">{!! nl2br(e($song->lyrics ?? 'Chưa có lời bài hát')) !!}</div>
+            </div>
         </div>
     </div>
 

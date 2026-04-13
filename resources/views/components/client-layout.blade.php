@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }}</title>
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('image/icon2.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('image/icon.png') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
@@ -36,6 +36,7 @@
         }
         .header-left { display: flex; align-items: center; gap: 30px; }
         .logo-neon { color: #00e5ff; font-weight: bold; font-size: 20px; text-shadow: 0 0 10px rgba(0,229,255,0.8); display: flex; align-items: center; gap: 10px;}
+        .logo-icon { width: 22px; height: 22px; object-fit: contain; }
         .main-nav a { color: var(--text-sub); text-decoration: none; margin-right: 20px; font-weight: 500; font-size: 14px; transition: 0.3s; }
         .main-nav a.active, .main-nav a:hover { color: #00d1ff; border-bottom: 2px solid #00d1ff; padding-bottom: 5px; }
         
@@ -125,6 +126,94 @@
             font-size: 13px;
         }
 
+        .app-toast-stack {
+            position: fixed;
+            left: 20px;
+            bottom: 96px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 2000;
+            pointer-events: none;
+        }
+
+        .app-toast {
+            min-width: 260px;
+            max-width: 360px;
+            border-radius: 12px;
+            padding: 11px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(12, 16, 26, 0.94);
+            color: #e8f4ff;
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.38);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            line-height: 1.4;
+            transform: translateY(8px);
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .app-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .app-toast.success {
+            border-color: rgba(0, 209, 255, 0.5);
+        }
+
+        .app-toast.error {
+            border-color: rgba(255, 88, 114, 0.55);
+        }
+
+        .app-toast.warning {
+            border-color: rgba(255, 190, 92, 0.55);
+        }
+
+        .app-toast-icon {
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .song-play-btn {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .song-play-btn.is-playing {
+            color: #06131a;
+        }
+
+        .song-play-wave {
+            display: inline-flex;
+            align-items: flex-end;
+            gap: 2px;
+            width: 14px;
+            height: 12px;
+        }
+
+        .song-play-wave span {
+            width: 2px;
+            border-radius: 999px;
+            background: currentColor;
+            animation: songPlayWave 0.9s ease-in-out infinite;
+            transform-origin: bottom center;
+            opacity: 0.95;
+        }
+
+        .song-play-wave span:nth-child(1) { height: 5px; animation-delay: 0s; }
+        .song-play-wave span:nth-child(2) { height: 10px; animation-delay: 0.12s; }
+        .song-play-wave span:nth-child(3) { height: 7px; animation-delay: 0.24s; }
+
+        @keyframes songPlayWave {
+            0%, 100% { transform: scaleY(0.55); opacity: 0.55; }
+            50% { transform: scaleY(1.15); opacity: 1; }
+        }
+
         /* NÚT BẤM & USER CONTROL */
         .btn-action { padding: 8px 20px; border-radius: 50px; text-decoration: none; font-weight: 500; font-size: 13px; cursor: pointer; }
         .btn-style-gradient { background: var(--primary-gradient); color: #fff !important; border: none; }
@@ -202,14 +291,114 @@
             filter: brightness(0.98);
         }
 
+        .song-add-playlist-btn {
+            width: auto;
+            min-width: 14px;
+            border: none;
+            background: transparent;
+            color: #fff;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-right: 16px;
+            padding: 0;
+            box-shadow: none;
+            transition: transform 0.18s ease, opacity 0.18s ease, color 0.18s ease, text-shadow 0.18s ease;
+        }
+
+        .song-add-playlist-btn:hover {
+            transform: translateY(-1px) scale(1.08);
+            opacity: 1;
+            color: #00d1ff;
+            text-shadow: 0 0 10px rgba(0, 209, 255, 0.55);
+        }
+
+        .song-add-playlist-btn:active {
+            transform: scale(0.97);
+            opacity: 0.82;
+        }
+
+        .song-duration-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0;
+            width: 100%;
+            white-space: nowrap;
+        }
+
+        .song-duration-text {
+            min-width: 42px;
+            text-align: right;
+            display: inline-block;
+        }
+
+        .song-item-row:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .song-item-row:hover .song-add-playlist-btn {
+            color: #00d1ff;
+        }
+
+        .song-item-row.active-playing {
+            background: rgba(0, 209, 255, 0.09);
+            box-shadow: inset 0 0 0 1px rgba(0, 209, 255, 0.18);
+        }
+
+        .player-playlist-item:hover {
+            background: rgba(0, 209, 255, 0.12) !important;
+            color: #00d1ff !important;
+        }
+
         /* 5. THANH THỂ LOẠI (GENRE NAV) - BẢN NHỎ GỌN */
         .genre-nav {
             display: flex; gap: 20px; padding: 12px 30px; 
             background: var(--bg-dark); border-bottom: 1px solid var(--border-color);
             overflow-x: auto; flex-shrink: 0;
-            justify-content: center;
+            justify-content: flex-start;
+            flex-wrap: nowrap;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            scrollbar-color: transparent transparent;
         }
-        .genre-nav::-webkit-scrollbar { display: none; } /* Ẩn thanh cuộn cho mượt */
+
+        .genre-nav::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .genre-nav::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 999px;
+        }
+
+        .genre-nav::-webkit-scrollbar-thumb {
+            background: transparent;
+            border-radius: 999px;
+        }
+
+        .genre-nav:hover {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(47, 172, 255, 0.85) rgba(255, 255, 255, 0.08);
+        }
+
+        .genre-nav:hover::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .genre-nav:hover::-webkit-scrollbar-thumb {
+            background: linear-gradient(90deg, rgba(47, 172, 255, 0.9), rgba(176, 74, 255, 0.9));
+        }
+
+        .genre-nav::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(90deg, rgba(47, 172, 255, 1), rgba(176, 74, 255, 1));
+        }
+
+        .genre-nav > a {
+            flex-shrink: 0;
+        }
         
         .genre-card {
             display: flex; 
@@ -223,6 +412,7 @@
             cursor: pointer; 
             transition: 0.3s;
             height: 45px; /* Ép chiều cao thấp xuống để nhường chỗ cho Center */
+            white-space: nowrap;
         }
 
         .genre-card:hover {
@@ -285,7 +475,7 @@
 
     <header class="header">
         <div class="header-left">
-            <div class="logo-neon"><span class="music-icon">🎵</span> SOUNDWAVE</div>
+            <div class="logo-neon"><img class="logo-icon" src="{{ asset('image/icon.png') }}" alt="Soundwave Icon"> SOUNDWAVE</div>
             <nav class="main-nav">
                 <a href="{{ route('client.home') }}" class="{{ request()->is('/') ? 'active' : '' }}">Trang chủ</a>
                 <a href="{{ route('albums.index') }}" class="{{ request()->is('albums*') ? 'active' : '' }}">Albums</a>
@@ -305,16 +495,40 @@
 
         <div class="header-right" style="display: flex; align-items: center; gap: 20px;">
             @auth
-                <div class="user-profile">
-                    <img src="{{ auth()->user()->avatar_url ?? asset('image/default_user.png') }}" alt="User">
-                    <span>{{ auth()->user()->username ?? 'Người dùng' }}</span>
-                    <i class="fas fa-caret-down" style="color: var(--text-sub); margin-left: 5px;"></i>
-                </div>
+                <details class="user-profile" style="position: relative;">
+                    <summary style="list-style: none; display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <img src="{{ auth()->user()->avatar_url ? asset(auth()->user()->avatar_url) : asset('image/default_user.png') }}" alt="User">
+                        <span>{{ auth()->user()->username ?? 'Người dùng' }}</span>
+                        <i class="fas fa-caret-down" style="color: var(--text-sub);"></i>
+                    </summary>
+
+                    <div style="position: absolute; top: calc(100% + 10px); right: 0; min-width: 220px; background: #171a25; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow: hidden; box-shadow: 0 18px 40px rgba(0,0,0,0.45); z-index: 120;">
+                        @if((int) (auth()->user()->is_admin ?? 0) === 1)
+                            <a href="{{ route('admin.dashboard') }}" data-no-ajax="true" style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.06);">
+                                <i class="fas fa-shield-alt" style="color: #00d1ff;"></i>
+                                <span>Khu vực Admin</span>
+                            </a>
+                        @endif
+
+                        <a href="{{ route('profile.edit') }}" data-no-ajax="false" style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.06);">
+                            <i class="fas fa-user-circle" style="color: #00d1ff;"></i>
+                            <span>Hồ sơ cá nhân</span>
+                        </a>
+
+                        <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                            @csrf
+                            <button type="submit" style="width: 100%; border: none; background: transparent; color: #ff5f7b; text-align: left; padding: 12px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px;">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Đăng xuất</span>
+                            </button>
+                        </form>
+                    </div>
+                </details>
                 <i class="fas fa-bell" style="color: #ffb700; cursor: pointer;"></i>
             @else
                 <div class="guest-actions">
-                    <a href="#" class="btn-action btn-style-outline">Đăng ký</a>
-                    <a href="#" class="btn-action btn-style-gradient">Đăng nhập</a>
+                    <a href="{{ route('login') }}" class="btn-action btn-style-gradient" data-no-ajax="true">Đăng nhập</a>
+                    <a href="{{ route('register') }}" class="btn-action btn-style-outline" data-no-ajax="true">Đăng ký</a>
                 </div>
             @endauth
         </div>
@@ -322,7 +536,7 @@
 
     <nav class="genre-nav">
         @php
-            $genreList = \App\Models\Genre::query()->orderBy('name')->limit(12)->get();
+            $genreList = \App\Models\Genre::query()->orderBy('name')->get();
             $genreIcons = [
                 'pop' => 'fas fa-microphone-alt',
                 'ballad' => 'fas fa-guitar',
@@ -364,9 +578,9 @@
                     <a href="{{ route('library.artists') }}" class="menu-item {{ request()->routeIs('library.artists') ? 'active' : '' }}">Favorite Artists</a>
                     <a href="{{ route('library.history') }}" class="menu-item {{ request()->routeIs('library.history') ? 'active' : '' }}">Listening History</a>
                 @else
-                    <a href="#" class="menu-item" onclick="event.preventDefault(); alert('Vui lòng đăng nhập để dùng Playlist.');">Playlist</a>
-                    <a href="#" class="menu-item" onclick="event.preventDefault(); alert('Vui lòng đăng nhập để xem bài hát yêu thích.');">Favorite Songs</a>
-                    <a href="#" class="menu-item" onclick="event.preventDefault(); alert('Vui lòng đăng nhập để xem nghệ sĩ yêu thích.');">Favorite Artists</a>
+                    <a href="{{ route('login') }}" class="menu-item" data-no-ajax="true">Playlist</a>
+                    <a href="{{ route('login') }}" class="menu-item" data-no-ajax="true">Favorite Songs</a>
+                    <a href="{{ route('login') }}" class="menu-item" data-no-ajax="true">Favorite Artists</a>
                     <a href="{{ route('library.history') }}" class="menu-item {{ request()->routeIs('library.history') ? 'active' : '' }}">Listening History</a>
                 @endauth
             </div>
@@ -422,7 +636,7 @@
                             <i class="fas fa-plus"></i>
                             <span>Playlist</span>
                         </button>
-                        <div id="playerPlaylistPopup" style="display:none; position: absolute; right: 0; bottom: calc(100% + 12px); width: 320px; background: #11141d; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.45); overflow: hidden; z-index: 60;">
+                        <div id="playerPlaylistPopup" style="display:none; position: fixed; left: 50%; top: 50%; width: min(360px, calc(100vw - 32px)); background: #11141d; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.45); overflow: hidden; z-index: 1600; transform: translate(-50%, -50%) scale(0.98); opacity: 0;">
                             <div style="padding: 12px 14px; font-size: 12px; font-weight: 800; color: #8f95af; text-transform: uppercase; letter-spacing: .8px; border-bottom: 1px solid rgba(255,255,255,0.05);">Thêm vào playlist</div>
                             <div style="padding: 10px 12px; max-height: 240px; overflow: auto;" id="playerPlaylistList">
                                 @forelse($playerPlaylists as $playlist)
@@ -478,9 +692,49 @@
     window.songDetailsBaseUrl = @json(url('/song'));
     window.playerPlaylists = @json($playerPlaylistsData ?? []);
     const isAuthenticated = window.isAuthenticated;
+    let playlistTargetSong = null;
+
+    if (typeof window.showToast !== 'function') {
+        window.showToast = function(message, type = 'info') {
+            if (!message) return;
+
+            let stack = document.getElementById('appToastStack');
+            if (!stack) {
+                stack = document.createElement('div');
+                stack.id = 'appToastStack';
+                stack.className = 'app-toast-stack';
+                document.body.appendChild(stack);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `app-toast ${type}`;
+
+            let iconClass = 'fa-info-circle';
+            if (type === 'success') iconClass = 'fa-circle-check';
+            if (type === 'error') iconClass = 'fa-circle-xmark';
+            if (type === 'warning') iconClass = 'fa-triangle-exclamation';
+
+            toast.innerHTML = `<i class="fas ${iconClass} app-toast-icon"></i><span>${String(message)}</span>`;
+            stack.appendChild(toast);
+
+            requestAnimationFrame(() => toast.classList.add('show'));
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 220);
+            }, 2400);
+        };
+    }
+
+    if (!window.__nativeAlert) {
+        window.__nativeAlert = window.alert.bind(window);
+        window.alert = function(message) {
+            window.showToast(message || 'Đã có thông báo mới.', 'warning');
+        };
+    }
 
     function showLoginPrompt(message) {
-        alert(message || 'Vui lòng đăng nhập để sử dụng chức năng này.');
+        window.showToast(message || 'Vui lòng đăng nhập để sử dụng chức năng này.', 'warning');
     }
 
     function setLikeButtonState(button, liked) {
@@ -500,6 +754,65 @@
             icon.classList.toggle('fas', liked);
             icon.classList.toggle('far', !liked);
         }
+    }
+
+    function getSongFromRow(row) {
+        if (!row) return null;
+
+        return {
+            id: row.dataset.id,
+            title: row.dataset.title,
+            artist: row.dataset.artist,
+            src: row.dataset.src,
+            cover: row.dataset.cover
+        };
+    }
+
+    function setPlaylistTargetSong(song) {
+        playlistTargetSong = song && song.id ? song : null;
+    }
+
+    function getPlaylistTargetSong() {
+        if (playlistTargetSong && playlistTargetSong.id) {
+            return playlistTargetSong;
+        }
+
+        return typeof window.getCurrentSongData === 'function' ? window.getCurrentSongData() : null;
+    }
+
+    function openPlayerPlaylistPopup(song) {
+        const popup = document.getElementById('playerPlaylistPopup');
+        const toggleButton = document.getElementById('playerPlaylistBtn');
+        const playlistList = document.getElementById('playerPlaylistList');
+
+        if (!popup || !toggleButton || !playlistList) return;
+
+        setPlaylistTargetSong(song && song.id ? song : null);
+
+        popup.style.display = 'block';
+        popup.style.opacity = '0';
+        popup.style.transform = 'translate(-50%, -48%) scale(0.98)';
+        popup.style.transition = 'opacity 0.18s ease, transform 0.18s ease';
+        requestAnimationFrame(() => {
+            popup.style.opacity = '1';
+            popup.style.transform = 'translate(-50%, -50%) scale(1)';
+        });
+
+        if (typeof window.renderPlayerPlaylistList === 'function') {
+            window.renderPlayerPlaylistList();
+        }
+    }
+
+    function closePlayerPlaylistPopup() {
+        const popup = document.getElementById('playerPlaylistPopup');
+        if (!popup) return;
+
+        popup.style.opacity = '0';
+        popup.style.transform = 'translate(-50%, -48%) scale(0.98)';
+        setTimeout(() => {
+            popup.style.display = 'none';
+        }, 180);
+        setPlaylistTargetSong(null);
     }
 
     function bindSongLikeButtons() {
@@ -528,7 +841,24 @@
 
                 $.post('/ajax/like-song', { song_id: songId }, function(res) {
                     if (res.status === 'success') {
-                        setLikeButtonState(button, res.action === 'liked');
+                        const liked = (res.action === 'liked');
+                        setLikeButtonState(button, liked);
+
+                        if (button.dataset.removeOnUnlike === '1' && !liked) {
+                            const songRow = button.closest('[data-liked-song-row]');
+                            if (songRow) songRow.remove();
+
+                            const songsTable = document.getElementById('likedSongsTable');
+                            const songsEmpty = document.getElementById('likedSongsEmpty');
+                            const hasRows = !!(songsTable && songsTable.querySelector('[data-liked-song-row]'));
+
+                            if (songsTable) {
+                                songsTable.style.display = hasRows ? 'table' : 'none';
+                            }
+                            if (songsEmpty) {
+                                songsEmpty.style.display = hasRows ? 'none' : 'block';
+                            }
+                        }
                     } else {
                         alert(res.message || 'Không thể cập nhật bài hát yêu thích.');
                     }
@@ -537,6 +867,55 @@
                     setLikeButtonState(button, false);
                 });
             };
+        });
+    }
+
+    function bindSongPlaylistButtons() {
+        document.querySelectorAll('.song-item-row').forEach((row) => {
+            if (row.dataset.noPlaylistAdd === '1') return;
+
+            const targetCell = row.cells.length >= 4 ? row.cells[row.cells.length - 2] : row.cells[row.cells.length - 1];
+            if (!targetCell || targetCell.querySelector('.song-add-playlist-btn')) return;
+            if (targetCell.querySelector('button, a, input, select, textarea')) return;
+
+            const originalText = (targetCell.textContent || '').trim();
+            targetCell.textContent = '';
+            targetCell.style.textAlign = 'right';
+
+            const addButton = document.createElement('button');
+            addButton.type = 'button';
+            addButton.className = 'song-add-playlist-btn';
+            addButton.title = 'Thêm vào playlist';
+            addButton.innerHTML = '<span style="font-size: 18px; font-weight: 700; line-height: 1;">+</span>';
+
+            addButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (!isAuthenticated) {
+                    showLoginPrompt('Vui lòng đăng nhập để thêm bài hát vào playlist.');
+                    return;
+                }
+
+                const song = getSongFromRow(row);
+                if (!song || !song.id) {
+                    window.showToast('Không thể xác định bài hát này.', 'error');
+                    return;
+                }
+
+                openPlayerPlaylistPopup(song);
+            });
+
+            const durationWrap = document.createElement('span');
+            durationWrap.className = 'song-duration-wrap';
+
+            const durationText = document.createElement('span');
+            durationText.className = 'song-duration-text';
+            durationText.textContent = originalText;
+
+            durationWrap.appendChild(addButton);
+            durationWrap.appendChild(durationText);
+            targetCell.appendChild(durationWrap);
         });
     }
 
@@ -556,7 +935,24 @@
 
                 $.post('/ajax/like-artist', { artist_id: artistId }, function(res) {
                     if (res.status === 'success') {
-                        setLikeButtonState(button, !button.classList.contains('liked'));
+                        const wasLiked = button.classList.contains('liked');
+                        setLikeButtonState(button, !wasLiked);
+
+                        if (button.dataset.removeOnUnlike === '1' && wasLiked) {
+                            const artistCard = button.closest('[data-artist-card]');
+                            if (artistCard) artistCard.remove();
+
+                            const artistGrid = document.getElementById('likedArtistsGrid');
+                            const emptyState = document.getElementById('likedArtistsEmpty');
+                            const hasCards = !!(artistGrid && artistGrid.querySelector('[data-artist-card]'));
+
+                            if (artistGrid) {
+                                artistGrid.style.display = hasCards ? 'grid' : 'none';
+                            }
+                            if (emptyState) {
+                                emptyState.style.display = hasCards ? 'none' : 'block';
+                            }
+                        }
                     } else {
                         alert(res.message || 'Không thể cập nhật nghệ sĩ yêu thích.');
                     }
@@ -566,6 +962,7 @@
                 });
             };
         });
+
     }
 
     function bindDetailPlayButtons() {
@@ -584,6 +981,31 @@
                 window.location.href = `{{ url('/song') }}/${songId}/chitiet`;
             };
         });
+
+        const playRandomButton = document.getElementById('btnPlayRandom');
+        if (playRandomButton) {
+            playRandomButton.onclick = function(event) {
+                event.preventDefault();
+
+                const rows = Array.from(document.querySelectorAll('#album-tracklist .song-item-row'));
+                if (!rows.length) {
+                    alert('Album này chưa có bài hát nào!');
+                    return;
+                }
+
+                const randomRow = rows[Math.floor(Math.random() * rows.length)];
+                const randomSongId = randomRow.dataset.id;
+
+                if (!randomSongId) {
+                    alert('Không thể phát bài hát này.');
+                    return;
+                }
+
+                if (typeof window.playSong === 'function') {
+                    window.playSong(randomSongId);
+                }
+            };
+        }
     }
 
     function bindPlayerPlaylistMenu() {
@@ -609,13 +1031,13 @@
             `).join('');
 
             playlistList.querySelectorAll('.player-playlist-item').forEach((button) => {
-                button.addEventListener('click', () => addCurrentSongToPlaylist(button.dataset.playlistId));
+                button.addEventListener('click', () => addTargetSongToPlaylist(button.dataset.playlistId));
             });
         };
 
-        const getCurrentSong = () => (typeof window.getCurrentSongData === 'function' ? window.getCurrentSongData() : null);
+        const getCurrentSong = () => getPlaylistTargetSong();
 
-        const addCurrentSongToPlaylist = async (playlistId) => {
+        const addTargetSongToPlaylist = async (playlistId) => {
             const currentSong = getCurrentSong();
             if (!currentSong || !currentSong.id) {
                 alert('Vui lòng phát một bài hát trước.');
@@ -639,7 +1061,7 @@
                 const data = await response.json();
                 if (response.ok && data.status === 'success') {
                     alert(data.message || 'Đã thêm vào playlist.');
-                    popup.style.display = 'none';
+                    closePlayerPlaylistPopup();
                 } else {
                     alert(data.message || 'Không thể thêm bài hát vào playlist.');
                 }
@@ -651,9 +1073,10 @@
         toggleButton.addEventListener('click', function (event) {
             event.preventDefault();
             event.stopPropagation();
-            popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
             if (popup.style.display === 'block') {
-                renderPlayerPlaylistList();
+                closePlayerPlaylistPopup();
+            } else {
+                openPlayerPlaylistPopup(getPlaylistTargetSong());
             }
         });
 
@@ -668,7 +1091,7 @@
 
             const currentSong = getCurrentSong();
             if (!currentSong || !currentSong.id) {
-                alert('Vui lòng phát một bài hát trước.');
+                alert('Vui lòng chọn một bài hát trước.');
                 return;
             }
 
@@ -694,7 +1117,7 @@
                 newPlaylistName.value = '';
                 renderPlayerPlaylistList();
 
-                await addCurrentSongToPlaylist(data.playlist.playlist_id);
+                await addTargetSongToPlaylist(data.playlist.playlist_id);
             } catch (error) {
                 alert('Lỗi kết nối, vui lòng thử lại.');
             }
@@ -702,9 +1125,14 @@
 
         document.addEventListener('click', function (event) {
             if (!popup.contains(event.target) && !toggleButton.contains(event.target)) {
-                popup.style.display = 'none';
+                closePlayerPlaylistPopup();
             }
         });
+
+        window.renderPlayerPlaylistList = renderPlayerPlaylistList;
+        window.openPlaylistPopupForSong = openPlayerPlaylistPopup;
+        window.closePlaylistPopup = closePlayerPlaylistPopup;
+        window.setPlaylistTargetSong = setPlaylistTargetSong;
     }
 
     let searchDebounceTimer = null;
@@ -833,6 +1261,7 @@
     bindSongLikeButtons();
     bindArtistLikeButtons();
     bindDetailPlayButtons();
+    bindSongPlaylistButtons();
     bindPlayerPlaylistMenu();
     bindSearchAutocomplete();
 
@@ -914,6 +1343,7 @@
         bindSongLikeButtons();
         bindArtistLikeButtons();
         bindDetailPlayButtons();
+        bindSongPlaylistButtons();
         bindSearchAutocomplete();
     }
 
@@ -974,8 +1404,10 @@
             target.scrollTop = 0;
             document.title = doc.title || document.title;
 
-            runScriptsIn(target);
-            refreshPlayerBindings();
+            requestAnimationFrame(() => {
+                runScriptsIn(target);
+                refreshPlayerBindings();
+            });
 
             if (!options.fromPopState) {
                 history.pushState({ partial: true }, '', url);

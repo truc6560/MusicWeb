@@ -1,8 +1,4 @@
-@extends('layouts.client-layout')
-
-@section('title', 'Đặt lại mật khẩu')
-
-@section('content')
+<x-auth-layout title="Đặt lại mật khẩu">
 <h2>Đặt lại mật khẩu</h2>
 <p style="color: #aaa; text-align: center; margin-bottom: 25px;">
     Nhập mật khẩu mới cho tài khoản của bạn.
@@ -41,4 +37,4 @@
 <div class="auth-link">
     <a href="{{ route('login') }}">← Quay lại đăng nhập</a>
 </div>
-@endsection
+</x-auth-layout>

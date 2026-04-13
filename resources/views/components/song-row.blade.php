@@ -4,8 +4,8 @@
     // Chuyển đổi thời lượng từ giây sang định dạng phút:giây
     $duration = sprintf("%d:%02d", floor($song->duration / 60), $song->duration % 60);
     
-    // Xử lý đường dẫn file nhạc chuẩn Laravel
-    $audioPath = asset('audio/' . ltrim($song->audio_file, '/'));
+    // Luôn phát qua stream endpoint để tránh lỗi tên file Unicode trên Windows
+    $audioPath = route('song.stream', ['id' => $song->song_id]);
 @endphp
 
 <tr class="song-item-row" 

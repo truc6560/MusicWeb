@@ -1,8 +1,4 @@
-@extends('layouts.client-layout')
-
-@section('title', 'Đăng nhập')
-
-@section('content')
+<x-auth-layout title="Đăng nhập">
 <h2>Chào mừng bạn quay trở lại</h2>
 
 <form method="POST" action="{{ route('login') }}">
@@ -51,4 +47,4 @@
 <div class="auth-link">
     Chưa có tài khoản? <a href="{{ route('register') }}">Đăng ký ngay!</a>
 </div>
-@endsection
+</x-auth-layout>

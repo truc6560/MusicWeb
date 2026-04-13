@@ -227,56 +227,45 @@
         });
     }
 
-    // 2. XỬ LÝ NÚT PHÁT NGẪU NHIÊN 
-    const playAllBtn = document.getElementById('btnPlayRandom'); // Đồng bộ ID với HTML
-    
+    // 2. XỬ LÝ NÚT PHÁT NGẪU NHIÊN
+    const playAllBtn = document.getElementById('btnPlayRandom');
+
     if (playAllBtn) {
         playAllBtn.onclick = () => {
-            const rows = document.querySelectorAll('#album-tracklist .song-item-row');
-            const albumPlaylist = [];
+            const rows = Array.from(document.querySelectorAll('#album-tracklist .song-item-row'));
 
-            if (rows.length === 0) {
-                alert("Album này chưa có bài hát nào!");
+            if (!rows.length) {
+                alert('Album này chưa có bài hát nào!');
                 return;
             }
 
-            // Duyệt qua từng dòng và lấy dữ liệu
-            rows.forEach(row => {
-                albumPlaylist.push({
-                    id: row.dataset.id,
-                    title: row.dataset.title,
-                    artist: row.dataset.artist,
-                    src: row.dataset.src,
-                    cover: row.dataset.cover
-                });
-            });
+            const randomRow = rows[Math.floor(Math.random() * rows.length)];
+            const randomSong = {
+                id: randomRow.dataset.id,
+                title: randomRow.dataset.title,
+                artist: randomRow.dataset.artist,
+                src: randomRow.dataset.src,
+                cover: randomRow.dataset.cover
+            };
 
-            // Cập nhật vào trình phát nhạc
-            if (typeof songList !== 'undefined') {
-                // Gán danh sách nhạc CHỈ CỦA ALBUM vào biến toàn cục
-                songList = albumPlaylist; 
-                
-                // Bật chế độ Shuffle
-                isShuffle = true;
-                const shuffleBtnUI = document.getElementById("shuffleBtn");
-                if (shuffleBtnUI) shuffleBtnUI.classList.add("active");
+            if (!randomSong.id || !randomSong.src) {
+                alert('Không thể phát bài hát này, thiếu dữ liệu nguồn.');
+                return;
+            }
 
-                //Chọn ngẫu nhiên 1 bài để phát
-                currentIndex = Math.floor(Math.random() * songList.length);
-                
-                //Gọi hàm phát nhạc
-                if (typeof loadSong === 'function') {
-                    loadSong(songList[currentIndex]);
-                    // Tự động phát nhạc nếu hàm playSong có sẵn
-                    if (typeof playSong === 'function') playSong();
-                }
-                
-                //Cập nhật lại highlight bài đang hát
-                if (typeof updateRowHighlight === 'function') {
-                    updateRowHighlight(songList[currentIndex].id);
+            // Bật trạng thái nút shuffle trên UI để đồng nhất cảm giác người dùng.
+            const shuffleBtnUI = document.getElementById('shuffleBtn');
+            if (shuffleBtnUI) {
+                shuffleBtnUI.classList.add('active');
+            }
+
+            if (typeof window.loadSong === 'function') {
+                window.loadSong(randomSong, true);
+                if (typeof window.updateRowHighlight === 'function') {
+                    window.updateRowHighlight(randomSong.id);
                 }
             } else {
-                console.error("Chưa tải được trình phát nhạc (player.js)");
+                console.error('Không tìm thấy player API: loadSong');
             }
         };
     }

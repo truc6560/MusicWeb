@@ -1,54 +1,109 @@
 <?php
 
+use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\Admin\AdminArtistController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminGenreController;
+use App\Http\Controllers\Admin\AdminNewsController;
+use App\Http\Controllers\Admin\AdminSongController;
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\StatisticsController;
+use App\Http\Controllers\ArtistController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\ĐKController;
 use App\Http\Controllers\Auth\ĐNController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Admin\AdminGenreController;
-use App\Http\Controllers\Admin\AdminSongController;
-use App\Http\Controllers\Admin\AdminNewsController;
-use App\Http\Controllers\Admin\AdminUserController;
-use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\Admin\StatisticsController;
+use App\Http\Controllers\ChartController;
+use App\Http\Controllers\GenreController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\AlbumController;
-use App\Http\Controllers\ArtistController;
-use App\Http\Controllers\SongController;
+use App\Http\Controllers\NewReleaseController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SongController;
 use App\Http\Controllers\User\InteractionController;
 use App\Http\Controllers\User\LibraryController;
 use App\Http\Controllers\User\PlaylistController;
-use App\Http\Controllers\NewReleaseController;
-use App\Http\Controllers\ChartController;
-use App\Http\Controllers\GenreController;
+use Illuminate\Support\Facades\Route;
 
-// 1. TRANG CHỦ
+// 1. PUBLIC ROUTES
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
 
-// 2. AUTH ROUTES (KHÔNG CẦN ĐĂNG NHẬP)
+// Albums
+Route::get('/albums', [AlbumController::class, 'index'])->name('albums.index');
+Route::get('/albums/{id}', [AlbumController::class, 'show'])->name('albums.show');
+Route::post('/albums/toggle-like', [AlbumController::class, 'toggleLike'])->name('albums.toggleLike');
+
+// Search
+Route::get('/search/suggestions', [SearchController::class, 'suggestions'])->name('search.suggestions');
+
+// Library / Artists / Genres
+Route::get('/library/songs', [LibraryController::class, 'songs'])->name('library.songs');
+Route::get('/library/artists', [LibraryController::class, 'artists'])->name('library.artists');
+Route::get('/library/history', [LibraryController::class, 'history'])->name('library.history');
+
+Route::get('/artists', [ArtistController::class, 'index'])->name('artists.index');
+Route::get('/artists/{id}', [ArtistController::class, 'show'])->name('artists.show');
+Route::post('/artists/toggle-follow', [ArtistController::class, 'toggleFollow'])->name('artists.toggleFollow');
+
+Route::get('/genres/{id}', [GenreController::class, 'show'])->name('genres.show');
+
+// Player APIs
+Route::get('/song/{id}/stream', [SongController::class, 'stream'])->name('song.stream');
+Route::get('/song/{id}', [SongController::class, 'thongtinbaihat'])->name('song.information');
+Route::get('/song/{id}/laylyrics', [SongController::class, 'laylyrics'])->name('song.laylyrics');
+Route::get('/song/{id}/chitiet', [SongController::class, 'chitietbaihat'])->name('song.details');
+Route::post('/ajax/increment-view', [InteractionController::class, 'incrementPlayCount']);
+
+// Charts / New releases
+Route::get('/new-releases', [NewReleaseController::class, 'index'])->name('new_releases');
+Route::get('/charts', [ChartController::class, 'index'])->name('charts');
+
+// 2. GUEST AUTH ROUTES (KHÔNG CẦN ĐĂNG NHẬP)
 Route::middleware('guest')->group(function () {
     Route::get('/register', [ĐKController::class, 'create'])->name('register');
     Route::post('/register', [ĐKController::class, 'store']);
     Route::get('/login', [ĐNController::class, 'create'])->name('login');
     Route::post('/login', [ĐNController::class, 'store']);
+
+    Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+    Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+    Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.update');
 });
 
-// 3. ĐĂNG XUẤT 
-Route::post('/logout', [ĐNController::class, 'destroy'])->name('logout')->middleware('auth');
+// 3. AUTH ROUTES (CẦN ĐĂNG NHẬP)
+Route::middleware('auth')->group(function () {
+    // Đăng xuất
+    Route::post('/logout', [ĐNController::class, 'destroy'])->name('logout');
 
-// 4. KHU VỰC ADMIN (yêu cầu đăng nhập)
-Route::prefix('admin')->middleware(['auth'])->group(function () {
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'changePassword'])->name('profile.change-password');
+    Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete');
 
-// 2. KHU VỰC ADMIN
-Route::prefix('admin')->group(function () {
+    // Playlist + tương tác user
+    Route::get('/my-playlists', [PlaylistController::class, 'index'])->name('playlist.index');
+    Route::get('/my-playlists/{id}', [PlaylistController::class, 'show'])->name('playlist.show');
+    Route::post('/my-playlists/create', [PlaylistController::class, 'store'])->name('playlist.store');
+    Route::delete('/my-playlists/{id}', [PlaylistController::class, 'destroy'])->name('playlist.destroy');
+    Route::post('/my-playlists/{id}/update', [PlaylistController::class, 'update'])->name('playlist.update');
+    Route::post('/my-playlists/{id}/visibility', [PlaylistController::class, 'updateVisibility'])->name('playlist.visibility');
+    Route::post('/my-playlists/{id}/copy-songs', [PlaylistController::class, 'copySongsToPlaylist'])->name('playlist.copy-songs');
+    Route::get('/my-playlists/{id}/search-songs', [PlaylistController::class, 'searchSongs'])->name('playlist.search-songs');
+    Route::delete('/my-playlists/{id}/remove-song', [PlaylistController::class, 'removeSongFromPlaylist'])->name('playlist.remove-song');
+    Route::post('/ajax/playlist/add-song', [PlaylistController::class, 'addSongToPlaylist'])->name('playlist.add-song');
 
+    Route::get('/ajax/like-song/status', [InteractionController::class, 'likeSongStatus']);
+    Route::post('/ajax/like-song', [InteractionController::class, 'toggleLikeSong']);
+    Route::post('/ajax/like-artist', [InteractionController::class, 'toggleLikeArtist']);
+    Route::post('/ajax/record-history', [InteractionController::class, 'recordHistory']);
+});
+
+// 4. KHU VỰC ADMIN (CẦN ĐĂNG NHẬP)
+Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.home');
-
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
-
     Route::get('/statistics', [StatisticsController::class, 'index'])->name('admin.statistics');
 
     Route::get('/news', [AdminNewsController::class, 'index'])->name('admin.news.index');
@@ -57,28 +112,13 @@ Route::prefix('admin')->group(function () {
     Route::get('/news/{id}/edit', [AdminNewsController::class, 'edit'])->name('admin.news.edit');
     Route::put('/news/{id}', [AdminNewsController::class, 'update'])->name('admin.news.update');
     Route::delete('/news/{id}', [AdminNewsController::class, 'destroy'])->name('admin.news.destroy');
+
     Route::get('/artists', [AdminArtistController::class, 'index'])->name('admin.artists.index');
     Route::get('/artists/create', [AdminArtistController::class, 'create'])->name('admin.artists.create');
     Route::post('/artists', [AdminArtistController::class, 'store'])->name('admin.artists.store');
     Route::get('/artists/{id}/edit', [AdminArtistController::class, 'edit'])->name('admin.artists.edit');
     Route::put('/artists/{id}', [AdminArtistController::class, 'update'])->name('admin.artists.update');
     Route::delete('/artists/{id}', [AdminArtistController::class, 'destroy'])->name('admin.artists.destroy');
-
-// 5. KHU VỰC PROFILE (yêu cầu đăng nhập)
-Route::middleware(['auth'])->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::put('/profile/password', [ProfileController::class, 'changePassword'])->name('profile.change-password');
-});
-
-
-// Quên mật khẩu routes
-Route::get('/forgot-password', [App\Http\Controllers\Auth\PasswordResetLinkController::class, 'create'])->name('password.request');
-Route::post('/forgot-password', [App\Http\Controllers\Auth\PasswordResetLinkController::class, 'store'])->name('password.email');
-Route::get('/reset-password/{token}', [App\Http\Controllers\Auth\NewPasswordController::class, 'create'])->name('password.reset');
-Route::post('/reset-password', [App\Http\Controllers\Auth\NewPasswordController::class, 'store'])->name('password.update');
-//Xóa avata
-Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete')->middleware('auth'); 
 
     Route::get('/songs', [AdminSongController::class, 'index'])->name('admin.songs.index');
     Route::get('/songs/create', [AdminSongController::class, 'create'])->name('admin.songs.create');
@@ -97,53 +137,3 @@ Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->na
     Route::get('/users', [AdminUserController::class, 'index'])->name('admin.users.index');
     Route::patch('/users/{id}/toggle-status', [AdminUserController::class, 'toggleStatus'])->name('admin.users.toggle-status');
 });
-// 3. KHU VỰC ALBUMS
-//Trang danh sách albums
-    Route::get('/albums', [AlbumController::class, 'index'])->name('albums.index');
-// Trang chi tiết album
-    Route::get('/albums/{id}', [AlbumController::class, 'show'])->name('albums.show');
-    Route::post('/albums/toggle-like', [AlbumController::class, 'toggleLike'])->name('albums.toggleLike');
-
-// Tìm kiếm gợi ý
-Route::get('/search/suggestions', [SearchController::class, 'suggestions'])->name('search.suggestions');
-
-// 4. THƯ VIỆN CÁ NHÂN
-Route::get('/library/songs', [LibraryController::class, 'songs'])->name('library.songs');
-Route::get('/library/artists', [LibraryController::class, 'artists'])->name('library.artists');
-Route::get('/library/history', [LibraryController::class, 'history'])->name('library.history');
-
-// 4. KHU VỰC NGHỆ SĨ
-    Route::get('/artists', [ArtistController::class, 'index'])->name('artists.index');
-    Route::get('/artists/{id}', [ArtistController::class, 'show'])->name('artists.show');
-    Route::post('/artists/toggle-follow', [ArtistController::class, 'toggleFollow'])->name('artists.toggleFollow');
-
-// 5. KHU VỰC THỂ LOẠI
-Route::get('/genres/{id}', [GenreController::class, 'show'])->name('genres.show');
-
-//GLOBAL PLAYER
-Route::get('/song/{id}/stream', [SongController::class, 'stream'])->name('song.stream');
-Route::get('/song/{id}', [SongController::class, 'thongtinbaihat'])->name('song.information');
-Route::get('/song/{id}/laylyrics', [SongController::class, 'laylyrics'])->name('song.laylyrics');
-Route::get('/song/{id}/chitiet', [SongController::class, 'chitietbaihat'])->name('song.details');
-
-
-// 3. KHU VỰC NGƯỜI DÙNG (Thả tim, Playlist, Lịch sử nghe)
-Route::middleware('auth')->group(function () {
-    Route::get('/my-playlists', [PlaylistController::class, 'index'])->name('playlist.index');
-    Route::post('/my-playlists/create', [PlaylistController::class, 'store'])->name('playlist.store');
-    Route::post('/ajax/playlist/add-song', [PlaylistController::class, 'addSongToPlaylist'])->name('playlist.add-song');
-
-    //Thả tim
-    Route::get('/ajax/like-song/status', [InteractionController::class, 'likeSongStatus']);
-    Route::post('/ajax/like-song', [InteractionController::class, 'toggleLikeSong']);
-    Route::post('/ajax/like-artist', [InteractionController::class, 'toggleLikeArtist']);
-
-    //Lịch sử & Lượt nghe
-    Route::post('/ajax/record-history', [InteractionController::class, 'recordHistory']);
-    Route::post('/ajax/increment-view', [InteractionController::class, 'incrementPlayCount']);
-});
-
-    //KHU VỰC PHÁT HÀNH MỚI
-    Route::get('/new-releases', [NewReleaseController::class, 'index'])->name('new_releases');
-    //Khu vực bảng xếp hạng
-    Route::get('/charts', [ChartController::class, 'index'])->name('charts');
