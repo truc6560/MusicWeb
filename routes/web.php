@@ -1,12 +1,18 @@
 <?php
+
 use App\Http\Controllers\Admin\AdminArtistController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Auth\ĐKController;
+use App\Http\Controllers\Auth\ĐNController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Admin\AdminGenreController;
 use App\Http\Controllers\Admin\AdminSongController;
 use App\Http\Controllers\Admin\AdminNewsController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\StatisticsController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\ArtistController;
@@ -19,8 +25,22 @@ use App\Http\Controllers\NewReleaseController;
 use App\Http\Controllers\ChartController;
 use App\Http\Controllers\GenreController;
 
-// 1. TRANG CHỦ (Đúng chuẩn MVC)
+// 1. TRANG CHỦ
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
+
+// 2. AUTH ROUTES (KHÔNG CẦN ĐĂNG NHẬP)
+Route::middleware('guest')->group(function () {
+    Route::get('/register', [ĐKController::class, 'create'])->name('register');
+    Route::post('/register', [ĐKController::class, 'store']);
+    Route::get('/login', [ĐNController::class, 'create'])->name('login');
+    Route::post('/login', [ĐNController::class, 'store']);
+});
+
+// 3. ĐĂNG XUẤT 
+Route::post('/logout', [ĐNController::class, 'destroy'])->name('logout')->middleware('auth');
+
+// 4. KHU VỰC ADMIN (yêu cầu đăng nhập)
+Route::prefix('admin')->middleware(['auth'])->group(function () {
 
 // 2. KHU VỰC ADMIN
 Route::prefix('admin')->group(function () {
@@ -37,13 +57,28 @@ Route::prefix('admin')->group(function () {
     Route::get('/news/{id}/edit', [AdminNewsController::class, 'edit'])->name('admin.news.edit');
     Route::put('/news/{id}', [AdminNewsController::class, 'update'])->name('admin.news.update');
     Route::delete('/news/{id}', [AdminNewsController::class, 'destroy'])->name('admin.news.destroy');
-
     Route::get('/artists', [AdminArtistController::class, 'index'])->name('admin.artists.index');
     Route::get('/artists/create', [AdminArtistController::class, 'create'])->name('admin.artists.create');
     Route::post('/artists', [AdminArtistController::class, 'store'])->name('admin.artists.store');
     Route::get('/artists/{id}/edit', [AdminArtistController::class, 'edit'])->name('admin.artists.edit');
     Route::put('/artists/{id}', [AdminArtistController::class, 'update'])->name('admin.artists.update');
     Route::delete('/artists/{id}', [AdminArtistController::class, 'destroy'])->name('admin.artists.destroy');
+
+// 5. KHU VỰC PROFILE (yêu cầu đăng nhập)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'changePassword'])->name('profile.change-password');
+});
+
+
+// Quên mật khẩu routes
+Route::get('/forgot-password', [App\Http\Controllers\Auth\PasswordResetLinkController::class, 'create'])->name('password.request');
+Route::post('/forgot-password', [App\Http\Controllers\Auth\PasswordResetLinkController::class, 'store'])->name('password.email');
+Route::get('/reset-password/{token}', [App\Http\Controllers\Auth\NewPasswordController::class, 'create'])->name('password.reset');
+Route::post('/reset-password', [App\Http\Controllers\Auth\NewPasswordController::class, 'store'])->name('password.update');
+//Xóa avata
+Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete')->middleware('auth'); 
 
     Route::get('/songs', [AdminSongController::class, 'index'])->name('admin.songs.index');
     Route::get('/songs/create', [AdminSongController::class, 'create'])->name('admin.songs.create');
@@ -112,4 +147,3 @@ Route::middleware('auth')->group(function () {
     Route::get('/new-releases', [NewReleaseController::class, 'index'])->name('new_releases');
     //Khu vực bảng xếp hạng
     Route::get('/charts', [ChartController::class, 'index'])->name('charts');
-
