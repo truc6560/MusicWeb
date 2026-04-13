@@ -9,6 +9,7 @@ use App\Http\Controllers\User\InteractionController;
 use App\Http\Controllers\User\PlaylistController;
 use App\Http\Controllers\NewReleaseController;
 use App\Http\Controllers\ChartController;
+use App\Http\Controllers\NewsController;
 
 // 1. TRANG CHỦ (Đúng chuẩn MVC)
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
@@ -55,3 +56,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/new-releases', [NewReleaseController::class, 'index'])->name('new_releases');
     //Khu vực bảng xếp hạng
     Route::get('/charts', [ChartController::class, 'index'])->name('charts');
+    //KHU VỰC TIN TỨC
+    Route::get('/news', [NewsController::class, 'index'])->name('news.index');
