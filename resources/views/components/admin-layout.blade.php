@@ -9,11 +9,12 @@
     
     <style>
         /* CSS Khung nền chuẩn của project cũ */
+        html, body { height: 100%; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
-        body { background-color: #12141d; color: #fff; display: flex; min-height: 100vh; }
+        body { background-color: #12141d; color: #fff; display: flex; height: 100vh; overflow: hidden; }
         
         /* Thanh Sidebar bên trái */
-        aside { width: 260px; background-color: #1a1c26; padding: 30px 20px; border-right: 1px solid #2d2f3b; }
+        aside { width: 260px; background-color: #1a1c26; padding: 30px 20px; border-right: 1px solid #2d2f3b; height: 100vh; flex-shrink: 0; overflow-y: auto; }
         aside h2 { color: #00d1ff; text-align: center; margin-bottom: 40px; font-size: 24px; }
         
         .nav-item { 
@@ -27,10 +28,10 @@
         .nav-item i { margin-right: 10px; width: 20px; text-align: center; }
 
         /* Vùng nội dung chính bên phải */
-        main { flex: 1; padding: 30px; overflow-y: auto; }
+        main { flex: 1; height: 100vh; padding: 30px; overflow-y: auto; }
         
         /* CSS dùng chung cho các thẻ Card và Table ở các trang con */
-        .card { background-color: #1a1c26; border: 1px solid #2d2f3b; border-radius: 16px; padding: 30px; }
+        .card { background-color: #1a1c26; border: 1px solid #2d2f3b; border-radius: 16px; padding: 30px; margin-bottom: 30px; }
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .card-header h2 { font-size: 1.8rem; }
         
@@ -49,16 +50,17 @@
     <aside>
         <h2><i class="fas fa-compact-disc"></i> Melodify</h2>
         <nav>
-            <a href="#" class="nav-item"><i class="fas fa-chart-pie"></i> Bảng điều khiển</a>
+            <a href="{{ route('admin.home') }}" class="nav-item {{ request()->routeIs('admin.home') || request()->routeIs('admin.dashboard') ? 'active' : '' }}"><i class="fas fa-chart-pie"></i> Bảng điều khiển</a>
             
-            <a href="{{ route('admin.artists.index') }}" class="nav-item active">
+            <a href="{{ route('admin.artists.index') }}" class="nav-item {{ request()->routeIs('admin.artists.*') ? 'active' : '' }}">
                 <i class="fas fa-microphone-lines"></i> Quản lý Nghệ sĩ
             </a>
             
-            <a href="#" class="nav-item"><i class="fas fa-music"></i> Quản lý Bài hát</a>
-            <a href="#" class="nav-item"><i class="fas fa-music"></i> Quản lý Thể loại</a>
-            <a href="#" class="nav-item"><i class="fas fa-users"></i> Quản lý Người dùng</a>
-            <a href="#" class="nav-item"><i class="fas fa-music"></i> Thống kê</a>
+            <a href="{{ route('admin.songs.index') }}" class="nav-item {{ request()->routeIs('admin.songs.*') ? 'active' : '' }}"><i class="fas fa-music"></i> Quản lý Bài hát</a>
+            <a href="{{ route('admin.genres.index') }}" class="nav-item {{ request()->routeIs('admin.genres.*') ? 'active' : '' }}"><i class="fas fa-music"></i> Quản lý Thể loại</a>
+            <a href="{{ route('admin.users.index') }}" class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"><i class="fas fa-users"></i> Quản lý Người dùng</a>
+            <a href="{{ route('admin.news.index') }}" class="nav-item {{ request()->routeIs('admin.news.*') ? 'active' : '' }}"><i class="fas fa-newspaper"></i> Quản lý Tin tức</a>
+            <a href="{{ route('admin.statistics') }}" class="nav-item {{ request()->routeIs('admin.statistics') ? 'active' : '' }}"><i class="fas fa-music"></i> Thống kê</a>
         </nav>
     </aside>
 

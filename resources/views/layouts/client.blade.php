@@ -204,9 +204,17 @@
                 </div>
             </aside>
 
-            <main class="content-area">
-                @yield('content')
-            </main>
+        <aside class="sidebar-right">
+            <h3 style="color: #fff; font-size: 16px; margin-bottom: 20px; text-transform: uppercase;">Lời Bài Hát</h3>
+            <img id="rightCover" class="song-cover" src="{{ asset('image/default-cover.jpg') }}">
+            <h4 id="rightTitle" style="color: #fff; margin-bottom: 5px;">Chưa chọn bài hát</h4>
+            <p id="rightArtist" style="color: var(--text-sub); font-size: 13px;">--</p>
+            
+            <div id="lyricsBox">
+                <span class="lyrics-line">Hãy phát một bài hát</span>
+                <span class="lyrics-line">xem lời tại đây nhé!</span>
+            </div>
+        </aside>
 
             <aside class="sidebar-right">
                 <h3 style="color: #fff; font-size: 16px; margin-bottom: 20px; text-transform: uppercase;">Lời Bài Hát</h3>
