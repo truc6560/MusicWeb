@@ -281,6 +281,166 @@ function loadSong(song, autoPlay = true) {
     }
 }
 
+// Lưu queue vào localStorage
+function saveQueueToLocalStorage() {
+    localStorage.setItem("playerQueue", JSON.stringify(queueList));
+}
+
+// Khôi phục queue từ localStorage
+function loadQueueFromLocalStorage() {
+    const saved = localStorage.getItem("playerQueue");
+    if (saved) {
+        try {
+            queueList = JSON.parse(saved);
+        } catch(e) { queueList = []; }
+    } else {
+        queueList = [];
+    }
+    renderQueueSidebar();
+}
+
+// Hiển thị danh sách chờ trong sidebar
+function renderQueueSidebar() {
+    const queueContainer = document.getElementById("queue-list");
+    const queueListContainer = document.getElementById("queue-list-container");
+    if (!queueContainer) return;
+
+    if (!queueList.length) {
+        if (queueListContainer) {
+            queueListContainer.classList.remove("has-items");
+        }
+        queueContainer.innerHTML = "Chưa có bài hát nào...";
+        return;
+    }
+
+    if (queueListContainer) {
+        queueListContainer.classList.add("has-items");
+    }
+
+    let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';
+    queueList.forEach((item, idx) => {
+        const coverImg = (item.cover && item.cover.trim() !== "") ? item.cover : "https://via.placeholder.com/150";
+        html += `
+            <div class="queue-item" data-queue-index="${idx}">
+                <img src="${coverImg}" alt="${escapeHtml(item.title)}" class="queue-item-img" onerror="this.src='https://via.placeholder.com/150'">
+                <div class="queue-item-info">
+                    <div class="queue-item-title">${escapeHtml(item.title)}</div>
+                    <div class="queue-item-artist">${escapeHtml(item.artist)}</div>
+                </div>
+                <i class="fas fa-times queue-item-remove" data-queue-index="${idx}"></i>
+            </div>
+        `;
+    });
+    html += '</div>';
+    queueContainer.innerHTML = html;
+
+    // Gắn sự kiện xóa cho từng nút
+    document.querySelectorAll('.queue-item-remove').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const idx = parseInt(btn.getAttribute('data-queue-index'));
+            if (!isNaN(idx)) {
+                removeFromQueue(idx);
+            }
+        });
+    });
+}
+
+// Thêm bài hát vào queue
+async function addToQueue(songId) {
+    if (!songId) return false;
+
+    // Tìm bài hát trong songList trước
+    let song = songList.find(s => String(s.id) === String(songId));
+    if (!song) {
+        try {
+            const response = await fetch(`/song/${songId}`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            song = {
+                id: songId,
+                title: data.title || "Không rõ",
+                artist: data.artist || "Unknown",
+                src: data.audio_url || `/song/${songId}/stream`,
+                cover: data.cover || "https://via.placeholder.com/150"
+            };
+        } catch (err) {
+            console.error("Lỗi lấy thông tin bài hát:", err);
+            return false;
+        }
+    }
+
+    queueList.push(song);
+    saveQueueToLocalStorage();
+    renderQueueSidebar();
+
+    // Hiển thị thông báo (toast đơn giản)
+    showToast(`Đã thêm "${song.title}" vào danh sách chờ`);
+    return true;
+}
+
+// Xóa bài khỏi queue theo index
+function removeFromQueue(index) {
+    if (index >= 0 && index < queueList.length) {
+        const removed = queueList.splice(index, 1)[0];
+        saveQueueToLocalStorage();
+        renderQueueSidebar();
+        showToast(`Đã xóa "${removed.title}" khỏi danh sách chờ`);
+    }
+}
+
+// Lấy bài đầu tiên trong queue và xóa nó (dùng khi chuyển bài)
+function getNextFromQueue() {
+    if (queueList.length === 0) return null;
+    const nextSong = queueList.shift();
+    saveQueueToLocalStorage();
+    renderQueueSidebar();
+    return nextSong;
+}
+
+// Hàm hiển thị thông báo tạm thời
+let toastTimeout = null;
+function showToast(message) {
+    let toast = document.getElementById('custom-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'custom-toast';
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 10000;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            opacity: 0;
+        `;
+        document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.style.opacity = '1';
+    if (toastTimeout) clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => {
+        toast.style.opacity = '0';
+    }, 2000);
+}
+
+// Helper escapeHtml để tránh XSS
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
 //HÀM PHỤ: LƯU TRẠNG THÁI PLAYER
 function savePlayerState(isPlaying = false) {
     const currentSong = currentSongData || songList[currentIndex];

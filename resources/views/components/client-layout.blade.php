@@ -232,7 +232,24 @@
         /* Cột Trái (Menu) */
         .sidebar-left { 
             width: 240px; background: var(--bg-panel); border-right: 1px solid var(--border-color); 
-            padding: 20px; flex-shrink: 0; overflow-y: auto; 
+            padding: 20px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .menu-group {
+            flex-shrink: 0;
+        }
+
+        .menu-group.queue-group {
+            margin-top: 30px;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
         }
         .menu-group h3 { color: var(--text-sub); font-size: 12px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;}
         .menu-item { display: block; padding: 12px 15px; color: var(--text-sub); text-decoration: none; margin-bottom: 5px; border-radius: 8px; font-size: 14px; transition: 0.3s; }
@@ -469,6 +486,87 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(0, 209, 255, 0.5) !important; 
         }
+
+        /* Danh sách chờ */
+        #queue-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .queue-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            background: rgba(255,255,255,0.03);
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .queue-item:hover {
+            background: rgba(255,255,255,0.08);
+        }
+        .queue-item-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+        .queue-item-info {
+            flex: 1;
+            overflow: hidden;
+        }
+        .queue-item-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .queue-item-artist {
+            font-size: 11px;
+            color: var(--text-sub);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .queue-item-remove {
+            color: var(--text-sub);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+        .queue-item-remove:hover {
+            color: #ff007a;
+            background: rgba(255,0,122,0.1);
+        }
+
+        #queue-list-container {
+            flex: 1;
+            min-height: 0;
+            max-height: none;
+            overflow-y: hidden;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            padding-right: 4px;
+            padding-bottom: 0;
+        }
+
+        #queue-list-container.has-items {
+            overflow-y: auto;
+            padding-bottom: 8px;
+            scroll-padding-bottom: 8px;
+        }
+
+        #queue-list {
+            padding: 0;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -584,7 +682,7 @@
                     <a href="{{ route('library.history') }}" class="menu-item {{ request()->routeIs('library.history') ? 'active' : '' }}">Listening History</a>
                 @endauth
             </div>
-            <div class="menu-group" style="margin-top: 30px;">
+            <div class="menu-group queue-group">
                 <h3>DANH SÁCH CHỜ</h3>
                 <div style="color: #666; font-size: 13px; padding-left: 15px;">Chưa có bài hát nào...</div>
             </div>
