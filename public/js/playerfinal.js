@@ -138,11 +138,19 @@ function loadQueueFromLocalStorage() {
 // Hiển thị danh sách chờ trong sidebar
 function renderQueueSidebar() {
     const queueContainer = document.getElementById("queue-list");
+    const queueListContainer = document.getElementById("queue-list-container");
     if (!queueContainer) return;
 
     if (!queueList.length) {
+        if (queueListContainer) {
+            queueListContainer.classList.remove("has-items");
+        }
         queueContainer.innerHTML = "Chưa có bài hát nào...";
         return;
+    }
+
+    if (queueListContainer) {
+        queueListContainer.classList.add("has-items");
     }
 
     let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';

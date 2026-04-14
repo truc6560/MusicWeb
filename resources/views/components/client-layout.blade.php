@@ -61,7 +61,24 @@
         /* Cột Trái (Menu) */
         .sidebar-left { 
             width: 240px; background: var(--bg-panel); border-right: 1px solid var(--border-color); 
-            padding: 20px 20px 200px 20px; 
+            padding: 20px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .menu-group {
+            flex-shrink: 0;
+        }
+
+        .menu-group.queue-group {
+            margin-top: 30px;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
         }
         
         .menu-group h3 { color: var(--text-sub); font-size: 12px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;}
@@ -189,9 +206,6 @@
             padding: 0;
             margin: 0;
         }
-        #queue-list-container {
-            padding-bottom: 20px;
-        }
         .queue-item {
             display: flex;
             align-items: center;
@@ -244,13 +258,22 @@
         }
 
         #queue-list-container {
-            max-height: 300px;
-            overflow-y: auto;
+            flex: 1;
+            min-height: 0;
+            max-height: none;
+            overflow-y: hidden;
             overflow-x: hidden;
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
             padding-right: 4px;
+            padding-bottom: 0;
+        }
+
+        #queue-list-container.has-items {
+            overflow-y: auto;
+            padding-bottom: 8px;
+            scroll-padding-bottom: 8px;
         }
 
         #queue-list {
@@ -333,7 +356,7 @@
                 <a href="#" class="menu-item">Favorites Artists</a>
                 <a href="#" class="menu-item">Listening History</a>
             </div>
-            <div class="menu-group" style="margin-top: 30px;">
+            <div class="menu-group queue-group">
                 <h3>DANH SÁCH CHỜ</h3>
                 <div id="queue-list-container">
                     <div id="queue-list" style="color: #666; font-size: 13px;">Chưa có bài hát nào...</div>
