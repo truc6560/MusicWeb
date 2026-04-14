@@ -59,7 +59,7 @@
     
         .song-info-link {
             display: flex;
-            align-items: center;
+            align-itesms: center;
             gap: 10px;
             flex: 1;
             text-decoration: none;
@@ -67,6 +67,32 @@
         }
         .song-info-link:hover {
             text-decoration: none;
+        }
+        
+        .charts-more-wrap {
+            display: flex;
+            justify-content: center;
+            margin-top: 24px;
+        }
+        
+        .charts-more-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 22px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #bd00ff, #00d1ff);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 10px 24px rgba(0, 209, 255, 0.18);
+        }
+        
+        .charts-more-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 28px rgba(189, 0, 255, 0.22);
         }
     </style>
 
@@ -107,16 +133,23 @@
             <span class="chart-box-title">🔥 TOP THỊNH HÀNH</span>
             <div class="chart-list">
                 @foreach ($chart_trending as $idx => $song)
-                <div class="chart-row">
+                <div class="chart-row song-item-row"
+                     data-id="{{ $song->song_id }}"
+                     data-title="{{ $song->title }}"
+                     data-artist="{{ $song->artist->name ?? 'Unknown Artist' }}"
+                     data-src="{{ route('song.stream', ['id' => $song->song_id]) }}"
+                     data-cover="{{ $song->image_url ?: asset('image/default-cover.jpg') }}">
                     <div class="rank-num rank-{{ $idx + 1 }}">{{ $idx + 1 }}</div>
                     <a href="{{ route('song.details', ['id' => $song->song_id]) }}" class="song-info-link">
                         <img src="{{ $song->image_url }}" class="chart-img" onerror="this.src='https://via.placeholder.com/45'">
                         <div style="flex: 1; overflow: hidden;">
                             <div style="color: #fff; font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->title }}</div>
-                            <div style="color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->artist_name }}</div>
+                            <div style="color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->artist->name ?? 'Unknown Artist' }}</div>
                         </div>
                     </a>
-                    <i class="fas fa-play play-btn" data-id="{{ $song->song_id }}" style="color: #00d1ff; font-size: 12px; cursor: pointer;"></i>
+                    <button type="button" class="song-play-btn" style="width: 30px; height: 30px; border: none; border-radius: 50%; background: #00d1ff; color: #041018; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="fas fa-play" style="font-size: 11px;"></i>
+                    </button>
                 </div>
                 @endforeach
             </div>
@@ -126,7 +159,12 @@
             <span class="chart-box-title">🇻🇳 TOP VIỆT NAM</span>
             <div class="chart-list">
                 @foreach ($chart_vn as $idx => $song)
-                <div class="chart-row">
+                <div class="chart-row song-item-row"
+                     data-id="{{ $song->song_id }}"
+                     data-title="{{ $song->title }}"
+                     data-artist="{{ $song->artist_name ?? 'Unknown Artist' }}"
+                     data-src="{{ route('song.stream', ['id' => $song->song_id]) }}"
+                     data-cover="{{ $song->image_url ?: asset('image/default-cover.jpg') }}">
                     <div class="rank-num rank-{{ $idx + 1 }}">{{ $idx + 1 }}</div>
                     <a href="{{ route('song.details', ['id' => $song->song_id]) }}" class="song-info-link">
                         <img src="{{ $song->image_url }}" class="chart-img" onerror="this.src='https://via.placeholder.com/45'">
@@ -135,7 +173,9 @@
                             <div style="color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->artist_name }}</div>
                         </div>
                     </a>
-                    <i class="fas fa-play play-btn" data-id="{{ $song->song_id }}" style="color: #00d1ff; font-size: 12px; cursor: pointer;"></i>
+                    <button type="button" class="song-play-btn" style="width: 30px; height: 30px; border: none; border-radius: 50%; background: #00d1ff; color: #041018; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="fas fa-play" style="font-size: 11px;"></i>
+                    </button>
                 </div>
                 @endforeach
             </div>
@@ -145,7 +185,12 @@
             <span class="chart-box-title">🌍 TOP QUỐC TẾ</span>
             <div class="chart-list">
                 @foreach ($chart_usuk as $idx => $song)
-                <div class="chart-row">
+                <div class="chart-row song-item-row"
+                     data-id="{{ $song->song_id }}"
+                     data-title="{{ $song->title }}"
+                     data-artist="{{ $song->artist_name ?? 'Unknown Artist' }}"
+                     data-src="{{ route('song.stream', ['id' => $song->song_id]) }}"
+                     data-cover="{{ $song->image_url ?: asset('image/default-cover.jpg') }}">
                     <div class="rank-num rank-{{ $idx + 1 }}">{{ $idx + 1 }}</div>
                     <a href="{{ route('song.details', ['id' => $song->song_id]) }}" class="song-info-link">
                         <img src="{{ $song->image_url }}" class="chart-img" onerror="this.src='https://via.placeholder.com/45'">
@@ -154,10 +199,19 @@
                             <div style="color: #888; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $song->artist_name }}</div>
                         </div>
                     </a>
-                    <i class="fas fa-play play-btn" data-id="{{ $song->song_id }}" style="color: #00d1ff; font-size: 12px; cursor: pointer;"></i>
+                    <button type="button" class="song-play-btn" style="width: 30px; height: 30px; border: none; border-radius: 50%; background: #00d1ff; color: #041018; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="fas fa-play" style="font-size: 11px;"></i>
+                    </button>
                 </div>
                 @endforeach
             </div>
+        </div>
+    
+        <div class="charts-more-wrap">
+            <a href="{{ route('charts') }}" class="charts-more-btn">
+                <i class="fas fa-chart-line"></i>
+                Xem thêm bảng xếp hạng
+            </a>
         </div>
     </div>
 </x-client-layout>
