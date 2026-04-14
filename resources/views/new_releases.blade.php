@@ -183,9 +183,8 @@
                         $release_date = \Carbon\Carbon::parse($song->release_date)->format('d/m/Y');
                         $img = $song->image_url ?: asset('image/default_cover.png');
                         
-                        // Lấy đường dẫn audio (Sử dụng src đã xử lý từ Controller)
-                        $audioFile = ltrim(trim($song->audio_file), "/");
-                        $src = asset("audio/" . $audioFile);
+                        // Luôn dùng stream endpoint để xử lý tốt tên file có dấu/ký tự đặc biệt.
+                        $src = route('song.stream', ['id' => $song->song_id]);
                     @endphp
                     <tr class="song-item-row"
                         data-id="{{ $song->song_id }}"

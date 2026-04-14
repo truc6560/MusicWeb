@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\Admin\AdminArtistController;
+use App\Http\Controllers\Admin\AdminAlbumController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminGenreController;
 use App\Http\Controllers\Admin\AdminNewsController;
@@ -119,6 +120,13 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/artists/{id}/edit', [AdminArtistController::class, 'edit'])->name('admin.artists.edit');
     Route::put('/artists/{id}', [AdminArtistController::class, 'update'])->name('admin.artists.update');
     Route::delete('/artists/{id}', [AdminArtistController::class, 'destroy'])->name('admin.artists.destroy');
+
+    Route::get('/albums', [AdminAlbumController::class, 'index'])->name('admin.albums.index');
+    Route::get('/albums/create', [AdminAlbumController::class, 'create'])->name('admin.albums.create');
+    Route::post('/albums', [AdminAlbumController::class, 'store'])->name('admin.albums.store');
+    Route::get('/albums/{id}/edit', [AdminAlbumController::class, 'edit'])->name('admin.albums.edit');
+    Route::put('/albums/{id}', [AdminAlbumController::class, 'update'])->name('admin.albums.update');
+    Route::delete('/albums/{id}', [AdminAlbumController::class, 'destroy'])->name('admin.albums.destroy');
 
     Route::get('/songs', [AdminSongController::class, 'index'])->name('admin.songs.index');
     Route::get('/songs/create', [AdminSongController::class, 'create'])->name('admin.songs.create');
