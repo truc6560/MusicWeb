@@ -22,5 +22,15 @@ class Song extends Model
     {
         return $this->belongsTo(Album::class, 'album_id');
     }
+
+    public function listenHistories()
+    {
+        return $this->hasMany(ListenHistory::class, 'song_id');
+    }
+
+    public function favoriteSongs()
+    {
+        return $this->hasMany(FavoriteSong::class, 'song_id');
+    }
 }
 ?>
