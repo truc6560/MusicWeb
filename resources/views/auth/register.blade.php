@@ -21,6 +21,12 @@
         <input type="email" name="email" value="{{ old('email') }}" placeholder="Email" required>
         @error('email') <div class="error-message">{{ $message }}</div> @enderror
     </div>
+
+    <div class="input-group">
+        <label>Số điện thoại</label>
+        <input type="text" name="phone" value="{{ old('phone') }}" placeholder="Số điện thoại" required>
+        @error('phone') <div class="error-message">{{ $message }}</div> @enderror
+    </div>
     
     <div class="input-group">
         <label>Mật khẩu</label>
@@ -39,16 +45,6 @@
     
     <button type="submit" class="btn-auth">Đăng ký</button>
 </form>
-
-<div class="divider">
-    <div class="divider-line"></div>
-    <div class="divider-text">hoặc</div>
-    <div class="divider-line"></div>
-</div>
-
-<button class="btn-outline" onclick="alert('Tính năng đang phát triển')">
-    <i class="fab fa-google"></i> Tiếp tục bằng Google
-</button>
 
 <div class="auth-link">
     Đã có tài khoản? <a href="{{ route('login') }}">Đăng nhập</a>

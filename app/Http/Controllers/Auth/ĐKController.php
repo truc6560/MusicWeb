@@ -26,6 +26,7 @@ class ĐKController extends Controller
         'username' => 'required|string|max:255|unique:users',
         'full_name' => 'required|string|max:255',
         'email' => 'required|string|email|max:255|unique:users',
+        'phone' => 'required|string|max:20|unique:users,phone',
         'password' => [
             'required',
             'confirmed',
@@ -37,11 +38,16 @@ class ĐKController extends Controller
         ],
     ]);
 
+        $hashedPassword = Hash::make($request->password);
+
         $user = User::create([
             'username' => $request->username,
+            'name' => $request->full_name,
             'full_name' => $request->full_name,
             'email' => $request->email,
-            'password_hash' => Hash::make($request->password),
+            'phone' => $request->phone,
+            'password' => $hashedPassword,
+            'password_hash' => $hashedPassword,
             'status' => 1,
             'is_admin' => 0,
             'registration_date' => now(),
@@ -52,6 +58,6 @@ class ĐKController extends Controller
         // Đăng nhập ngay sau khi đăng ký
         Auth::login($user);
 
-        return redirect()->route('client.home');
+        return redirect('/');
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\AlbumController;
-use App\Http\Controllers\Admin\AdminArtistController;
 use App\Http\Controllers\Admin\AdminAlbumController;
+use App\Http\Controllers\Admin\AdminArtistController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminGenreController;
 use App\Http\Controllers\Admin\AdminNewsController;
@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\ArtistController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Auth\ĐKController;
 use App\Http\Controllers\Auth\ĐNController;
 use App\Http\Controllers\ChartController;
@@ -31,15 +32,12 @@ use Illuminate\Support\Facades\Route;
 // 1. PUBLIC ROUTES
 Route::get('/', [HomeController::class, 'index'])->name('client.home');
 
-// Albums
 Route::get('/albums', [AlbumController::class, 'index'])->name('albums.index');
 Route::get('/albums/{id}', [AlbumController::class, 'show'])->name('albums.show');
 Route::post('/albums/toggle-like', [AlbumController::class, 'toggleLike'])->name('albums.toggleLike');
 
-// Search
 Route::get('/search/suggestions', [SearchController::class, 'suggestions'])->name('search.suggestions');
 
-// Library / Artists / Genres
 Route::get('/library/songs', [LibraryController::class, 'songs'])->name('library.songs');
 Route::get('/library/artists', [LibraryController::class, 'artists'])->name('library.artists');
 Route::get('/library/history', [LibraryController::class, 'history'])->name('library.history');
@@ -50,14 +48,12 @@ Route::post('/artists/toggle-follow', [ArtistController::class, 'toggleFollow'])
 
 Route::get('/genres/{id}', [GenreController::class, 'show'])->name('genres.show');
 
-// Player APIs
 Route::get('/song/{id}/stream', [SongController::class, 'stream'])->name('song.stream');
 Route::get('/song/{id}', [SongController::class, 'thongtinbaihat'])->name('song.information');
 Route::get('/song/{id}/laylyrics', [SongController::class, 'laylyrics'])->name('song.laylyrics');
 Route::get('/song/{id}/chitiet', [SongController::class, 'chitietbaihat'])->name('song.details');
 Route::post('/ajax/increment-view', [InteractionController::class, 'incrementPlayCount']);
 
-// Charts / New releases
 Route::get('/new-releases', [NewReleaseController::class, 'index'])->name('new_releases');
 Route::get('/charts', [ChartController::class, 'index'])->name('charts');
 
@@ -72,20 +68,24 @@ Route::middleware('guest')->group(function () {
     Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
     Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
     Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.update');
+
+    Route::get('/login/phone', [ĐNController::class, 'phoneForm'])->name('login.phone.form');
+    Route::post('/login/phone/send-otp', [ĐNController::class, 'sendOtp'])->name('login.phone.send-otp');
+    Route::get('/login/phone/verify', [ĐNController::class, 'verifyOtpForm'])->name('login.phone.verify');
+    Route::post('/login/phone/verify', [ĐNController::class, 'verifyOtp'])->name('login.phone.verify.post');
+    Route::get('/login/google', [SocialAuthController::class, 'redirectToGoogle'])->name('login.google');
+    Route::get('/login/google/callback', [SocialAuthController::class, 'handleGoogleCallback'])->name('login.google.callback');
 });
 
 // 3. AUTH ROUTES (CẦN ĐĂNG NHẬP)
 Route::middleware('auth')->group(function () {
-    // Đăng xuất
     Route::post('/logout', [ĐNController::class, 'destroy'])->name('logout');
 
-    // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'changePassword'])->name('profile.change-password');
     Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete');
 
-    // Playlist + tương tác user
     Route::get('/my-playlists', [PlaylistController::class, 'index'])->name('playlist.index');
     Route::get('/my-playlists/{id}', [PlaylistController::class, 'show'])->name('playlist.show');
     Route::post('/my-playlists/create', [PlaylistController::class, 'store'])->name('playlist.store');
@@ -102,7 +102,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/ajax/like-artist', [InteractionController::class, 'toggleLikeArtist']);
     Route::post('/ajax/record-history', [InteractionController::class, 'recordHistory']);
 
-    // Notifications API
     Route::get('/api/notifications', [NotificationApiController::class, 'getNotifications'])->name('api.notifications.get');
     Route::post('/api/notifications/{notificationId}/read', [NotificationApiController::class, 'markAsRead'])->name('api.notifications.read');
     Route::post('/api/notifications/read-all', [NotificationApiController::class, 'markAllAsRead'])->name('api.notifications.read-all');

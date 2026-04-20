@@ -5,8 +5,8 @@
     @csrf
     
     <div class="input-group">
-        <label>Email hoặc tên đăng nhập</label>
-        <input type="text" name="username" value="{{ old('username') }}" placeholder="Email hoặc tên đăng nhập" required autofocus>
+        <label>Email, tên đăng nhập hoặc số điện thoại</label>
+        <input type="text" name="username" value="{{ old('username') }}" placeholder="Email, tên đăng nhập hoặc số điện thoại" required autofocus>
         @error('username')
             <div class="error-message">{{ $message }}</div>
         @enderror
@@ -35,11 +35,11 @@
     <div class="divider-line"></div>
 </div>
 
-<button class="btn-outline" onclick="alert('Tính năng đang phát triển')">
+<button type="button" class="btn-outline" onclick="window.location='{{ route('login.phone.form') }}'">
     <i class="fas fa-phone-alt"></i> Tiếp tục bằng số điện thoại
 </button>
 
-<button class="btn-outline" onclick="alert('Tính năng đang phát triển')">
+<button type="button" class="btn-outline" onclick="window.location='{{ route('login.google') }}'">
     <i class="fab fa-google"></i> Tiếp tục bằng Google
 </button>
 

@@ -1,29 +1,43 @@
 <?php
+
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
+    use HasFactory;
+
     public $timestamps = false;
     protected $primaryKey = 'user_id';
+    public $incrementing = true;
+    protected $keyType = 'int';
+
     protected $fillable = [
         'username',
+        'password',
         'password_hash',
         'email',
+        'phone',
         'full_name',
+        'name',
         'avatar_url',
         'is_admin',
         'status',
         'registration_date',
+        'remember_token',
+        'google_id',
+        'reset_token',
     ];
-    protected $hidden = ['password_hash']; // Bảo mật mật khẩu
+
+    protected $hidden = ['password', 'password_hash', 'remember_token'];
 
     public function getAuthPassword()
     {
-        return $this->password_hash;
+        return $this->password_hash ?: $this->password;
     }
 
     public function likedSongs(): BelongsToMany
