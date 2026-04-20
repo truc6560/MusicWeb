@@ -13,7 +13,9 @@
     data-title="{{ $song->title }}" 
     data-artist="{{ $albumArtist }}" 
     data-src="{{ $audioPath }}"
-    data-cover="{{ $albumImage }}">
+    data-cover="{{ $albumImage }}"
+    data-artist-id="{{ $song->artist_id }}"
+    data-album-id="{{ $song->album_id ?? '' }}">
 
     {{-- Số thứ tự bài hát --}}
     <td style="color:#888">{{ $index }}</td>

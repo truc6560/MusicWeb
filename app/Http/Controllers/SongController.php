@@ -8,6 +8,41 @@ use App\Models\Artist;
 
 class SongController extends Controller
 {
+    protected function buildLyricFileCandidates(string $title, string $artist): array
+    {
+        $normalize = static function (string $value): string {
+            $value = preg_replace('/[\\\\\/:*?"<>|]/u', ' ', $value) ?? $value;
+            $value = preg_replace('/\s+/u', ' ', $value) ?? $value;
+            return trim($value);
+        };
+
+        $candidates = [
+            $normalize($title),
+            $normalize($artist . ' - ' . $title),
+            $normalize($title . ' - ' . $artist),
+        ];
+
+        $filtered = array_values(array_filter($candidates, static fn ($item) => $item !== ''));
+        return array_values(array_unique($filtered));
+    }
+
+    protected function resolveLyricPath(string $title, string $artist): ?string
+    {
+        $lyricsDir = public_path('lyrics');
+        if (!is_dir($lyricsDir)) {
+            return null;
+        }
+
+        foreach ($this->buildLyricFileCandidates($title, $artist) as $stem) {
+            $path = $lyricsDir . DIRECTORY_SEPARATOR . $stem . '.lrc';
+            if (is_file($path)) {
+                return $path;
+            }
+        }
+
+        return null;
+    }
+
     protected function normalizeAudioName(string $value): string
     {
         $value = mb_strtolower(trim($value), 'UTF-8');
@@ -61,13 +96,17 @@ class SongController extends Controller
     public function chitietbaihat($id)
     {
         $song = Song::with('artist')->findOrFail($id);
-        return view('song.chitiet', compact('song'));
+        $artistName = $song->artist->name ?? 'Unknown Artist';
+        $hasLrc = !empty($song->lrc_file)
+            || $this->resolveLyricPath((string) $song->title, (string) $artistName) !== null;
+
+        return view('song.chitiet', compact('song', 'hasLrc'));
     }
 
     public function thongtinbaihat($id)
     {
         // Lấy bài hát kèm thông tin nghệ sĩ
-        $song = Song::with('artist')->findOrFail($id);
+        $song = Song::with(['artist', 'album'])->findOrFail($id);
 
         $audioFile = trim((string) $song->audio_file);
 
@@ -78,14 +117,50 @@ class SongController extends Controller
             $audioUrl = route('song.stream', ['id' => $song->song_id]);
         }
         
+        $relatedSongs = Song::with('artist')
+            ->where('artist_id', $song->artist_id)
+            ->where('song_id', '!=', $song->song_id)
+            ->orderByDesc('plays')
+            ->limit(5)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'song_id' => $item->song_id,
+                    'title' => $item->title,
+                    'artist' => optional($item->artist)->name ?? 'Unknown Artist',
+                    'cover' => asset($item->image_url ?? 'image/icon2.png'),
+                ];
+            })
+            ->values();
+
+        $artistLiked = false;
+        if (auth()->check() && $song->artist_id) {
+            $artistLiked = auth()->user()
+                ->likedArtists()
+                ->where('artists.artist_id', $song->artist_id)
+                ->exists();
+        }
+
+        $artistName = $song->artist->name ?? 'Unknown Artist';
+        $fallbackLyricPath = $this->resolveLyricPath((string) $song->title, (string) $artistName);
+        $fallbackLrcUrl = $fallbackLyricPath ? asset('lyrics/' . basename($fallbackLyricPath)) : null;
+
         return response()->json([
             'song_id' => $song->song_id,
             'title' => $song->title,
-            'artist' => $song->artist->name ?? 'Unknown Artist',
+            'artist' => $artistName,
+            'artist_id' => $song->artist_id,
+            'album_id' => $song->album_id,
+            'artist_liked' => $artistLiked,
             'lyrics' => $song->lyrics ?? 'Chưa có lời bài hát',
             'cover' => asset($song->image_url ?? 'image/icon2.png'),
             'audio_url' => $audioUrl,
-            'duration' => $song->duration ?? 0
+            'lrc_url' => !empty($song->lrc_file) ? asset('lyrics/' . $song->lrc_file) : $fallbackLrcUrl,
+            'duration' => $song->duration ?? 0,
+            'album' => optional($song->album)->title ?? 'Single',
+            'genres' => $song->genres ?? 'Chưa cập nhật',
+            'plays' => (int) ($song->plays ?? 0),
+            'related_songs' => $relatedSongs,
         ]);
     }
 

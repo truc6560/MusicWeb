@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AdminGenreController;
 use App\Http\Controllers\Admin\AdminNewsController;
 use App\Http\Controllers\Admin\AdminSongController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\ArtistController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\ChartController;
 use App\Http\Controllers\GenreController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewReleaseController;
+use App\Http\Controllers\NotificationApiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SongController;
@@ -99,6 +101,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/ajax/like-song', [InteractionController::class, 'toggleLikeSong']);
     Route::post('/ajax/like-artist', [InteractionController::class, 'toggleLikeArtist']);
     Route::post('/ajax/record-history', [InteractionController::class, 'recordHistory']);
+
+    // Notifications API
+    Route::get('/api/notifications', [NotificationApiController::class, 'getNotifications'])->name('api.notifications.get');
+    Route::post('/api/notifications/{notificationId}/read', [NotificationApiController::class, 'markAsRead'])->name('api.notifications.read');
+    Route::post('/api/notifications/read-all', [NotificationApiController::class, 'markAllAsRead'])->name('api.notifications.read-all');
 });
 
 // 4. KHU VỰC ADMIN (CẦN ĐĂNG NHẬP)
@@ -144,4 +151,12 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     Route::get('/users', [AdminUserController::class, 'index'])->name('admin.users.index');
     Route::patch('/users/{id}/toggle-status', [AdminUserController::class, 'toggleStatus'])->name('admin.users.toggle-status');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('admin.notifications.index');
+    Route::get('/notifications/create', [NotificationController::class, 'create'])->name('admin.notifications.create');
+    Route::post('/notifications', [NotificationController::class, 'store'])->name('admin.notifications.store');
+    Route::get('/notifications/{notification}/edit', [NotificationController::class, 'edit'])->name('admin.notifications.edit');
+    Route::put('/notifications/{notification}', [NotificationController::class, 'update'])->name('admin.notifications.update');
+    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('admin.notifications.destroy');
+    Route::post('/notifications/{notification}/resend', [NotificationController::class, 'resend'])->name('admin.notifications.resend');
 });

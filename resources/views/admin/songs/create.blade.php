@@ -10,7 +10,7 @@
         </div>
     @endif
 
-    <form action="{{ route('admin.songs.store') }}" method="POST">
+    <form action="{{ route('admin.songs.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
@@ -72,6 +72,12 @@
             <div style="grid-column: span 2;">
                 <label style="display: block; margin-bottom: 8px; color: #aaa; font-weight: 600;">Lyrics</label>
                 <textarea name="lyrics" style="width: 100%; min-height: 140px; padding: 12px; background: #12141d; border: 1px solid #2d2f3b; color: #fff; border-radius: 8px; outline: none; resize: vertical;">{{ old('lyrics') }}</textarea>
+                <div style="margin-top: 8px; color: #8f95af; font-size: 12px; line-height: 1.6;">Nếu bài hát có file LRC thì tải lên bên dưới để chạy theo nhạc. Không có LRC thì nhập lời như cũ.</div>
+            </div>
+
+            <div style="grid-column: span 2;">
+                <label style="display: block; margin-bottom: 8px; color: #aaa; font-weight: 600;">Tệp LRC (không bắt buộc)</label>
+                <input type="file" name="lrc_file" accept=".lrc,.txt" style="width: 100%; padding: 12px; background: #12141d; border: 1px solid #2d2f3b; color: #fff; border-radius: 8px; outline: none;">
             </div>
         </div>
 

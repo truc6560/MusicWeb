@@ -63,6 +63,7 @@
             <a href="{{ route('admin.songs.index') }}" class="nav-item {{ request()->routeIs('admin.songs.*') ? 'active' : '' }}"><i class="fas fa-music"></i> Quản lý Bài hát</a>
             <a href="{{ route('admin.genres.index') }}" class="nav-item {{ request()->routeIs('admin.genres.*') ? 'active' : '' }}"><i class="fas fa-music"></i> Quản lý Thể loại</a>
             <a href="{{ route('admin.users.index') }}" class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"><i class="fas fa-users"></i> Quản lý Người dùng</a>
+            <a href="{{ route('admin.notifications.index') }}" class="nav-item {{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}"><i class="fas fa-bell"></i> Quản lý Thông báo</a>
             <a href="{{ route('admin.news.index') }}" class="nav-item {{ request()->routeIs('admin.news.*') ? 'active' : '' }}"><i class="fas fa-newspaper"></i> Quản lý Tin tức</a>
             <a href="{{ route('admin.statistics') }}" class="nav-item {{ request()->routeIs('admin.statistics') ? 'active' : '' }}"><i class="fas fa-music"></i> Thống kê</a>
             <a href="{{ route('client.home') }}" class="nav-item"><i class="fas fa-arrow-left"></i> Quay lại trang nghe nhạc</a>

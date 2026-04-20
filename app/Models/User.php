@@ -40,5 +40,17 @@ class User extends Authenticatable
     {
         return $this->hasMany(Playlist::class, 'user_id', 'user_id');
     }
+
+    public function notifications(): BelongsToMany
+    {
+        return $this->belongsToMany(Notification::class, 'notification_user', 'user_id', 'notification_id')
+            ->withPivot('is_read', 'read_at')
+            ->withTimestamps();
+    }
+
+    public function unreadNotifications()
+    {
+        return $this->notifications()->wherePivot('is_read', false)->orderByPivot('created_at', 'desc');
+    }
 }
 

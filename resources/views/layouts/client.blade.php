@@ -67,8 +67,9 @@
         .player-song-img { width: 50px; height: 50px; border-radius: 8px; margin-right: 15px; object-fit: cover; }
         .player-center { flex: 1; display: flex; flex-direction: column; align-items: center; max-width: 600px; }
         .player-controls { display: flex; align-items: center; gap: 25px; margin-bottom: 8px; }
-        .control-icon { color: var(--text-sub); cursor: pointer; font-size: 16px; }
+        .control-icon { color: var(--text-sub); cursor: pointer; font-size: 16px; transition: color 0.2s ease, text-shadow 0.2s ease; }
         .control-icon:hover { color: #fff; }
+        .control-icon.active { color: #fff; text-shadow: 0 0 10px rgba(255, 255, 255, 0.35); }
         .play-btn-wrapper { width: 42px; height: 42px; background: var(--primary-gradient); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #000; cursor: pointer; }
         .progress-area { display: flex; align-items: center; width: 100%; gap: 12px; }
         .progress-container { flex: 1; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; cursor: pointer; position: relative; }

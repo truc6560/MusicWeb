@@ -103,7 +103,9 @@
                         data-title="{{ $song->title }}"
                         data-artist="{{ $artist->name }}"
                         data-src="{{ $audioPath }}"
-                        data-cover="{{ $song->image_url ?: asset('image/default_cover.png') }}">
+                        data-cover="{{ $song->image_url ?: asset('image/default_cover.png') }}"
+                        data-artist-id="{{ $song->artist_id ?? '' }}"
+                        data-album-id="{{ $song->album_id ?? '' }}">
                         
                         <td style="color:#888; width: 50px;">{{ $index + 1 }}</td>
                         <td>

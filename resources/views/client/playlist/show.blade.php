@@ -843,6 +843,7 @@
                             <button type="button" data-action="delete"><i class="fas fa-trash-alt"></i><span>Xóa toàn bộ playlist</span></button>
                             <button type="button" data-action="toggle-visibility" id="playlistVisibilityButton"><i class="fas fa-lock"></i><span id="playlistVisibilityLabel">Chuyển sang riêng tư</span></button>
                             <div class="menu-divider"></div>
+                            <button type="button" data-action="add-all-to-queue"><i class="fas fa-list"></i><span>Thêm vào danh sách chờ</span></button>
                             <button type="button" data-action="copy-songs"><i class="fas fa-clone"></i><span>Thêm bài hát sang playlist khác</span></button>
                         </div>
                     </div>
@@ -892,7 +893,9 @@
                                     data-title="{{ $song->title }}"
                                     data-artist="{{ $song->artist->name ?? 'Unknown Artist' }}"
                                     data-src="{{ route('song.stream', ['id' => $song->song_id]) }}"
-                                    data-cover="{{ $cover }}">
+                                    data-cover="{{ $cover }}"
+                                    data-artist-id="{{ $song->artist_id ?? '' }}"
+                                    data-album-id="{{ $song->album_id ?? '' }}">
                                     <td>{{ $idx + 1 }}</td>
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 10px;">
@@ -1283,6 +1286,30 @@
                             alert(data.message || 'Không thể thay đổi trạng thái playlist.');
                         } catch (error) {
                             alert('Lỗi kết nối, vui lòng thử lại.');
+                        }
+                        return;
+                    }
+
+                    if (action === 'add-all-to-queue') {
+                        const songRows = Array.from(document.querySelectorAll('.song-item-row'));
+                        if (!songRows.length) {
+                            if (typeof window.showToast === 'function') {
+                                window.showToast('Playlist này không có bài hát.', 'warning');
+                            }
+                            return;
+                        }
+
+                        let addedCount = 0;
+                        songRows.forEach((row) => {
+                            const songId = row.dataset.id;
+                            if (songId && typeof window.addToQueue === 'function') {
+                                window.addToQueue(songId);
+                                addedCount++;
+                            }
+                        });
+
+                        if (typeof window.showToast === 'function') {
+                            window.showToast(`Đã thêm ${addedCount} bài hát vào danh sách chờ.`, 'success');
                         }
                         return;
                     }

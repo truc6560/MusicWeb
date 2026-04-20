@@ -191,7 +191,9 @@
                         data-title="{{ $song->title }}"
                         data-artist="{{ $song->artist->name }}"
                         data-src="{{ $src }}"
-                        data-cover="{{ $img }}">
+                        data-cover="{{ $img }}"
+                        data-artist-id="{{ $song->artist_id ?? '' }}"
+                        data-album-id="{{ $song->album_id ?? '' }}">
 
                         {{-- Rank cell định dạng 01, 02... --}}
                         <td class="rank-cell">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</td>

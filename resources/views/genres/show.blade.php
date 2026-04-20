@@ -166,7 +166,9 @@
                         data-title="{{ $song->title }}"
                         data-artist="{{ $song->artist->name ?? 'Unknown Artist' }}"
                         data-src="{{ route('song.stream', ['id' => $song->song_id]) }}"
-                        data-cover="{{ $cover }}">
+                        data-cover="{{ $cover }}"
+                        data-artist-id="{{ $song->artist_id ?? '' }}"
+                        data-album-id="{{ $song->album_id ?? '' }}">
                         <td>{{ $index + 1 }}</td>
                         <td>
                             <div class="song-meta">

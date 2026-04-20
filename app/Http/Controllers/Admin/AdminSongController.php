@@ -7,9 +7,39 @@ use App\Models\Album;
 use App\Models\Artist;
 use App\Models\Song;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 
 class AdminSongController extends Controller
 {
+    protected function storeLrcFile(Request $request, Song $song): ?string
+    {
+        if (!$request->hasFile('lrc_file')) {
+            return $song->lrc_file ?? null;
+        }
+
+        $upload = $request->file('lrc_file');
+        if (!$upload || !$upload->isValid()) {
+            return $song->lrc_file ?? null;
+        }
+
+        $directory = public_path('lyrics');
+        if (!File::exists($directory)) {
+            File::makeDirectory($directory, 0755, true);
+        }
+
+        if (!empty($song->lrc_file)) {
+            $oldPath = public_path('lyrics/' . $song->lrc_file);
+            if (File::exists($oldPath)) {
+                File::delete($oldPath);
+            }
+        }
+
+        $fileName = 'song_' . $song->song_id . '.lrc';
+        $upload->move($directory, $fileName);
+
+        return $fileName;
+    }
+
     // 1. Hiển thị danh sách & Tìm kiếm
     public function index(Request $request)
     {
@@ -55,9 +85,15 @@ class AdminSongController extends Controller
             'plays' => 'nullable|integer|min:0',
             'genres' => 'nullable|string|max:255',
             'lyrics' => 'nullable|string',
+            'lrc_file' => 'nullable|file|mimes:lrc,txt|max:2048',
         ]);
 
-        Song::create($data);
+        $songData = $data;
+        unset($songData['lrc_file']);
+
+        $song = Song::create($songData);
+        $song->lrc_file = $this->storeLrcFile($request, $song);
+        $song->save();
 
         return redirect()->route('admin.songs.index')->with('success', 'Thêm bài hát thành công!');
     }
@@ -88,9 +124,15 @@ class AdminSongController extends Controller
             'plays' => 'nullable|integer|min:0',
             'genres' => 'nullable|string|max:255',
             'lyrics' => 'nullable|string',
+            'lrc_file' => 'nullable|file|mimes:lrc,txt|max:2048',
         ]);
 
-        $song->update($data);
+        $songData = $data;
+        unset($songData['lrc_file']);
+
+        $song->update($songData);
+        $song->lrc_file = $this->storeLrcFile($request, $song);
+        $song->save();
 
         return redirect()->route('admin.songs.index')->with('success', 'Cập nhật bài hát thành công!');
     }

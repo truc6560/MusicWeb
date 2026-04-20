@@ -183,7 +183,9 @@
                             data-title="{{ $song->title }}"
                             data-artist="{{ $artistName }}"
                             data-src="{{ route('song.stream', ['id' => $song->song_id]) }}"
-                            data-cover="{{ $img }}">
+                            data-cover="{{ $img }}"
+                            data-artist-id="{{ $song->artist_id ?? '' }}"
+                            data-album-id="{{ $song->album_id ?? '' }}">
                             <td class="rank-col {{ $rankClass }}">{{ $rank }}</td>
                             <td>
                                 <div class="song-info-flex">
@@ -232,7 +234,9 @@
                             data-title="{{ $song->title }}"
                             data-artist="{{ $artistName }}"
                             data-src="{{ route('song.stream', ['id' => $song->song_id]) }}"
-                            data-cover="{{ $img }}">
+                            data-cover="{{ $img }}"
+                            data-artist-id="{{ $song->artist_id ?? '' }}"
+                            data-album-id="{{ $song->album_id ?? '' }}">
                             <td class="rank-col {{ $rankClass }}">{{ $rank }}</td>
                             <td>
                                 <div class="song-info-flex">
@@ -281,7 +285,9 @@
                             data-title="{{ $song->title }}"
                             data-artist="{{ $artistName }}"
                             data-src="{{ route('song.stream', ['id' => $song->song_id]) }}"
-                            data-cover="{{ $img }}">
+                            data-cover="{{ $img }}"
+                            data-artist-id="{{ $song->artist_id ?? '' }}"
+                            data-album-id="{{ $song->album_id ?? '' }}">
                             <td class="rank-col {{ $rankClass }}">{{ $rank }}</td>
                             <td>
                                 <div class="song-info-flex">

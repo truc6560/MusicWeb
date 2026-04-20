@@ -53,9 +53,21 @@ class InteractionController extends Controller
         $user = Auth::user();
         $artistId = $request->artist_id;
 
-        $user->likedArtists()->toggle($artistId);
+        if (!$artistId) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Thiếu artist_id'
+            ], 422);
+        }
 
-        return response()->json(['status' => 'success', 'message' => 'Đã cập nhật nghệ sĩ yêu thích']);
+        $result = $user->likedArtists()->toggle($artistId);
+        $isLiked = !empty($result['attached']);
+
+        return response()->json([
+            'status' => 'success',
+            'action' => $isLiked ? 'liked' : 'unliked',
+            'message' => 'Đã cập nhật nghệ sĩ yêu thích'
+        ]);
     }
 
     // 3. Lưu lịch sử nghe (Gọi sau khi nghe được X giây)

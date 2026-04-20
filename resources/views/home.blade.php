@@ -47,6 +47,109 @@
         .news-img { width: 100%; height: 150px; object-fit: cover; }
         .news-content { padding: 15px; height: 100px; display: flex; flex-direction: column; justify-content: flex-end; }
         .news-big-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; } 
+
+        .news-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 2200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .news-modal.is-open {
+            display: flex;
+        }
+
+        .news-modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(3, 6, 14, 0.78);
+            backdrop-filter: blur(10px);
+        }
+
+        .news-modal-dialog {
+            position: relative;
+            width: min(860px, 100%);
+            max-height: min(88vh, 900px);
+            overflow: hidden;
+            border-radius: 22px;
+            background: linear-gradient(180deg, #151927 0%, #0f121b 100%);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 30px 70px rgba(0,0,0,0.5);
+            display: grid;
+            grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+        }
+
+        .news-modal-cover {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #0a0c13;
+        }
+
+        .news-modal-body {
+            padding: 24px 24px 28px;
+            overflow: auto;
+        }
+
+        .news-modal-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+            color: #8f95af;
+            font-size: 13px;
+        }
+
+        .news-modal-title {
+            color: #fff;
+            font-size: 28px;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 16px;
+        }
+
+        .news-modal-content {
+            color: #d6dbeb;
+            font-size: 15px;
+            line-height: 1.85;
+            white-space: pre-wrap;
+        }
+
+        .news-modal-close {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .news-modal-close:hover {
+            background: rgba(255,255,255,0.14);
+        }
+
+        @media (max-width: 820px) {
+            .news-modal-dialog {
+                grid-template-columns: 1fr;
+            }
+
+            .news-modal-cover {
+                max-height: 240px;
+            }
+
+            .news-modal-title {
+                font-size: 22px;
+            }
+        }
         /* BẢNG XẾP HẠNG */
         .charts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
         .chart-box { background: #14161f; border-radius: 15px; padding: 20px; border: 1px solid rgba(255,255,255,0.03); }
@@ -106,7 +209,18 @@
                 
                 @for ($i = 0; $i < 2; $i++)
                     @foreach($news_list as $news)
-                    <div class="news-card">
+                    @php
+                        $newsPayload = [
+                            'title' => $news->title,
+                            'image_url' => $news->image_url ?: asset('image/default-cover.jpg'),
+                            'post_date' => \Carbon\Carbon::parse($news->post_date)->format('d/m/Y'),
+                            'content' => $news->content,
+                        ];
+                    @endphp
+                    <div class="news-card"
+                         role="button"
+                         tabindex="0"
+                         data-news='@json($newsPayload)'>
                         <img src="{{ $news->image_url }}" class="news-img" onerror="this.src='https://via.placeholder.com/270x150'">
                         <div class="news-content">
                             <div class="news-big-title">{{ $news->title }}</div>
@@ -121,6 +235,22 @@
             @else
                 <p style="color:#666; padding-left: 10px; font-style: italic;">Đang cập nhật tin tức...</p>
             @endif
+        </div>
+    </div>
+
+    <div id="newsModal" class="news-modal" aria-hidden="true">
+        <div class="news-modal-backdrop" data-news-modal-close="1"></div>
+        <div class="news-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="newsModalTitle">
+            <button type="button" class="news-modal-close" id="newsModalClose" aria-label="Đóng">&times;</button>
+            <img id="newsModalCover" class="news-modal-cover" src="" alt="">
+            <div class="news-modal-body">
+                <div class="news-modal-meta">
+                    <span id="newsModalDate">--</span>
+                    <span>Tin tức nổi bật</span>
+                </div>
+                <div id="newsModalTitle" class="news-modal-title"></div>
+                <div id="newsModalContent" class="news-modal-content"></div>
+            </div>
         </div>
     </div>
 
@@ -214,4 +344,65 @@
             </a>
         </div>
     </div>
+
+    <script>
+        (function () {
+            const modal = document.getElementById('newsModal');
+            const closeBtn = document.getElementById('newsModalClose');
+            const cover = document.getElementById('newsModalCover');
+            const title = document.getElementById('newsModalTitle');
+            const content = document.getElementById('newsModalContent');
+            const date = document.getElementById('newsModalDate');
+
+            if (!modal || !closeBtn || !cover || !title || !content || !date) return;
+
+            const openModal = (payload) => {
+                cover.src = payload.image_url || 'https://via.placeholder.com/860x480';
+                cover.alt = payload.title || 'News cover';
+                title.textContent = payload.title || 'Tin tức';
+                date.textContent = payload.post_date || '--';
+                content.textContent = payload.content || 'Chưa có nội dung.';
+                modal.classList.add('is-open');
+                modal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+            };
+
+            const closeModal = () => {
+                modal.classList.remove('is-open');
+                modal.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+            };
+
+            document.querySelectorAll('.news-card[data-news]').forEach((card) => {
+                card.addEventListener('click', () => {
+                    try {
+                        const payload = JSON.parse(card.dataset.news || '{}');
+                        openModal(payload);
+                    } catch (error) {
+                        console.error('Không thể mở tin tức:', error);
+                    }
+                });
+
+                card.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        card.click();
+                    }
+                });
+            });
+
+            closeBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (event) => {
+                if (event.target && event.target.hasAttribute('data-news-modal-close')) {
+                    closeModal();
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+                    closeModal();
+                }
+            });
+        })();
+    </script>
 </x-client-layout>

@@ -10,7 +10,7 @@
         </div>
     @endif
 
-    <form action="{{ route('admin.songs.update', $song->song_id) }}" method="POST">
+    <form action="{{ route('admin.songs.update', $song->song_id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -72,6 +72,15 @@
             <div style="grid-column: span 2;">
                 <label style="display: block; margin-bottom: 8px; color: #aaa; font-weight: 600;">Lyrics</label>
                 <textarea name="lyrics" style="width: 100%; min-height: 140px; padding: 12px; background: #12141d; border: 1px solid #2d2f3b; color: #fff; border-radius: 8px; outline: none; resize: vertical;">{{ old('lyrics', $song->lyrics) }}</textarea>
+                <div style="margin-top: 8px; color: #8f95af; font-size: 12px; line-height: 1.6;">Nếu có file LRC thì tải lên để ưu tiên hiển thị theo nhạc. Không có LRC thì giữ lời nhập tay như cũ.</div>
+                @if(!empty($song->lrc_file))
+                    <div style="margin-top: 6px; color: #00d1ff; font-size: 12px;">Đang có file LRC: {{ $song->lrc_file }}</div>
+                @endif
+            </div>
+
+            <div style="grid-column: span 2;">
+                <label style="display: block; margin-bottom: 8px; color: #aaa; font-weight: 600;">Tệp LRC (không bắt buộc)</label>
+                <input type="file" name="lrc_file" accept=".lrc,.txt" style="width: 100%; padding: 12px; background: #12141d; border: 1px solid #2d2f3b; color: #fff; border-radius: 8px; outline: none;">
             </div>
         </div>
 

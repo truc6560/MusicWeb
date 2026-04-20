@@ -160,9 +160,11 @@
             <div class="album-desc">{{ $album->description }}</div>
         @endif
 
-        <button class="btn-play-all" id="btnPlayRandom">
-            <i class="fas fa-play" style="margin-right: 8px;"></i> Phát ngẫu nhiên
-        </button>
+        <div style="display: flex; gap: 12px; margin-top: 20px;">
+            <button class="btn-play-all" id="btnPlayRandom">
+                <i class="fas fa-play" style="margin-right: 8px;"></i> Phát ngẫu nhiên
+            </button>
+        </div>
     </div>
 </div>
 

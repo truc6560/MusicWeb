@@ -224,6 +224,130 @@
         .user-profile img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
         .user-profile span { font-size: 13px; font-weight: 600; }
 
+        /* NOTIFICATION DROPDOWN */
+        .notification-wrapper {
+            position: relative;
+            display: inline-block;
+            z-index: 200;
+        }
+
+        .noti-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            width: 340px;
+            background: rgba(26, 28, 38, 0.95) !important;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 2000 !important;
+            overflow: hidden;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.2s ease;
+            pointer-events: none;
+        }
+
+        .noti-dropdown.show {
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto;
+        }
+
+        .noti-header {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .noti-header h3 { font-size: 16px; margin: 0; color: #fff; }
+
+        .noti-content {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .noti-item {
+            padding: 12px 15px;
+            display: flex;
+            gap: 12px;
+            transition: 0.3s;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .noti-item:hover { background: rgba(255,255,255,0.05); }
+        .noti-item.unread { background: rgba(0, 209, 255, 0.08); }
+
+        .noti-img { width: 45px; height: 45px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+
+        .noti-icon-box {
+            width: 45px; height: 45px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+        }
+        .noti-icon-box.info { background: rgba(0, 209, 255, 0.2); color: #00d1ff; }
+        .noti-icon-box.success { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+        .noti-icon-box.warning { background: rgba(255, 180, 0, 0.2); color: #ffb400; }
+        .noti-icon-box.error { background: rgba(255, 68, 102, 0.2); color: #ff4466; }
+
+        .noti-text { flex: 1; }
+        .noti-time { font-size: 11px; color: rgba(255,255,255,0.5); display: block; margin-top: 6px; }
+
+        /* Notification Modal Styles */
+        #notiModal {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        #notiModal > div {
+            animation: slideUp 0.3s ease;
+        }
+
+        #notiModalContent {
+            animation: slideUp 0.3s ease;
+        }
+
+        #notiModalTitle {
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        #notiModalBody {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        #notiModalImage img {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .noti-text p { font-size: 13px; margin: 0 0 4px 0; color: #ddd; line-height: 1.4; }
+        .noti-text b { color: #fff; }
+        .noti-time { font-size: 11px; color: rgba(255,255,255,0.5); }
+
+        .noti-footer { padding: 10px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
+        .noti-footer a { color: #00d1ff; font-size: 13px; text-decoration: none; }
+
         /* 3. BỐ CỤC 3 CỘT (Cực kỳ quan trọng) */
         .main-container { 
             flex: 1; display: flex; overflow: hidden; padding-bottom: 80px; /* Chừa chỗ cho Player */
@@ -267,9 +391,62 @@
             padding: 20px; flex-shrink: 0; overflow-y: auto; text-align: center;
         }
         .song-cover { width: 100%; aspect-ratio: 1/1; border-radius: 12px; object-fit: cover; margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .sidebar-artist-meta { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 2px; }
+        .sidebar-artist-text { color: var(--text-sub); font-size: 13px; margin: 0; }
+        .sidebar-follow-artist-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 999px;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            color: #e6e6e6;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform .18s ease, background .18s ease, border-color .18s ease, color .18s ease;
+        }
+        .sidebar-follow-artist-btn:hover {
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.45);
+            background: rgba(255, 255, 255, 0.14);
+            transform: scale(1.02);
+        }
+        .sidebar-follow-artist-btn.liked {
+            color: #ff007a;
+            border-color: rgba(255, 0, 122, 0.7);
+            background: rgba(255, 0, 122, 0.16);
+        }
         #lyricsBox { color: var(--text-sub); font-size: 14px; line-height: 2; text-align: left; margin-top: 20px; padding-bottom: 20px;}
-        .lyrics-line { display: block; margin-bottom: 10px; transition: 0.3s; }
-        .lyrics-line.active { color: #00d1ff; font-size: 16px; font-weight: bold; }
+        .lyrics-line { display: block; margin-bottom: 10px; font-size: 14px; font-weight: 600; line-height: 1.9; color: rgba(255, 255, 255, 0.58); transform-origin: left center; will-change: transform; transition: color .18s ease, transform .18s ease, text-shadow .18s ease, background .18s ease; }
+        .lyrics-line[data-lyric-time] { cursor: pointer; border-radius: 6px; padding: 1px 4px; margin-left: -4px; margin-right: -4px; }
+        .lyrics-line[data-lyric-time]:hover { background: rgba(255,255,255,0.1); color: rgba(255, 255, 255, 0.9); }
+        .lyrics-line.active { color: #00d1ff; transform: scale(1.035); text-shadow: 0 0 8px rgba(0, 209, 255, 0.25); }
+        .sidebar-panel-tabs { display: flex; gap: 8px; margin-top: 14px; margin-bottom: 10px; }
+        .sidebar-panel-tab { width: 36px; height: 36px; border: 1px solid rgba(255,255,255,0.18); border-radius: 10px; background: rgba(255,255,255,0.05); color: #cfd5ea; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: background .22s ease, color .22s ease, border-color .22s ease, transform .22s ease, box-shadow .22s ease; }
+        .sidebar-panel-tab i { transition: transform .25s ease, opacity .25s ease; }
+        .sidebar-panel-tab:hover { background: rgba(255,255,255,0.12); color: #fff; transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0,0,0,0.28); }
+        .sidebar-panel-tab:active { transform: scale(0.96); }
+        .sidebar-panel-tab.is-active { background: rgba(0, 209, 255, 0.2); border-color: rgba(0, 209, 255, 0.55); color: #00d1ff; box-shadow: 0 0 0 1px rgba(0, 209, 255, 0.18) inset, 0 10px 24px rgba(0, 209, 255, 0.14); }
+        .sidebar-panel-tab.is-active i { transform: scale(1.08); }
+        #lyricsBox, #sidebarInfoPanel { transition: opacity .26s cubic-bezier(0.2, 0.8, 0.2, 1), transform .26s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        #sidebarInfoPanel { display: none; text-align: left; margin-top: 8px; }
+        .sidebar-section-title { color: #8f95af; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .7px; margin: 14px 0 8px; }
+        .sidebar-info-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 10px; padding: 10px 12px; }
+        .sidebar-info-row { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 7px; }
+        .sidebar-info-row:last-child { margin-bottom: 0; }
+        .sidebar-info-label { color: #8f95af; font-size: 12px; }
+        .sidebar-info-value { color: #fff; font-size: 12px; font-weight: 700; text-align: right; }
+        .sidebar-related-list { display: grid; gap: 8px; }
+        .sidebar-related-item { width: 100%; border: none; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 8px; display: flex; align-items: center; gap: 8px; cursor: pointer; text-align: left; }
+        .sidebar-related-item:hover { background: rgba(255,255,255,0.12); }
+        .sidebar-related-thumb { width: 36px; height: 36px; border-radius: 7px; object-fit: cover; flex-shrink: 0; }
+        .sidebar-related-title { color: #fff; font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sidebar-related-artist { color: #9da3bd; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         /* 4. PLAYER THANH NHẠC DƯỚI ĐÁY */
         footer { height: 80px; background: #1a1c26; border-top: 1px solid #2d2f3b; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; }
@@ -280,8 +457,9 @@
         
         .player-center { flex: 1; display: flex; flex-direction: column; align-items: center; max-width: 600px; }
         .player-controls { display: flex; align-items: center; gap: 25px; margin-bottom: 8px; }
-        .control-icon { color: var(--text-sub); cursor: pointer; font-size: 16px; }
+        .control-icon { color: var(--text-sub); cursor: pointer; font-size: 16px; transition: color 0.2s ease, text-shadow 0.2s ease; }
         .control-icon:hover { color: #fff; }
+        .control-icon.active { color: #fff; text-shadow: 0 0 10px rgba(255, 255, 255, 0.35); }
         .play-btn-wrapper { width: 42px; height: 42px; background: var(--primary-gradient); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #000; cursor: pointer; }
         
         .progress-area { display: flex; align-items: center; width: 100%; gap: 12px; }
@@ -309,8 +487,9 @@
         }
 
         .song-add-playlist-btn {
-            width: auto;
-            min-width: 14px;
+            width: 22px;
+            min-width: 22px;
+            height: 22px;
             border: none;
             background: transparent;
             color: #fff;
@@ -319,10 +498,15 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            margin-right: 16px;
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-right: 0;
             padding: 0;
             box-shadow: none;
             transition: transform 0.18s ease, opacity 0.18s ease, color 0.18s ease, text-shadow 0.18s ease;
+            line-height: 1;
         }
 
         .song-add-playlist-btn:hover {
@@ -338,18 +522,32 @@
         }
 
         .song-duration-wrap {
-            display: inline-flex;
-            align-items: center;
-            justify-content: flex-end;
+            display: block;
+            position: relative;
+            min-height: 22px;
             gap: 0;
             width: 100%;
             white-space: nowrap;
         }
 
         .song-duration-text {
+            display: block;
+            width: 100%;
             min-width: 42px;
             text-align: right;
-            display: inline-block;
+            padding-right: 34px;
+            box-sizing: border-box;
+        }
+
+        .song-playlist-action-slot {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-end;
+            width: 120px;
+            min-width: 120px;
+            margin-left: auto;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .song-item-row:hover {
@@ -368,6 +566,47 @@
         .player-playlist-item:hover {
             background: rgba(0, 209, 255, 0.12) !important;
             color: #00d1ff !important;
+        }
+
+        /* Context Menu */
+        .song-context-menu {
+            position: fixed;
+            background: #2a2d38;
+            border: 1px solid #3d4050;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+            z-index: 10000;
+            min-width: 200px;
+            overflow: hidden;
+        }
+
+        .song-context-menu-item {
+            display: block;
+            width: 100%;
+            padding: 10px 16px;
+            background: transparent;
+            border: none;
+            color: #e5e7eb;
+            text-align: left;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.15s ease;
+        }
+
+        .song-context-menu-item:hover {
+            background: rgba(0, 209, 255, 0.15);
+            color: #00d1ff;
+            padding-left: 20px;
+        }
+
+        .song-context-menu-item:active {
+            background: rgba(0, 209, 255, 0.25);
+        }
+
+        .song-context-menu-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 4px 0;
         }
 
         /* 5. THANH THỂ LOẠI (GENRE NAV) - BẢN NHỎ GỌN */
@@ -591,7 +830,7 @@
             </form>
         </div>
 
-        <div class="header-right" style="display: flex; align-items: center; gap: 20px;">
+        <div class="header-right" style="display: flex; align-items: center; gap: 20px; position: relative; z-index: 100;">
             @auth
                 <details class="user-profile" style="position: relative;">
                     <summary style="list-style: none; display: flex; align-items: center; gap: 10px; cursor: pointer;">
@@ -622,7 +861,40 @@
                         </form>
                     </div>
                 </details>
-                <i class="fas fa-bell" style="color: #ffb700; cursor: pointer;"></i>
+                <div class="notification-wrapper" style="position: relative; display: inline-block; z-index: 200;">
+                    <button id="notiToggleBtn" type="button" style="background: none; border: none; color: #ffb700; cursor: pointer; font-size: 20px; position: relative; padding: 8px;">
+                        <i class="fas fa-bell"></i>
+                        <span id="notiRedDot" class="notification-red-dot" style="position: absolute; top: 0; right: 0; width: 8px; height: 8px; background: #ff4466; border-radius: 50%; display: none;"></span>
+                    </button>
+                    <div class="noti-dropdown" id="notiDropdown">
+                        <div class="noti-header">
+                            <h3 style="margin: 0;">Thông báo</h3>
+                            <button type="button" id="notiMarkAllRead" style="background: none; border: none; color: #00d1ff; cursor: pointer; font-size: 12px; padding: 0;"><i class="fas fa-check"></i> Đánh dấu tất cả</button>
+                        </div>
+                        <div class="noti-content" id="notiContent" style="max-height: 350px; overflow-y: auto;">
+                            <p style="text-align: center; color: #888; padding: 20px;">Đang tải...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Detail Modal -->
+                <div id="notiModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9000; align-items: center; justify-content: center;">
+                    <div style="background: #1a1c26; border-radius: 16px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; border: 1px solid #2d2f3b; position: relative;">
+                        <button id="notiModalClose" type="button" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #888; cursor: pointer; font-size: 24px; z-index: 9001;">&times;</button>
+                        
+                        <div id="notiModalContent" style="padding: 30px;">
+                            <div id="notiModalImage" style="margin-bottom: 20px; display: none;">
+                                <img id="notiModalImg" src="" alt="" style="width: 100%; border-radius: 12px; object-fit: cover;">
+                            </div>
+                            <h2 id="notiModalTitle" style="color: #fff; margin: 0 0 15px 0; font-size: 24px;"></h2>
+                            <p id="notiModalMeta" style="color: #888; font-size: 12px; margin: 0 0 20px 0;"></p>
+                            <div id="notiModalBody" style="color: #ddd; line-height: 1.6; font-size: 14px;"></div>
+                        </div>
+                    </div>
+                </div>
+                        
+                    </div>
+                </div>
             @else
                 <div class="guest-actions">
                     <a href="{{ route('login') }}" class="btn-action btn-style-gradient" data-no-ajax="true">Đăng nhập</a>
@@ -684,7 +956,9 @@
             </div>
             <div class="menu-group queue-group">
                 <h3>DANH SÁCH CHỜ</h3>
-                <div style="color: #666; font-size: 13px; padding-left: 15px;">Chưa có bài hát nào...</div>
+                <div id="queue-list-container">
+                    <div id="queue-list" style="color: #666; font-size: 13px; padding-left: 15px;">Chưa có bài hát nào...</div>
+                </div>
             </div>
         </aside>
 
@@ -696,11 +970,39 @@
             <h3 style="color: #fff; font-size: 16px; margin-bottom: 20px; text-transform: uppercase;">Lời Bài Hát</h3>
             <img id="rightCover" class="song-cover" src="{{ asset('image/default-cover.jpg') }}">
             <h4 id="rightTitle" style="color: #fff; margin-bottom: 5px;">Chưa chọn bài hát</h4>
-            <p id="rightArtist" style="color: var(--text-sub); font-size: 13px;">--</p>
+            <div class="sidebar-artist-meta">
+                <p id="rightArtist" class="sidebar-artist-text">--</p>
+                <button type="button" id="sidebarFollowArtistBtn" class="sidebar-follow-artist-btn" style="display:none;">
+                    <i class="fas fa-user-plus"></i>
+                </button>
+            </div>
+
+            <div class="sidebar-panel-tabs">
+                <button type="button" id="sidebarLyricsTabBtn" class="sidebar-panel-tab is-active" title="Lời bài hát">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button type="button" id="sidebarInfoTabBtn" class="sidebar-panel-tab" title="Thông tin bài hát">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
             
             <div id="lyricsBox">
                 <span class="lyrics-line">Hãy phát một bài hát</span>
                 <span class="lyrics-line">để xem lời tại đây nhé!</span>
+            </div>
+
+            <div id="sidebarInfoPanel">
+                <div class="sidebar-section-title">Thông tin bài hát</div>
+                <div class="sidebar-info-card" id="sidebarQuickInfoCard">
+                    <div class="sidebar-info-row"><span class="sidebar-info-label">Album</span><span class="sidebar-info-value">--</span></div>
+                    <div class="sidebar-info-row"><span class="sidebar-info-label">Thể loại</span><span class="sidebar-info-value">--</span></div>
+                    <div class="sidebar-info-row"><span class="sidebar-info-label">Lượt nghe</span><span class="sidebar-info-value">--</span></div>
+                </div>
+
+                <div class="sidebar-section-title">Bài hát cùng nghệ sĩ</div>
+                <div class="sidebar-related-list" id="sidebarRelatedSongsList">
+                    <div style="color:#8f95af;font-size:12px;">Chưa có dữ liệu.</div>
+                </div>
             </div>
         </aside>
 
@@ -730,9 +1032,8 @@
                         })->values();
                     @endphp
                     <div class="player-playlist-wrap" style="position: relative; margin-left: 10px;">
-                        <button type="button" id="playerPlaylistBtn" class="player-playlist-btn" style="border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 999px; font-weight: 800; font-size: 12px; white-space: nowrap;">
-                            <i class="fas fa-plus"></i>
-                            <span>Playlist</span>
+                        <button type="button" id="playerPlaylistBtn" class="player-playlist-btn" title="Tùy chọn bài đang phát" style="border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0; height: 34px; min-width: 40px; padding: 0 12px; border-radius: 999px; font-weight: 800; font-size: 18px; line-height: 1; white-space: nowrap;">
+                            <span aria-hidden="true">⋯</span>
                         </button>
                         <div id="playerPlaylistPopup" style="display:none; position: fixed; left: 50%; top: 50%; width: min(360px, calc(100vw - 32px)); background: #11141d; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.45); overflow: hidden; z-index: 1600; transform: translate(-50%, -50%) scale(0.98); opacity: 0;">
                             <div style="padding: 12px 14px; font-size: 12px; font-weight: 800; color: #8f95af; text-transform: uppercase; letter-spacing: .8px; border-bottom: 1px solid rgba(255,255,255,0.05);">Thêm vào playlist</div>
@@ -862,7 +1163,9 @@
             title: row.dataset.title,
             artist: row.dataset.artist,
             src: row.dataset.src,
-            cover: row.dataset.cover
+            cover: row.dataset.cover,
+            artistId: row.dataset.artistId,
+            albumId: row.dataset.albumId
         };
     }
 
@@ -972,28 +1275,36 @@
         document.querySelectorAll('.song-item-row').forEach((row) => {
             if (row.dataset.noPlaylistAdd === '1') return;
 
-            const targetCell = row.cells.length >= 4 ? row.cells[row.cells.length - 2] : row.cells[row.cells.length - 1];
-            if (!targetCell || targetCell.querySelector('.song-add-playlist-btn')) return;
-            if (targetCell.querySelector('button, a, input, select, textarea')) return;
+            const isTableRow = row.tagName === 'TR' && row.cells && row.cells.length > 0;
+            let targetCell = null;
+            let originalText = '';
 
-            const originalText = (targetCell.textContent || '').trim();
-            targetCell.textContent = '';
-            targetCell.style.textAlign = 'right';
+            if (isTableRow) {
+                targetCell = row.cells.length >= 4 ? row.cells[row.cells.length - 2] : row.cells[row.cells.length - 1];
+                if (!targetCell || targetCell.querySelector('.song-add-playlist-btn')) return;
+                if (targetCell.querySelector('button, a, input, select, textarea')) return;
+
+                originalText = (targetCell.textContent || '').trim();
+                targetCell.textContent = '';
+                targetCell.style.textAlign = 'right';
+                targetCell.style.width = '120px';
+                targetCell.style.minWidth = '120px';
+                targetCell.style.whiteSpace = 'nowrap';
+            } else {
+                if (row.querySelector('.song-add-playlist-btn')) return;
+                targetCell = document.createElement('div');
+                targetCell.className = 'song-playlist-action-slot';
+            }
 
             const addButton = document.createElement('button');
             addButton.type = 'button';
             addButton.className = 'song-add-playlist-btn';
-            addButton.title = 'Thêm vào playlist';
-            addButton.innerHTML = '<span style="font-size: 18px; font-weight: 700; line-height: 1;">+</span>';
+            addButton.title = 'Tùy chọn bài hát';
+            addButton.innerHTML = '<span style="font-size: 16px; font-weight: 700; line-height: 1;">⋯</span>';
 
             addButton.addEventListener('click', (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-
-                if (!isAuthenticated) {
-                    showLoginPrompt('Vui lòng đăng nhập để thêm bài hát vào playlist.');
-                    return;
-                }
 
                 const song = getSongFromRow(row);
                 if (!song || !song.id) {
@@ -1001,7 +1312,7 @@
                     return;
                 }
 
-                openPlayerPlaylistPopup(song);
+                showSongContextMenu(event, song);
             });
 
             const durationWrap = document.createElement('span');
@@ -1012,9 +1323,167 @@
             durationText.textContent = originalText;
 
             durationWrap.appendChild(addButton);
-            durationWrap.appendChild(durationText);
-            targetCell.appendChild(durationWrap);
+
+            if (isTableRow) {
+                durationWrap.appendChild(durationText);
+                targetCell.appendChild(durationWrap);
+            } else {
+                targetCell.appendChild(durationWrap);
+                row.appendChild(targetCell);
+            }
         });
+    }
+
+    async function showSongContextMenu(event, song) {
+        const triggerElement = (event && (event.currentTarget || event.target)) ? (event.currentTarget || event.target) : null;
+        const triggerRect = (triggerElement && typeof triggerElement.getBoundingClientRect === 'function')
+            ? triggerElement.getBoundingClientRect()
+            : {
+                left: window.innerWidth / 2,
+                right: window.innerWidth / 2,
+                top: window.innerHeight / 2,
+                height: 0,
+                width: 0
+            };
+
+        // Xóa menu cũ nếu có
+        const oldMenu = document.querySelector('.song-context-menu');
+        if (oldMenu) oldMenu.remove();
+
+        if (song && song.id && (!song.artistId || song.artistId === '' || typeof song.albumId === 'undefined')) {
+            try {
+                const response = await fetch(`/song/${song.id}`);
+                if (response.ok) {
+                    const detail = await response.json();
+                    if (detail && detail.artist_id) {
+                        song.artistId = String(detail.artist_id);
+                    }
+                    if (detail && Object.prototype.hasOwnProperty.call(detail, 'album_id')) {
+                        song.albumId = detail.album_id ? String(detail.album_id) : '';
+                    }
+                }
+            } catch (_) {
+                // giữ nguyên dữ liệu cũ nếu không lấy được metadata
+            }
+        }
+
+        const menu = document.createElement('div');
+        menu.className = 'song-context-menu';
+
+        // Thêm vào playlist
+        const addPlaylistItem = document.createElement('button');
+        addPlaylistItem.className = 'song-context-menu-item';
+        addPlaylistItem.textContent = 'Thêm vào playlist';
+        addPlaylistItem.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!isAuthenticated) {
+                showLoginPrompt('Vui lòng đăng nhập để thêm bài hát vào playlist.');
+                return;
+            }
+            menu.remove();
+            openPlayerPlaylistPopup(song);
+        };
+        menu.appendChild(addPlaylistItem);
+
+        // Divider
+        const divider1 = document.createElement('div');
+        divider1.className = 'song-context-menu-divider';
+        menu.appendChild(divider1);
+
+        // Chuyển đến nghệ sĩ
+        if (song.artistId) {
+            const artistItem = document.createElement('button');
+            artistItem.className = 'song-context-menu-item';
+            artistItem.textContent = 'Chuyển đến nghệ sĩ này';
+            artistItem.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                menu.remove();
+                const targetUrl = `/artists/${song.artistId}`;
+                if (typeof window.partialNavigate === 'function') {
+                    window.partialNavigate(targetUrl);
+                    return;
+                }
+                window.location.href = targetUrl;
+            };
+            menu.appendChild(artistItem);
+        }
+
+        // Chuyển đến album (nếu có)
+        if (song.albumId) {
+            const albumItem = document.createElement('button');
+            albumItem.className = 'song-context-menu-item';
+            albumItem.textContent = 'Chuyển đến album này';
+            albumItem.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                menu.remove();
+                const targetUrl = `/albums/${song.albumId}`;
+                if (typeof window.partialNavigate === 'function') {
+                    window.partialNavigate(targetUrl);
+                    return;
+                }
+                window.location.href = targetUrl;
+            };
+            menu.appendChild(albumItem);
+        }
+
+        // Divider
+        const divider2 = document.createElement('div');
+        divider2.className = 'song-context-menu-divider';
+        menu.appendChild(divider2);
+
+        // Thêm vào danh sách chờ
+        const queueItem = document.createElement('button');
+        queueItem.className = 'song-context-menu-item';
+        queueItem.textContent = 'Thêm vào danh sách chờ';
+        queueItem.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            menu.remove();
+            addToQueue(song.id);
+        };
+        menu.appendChild(queueItem);
+
+        // Định vị menu cạnh nút ba chấm
+        document.body.appendChild(menu);
+        const rect = triggerRect;
+        const menuRect = menu.getBoundingClientRect();
+        const gap = 8;
+        const viewportPadding = 10;
+
+        let left = rect.right + gap;
+        let top = rect.top + ((rect.height - menuRect.height) / 2);
+
+        // Nếu thiếu chỗ bên phải, lật menu sang bên trái nút
+        if (left + menuRect.width > window.innerWidth - viewportPadding) {
+            left = rect.left - menuRect.width - gap;
+        }
+
+        // Giữ menu luôn nằm trong màn hình
+        if (left < viewportPadding) {
+            left = viewportPadding;
+        }
+
+        if (top < viewportPadding) {
+            top = viewportPadding;
+        }
+        if (top + menuRect.height > window.innerHeight - viewportPadding) {
+            top = Math.max(viewportPadding, window.innerHeight - menuRect.height - viewportPadding);
+        }
+
+        menu.style.left = left + 'px';
+        menu.style.top = top + 'px';
+
+        // Đóng menu khi click ngoài
+        document.addEventListener('click', bindCloseMenu);
+        function bindCloseMenu(e) {
+            if (!menu.contains(e.target) && (!triggerElement || !triggerElement.contains(e.target))) {
+                menu.remove();
+                document.removeEventListener('click', bindCloseMenu);
+            }
+        }
     }
 
     function bindArtistLikeButtons() {
@@ -1171,11 +1640,34 @@
         toggleButton.addEventListener('click', function (event) {
             event.preventDefault();
             event.stopPropagation();
+
             if (popup.style.display === 'block') {
                 closePlayerPlaylistPopup();
-            } else {
-                openPlayerPlaylistPopup(getPlaylistTargetSong());
             }
+
+            let currentSong = null;
+            if (typeof window.getCurrentSongData === 'function') {
+                currentSong = window.getCurrentSongData();
+            }
+
+            if (!currentSong || !currentSong.id) {
+                currentSong = getPlaylistTargetSong();
+            }
+
+            if (!currentSong || !currentSong.id) {
+                window.showToast('Vui lòng phát một bài hát trước.', 'warning');
+                return;
+            }
+
+            showSongContextMenu(event, {
+                id: currentSong.id,
+                title: currentSong.title,
+                artist: currentSong.artist,
+                src: currentSong.src,
+                cover: currentSong.cover,
+                artistId: currentSong.artistId || '',
+                albumId: currentSong.albumId || ''
+            });
         });
 
         createForm.addEventListener('submit', async function (event) {
@@ -1362,6 +1854,7 @@
     bindSongPlaylistButtons();
     bindPlayerPlaylistMenu();
     bindSearchAutocomplete();
+    bindAddToQueueButtons();
 
     // ==========================================
     // 2. LOGIC TRÌNH PHÁT NHẠC (AUDIO PLAYER)
@@ -1434,15 +1927,37 @@
         });
     }
 
+    function bindAddToQueueButtons() {
+        document.querySelectorAll('.spotify-add-to-queue').forEach((button) => {
+            const songId = button.dataset.id;
+            if (!songId) return;
+
+            button.onclick = function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (typeof window.addToQueue === 'function') {
+                    window.addToQueue(songId);
+                } else {
+                    alert('Chức năng thêm vào danh sách chờ không khả dụng.');
+                }
+            };
+        });
+    }
+
     function refreshPlayerBindings() {
         if (typeof window.buildSongList === 'function') {
             window.buildSongList();
+        }
+        if (typeof window.bindSongItemContextMenu === 'function') {
+            window.bindSongItemContextMenu();
         }
         bindSongLikeButtons();
         bindArtistLikeButtons();
         bindDetailPlayButtons();
         bindSongPlaylistButtons();
         bindSearchAutocomplete();
+        bindAddToQueueButtons();
     }
 
     async function partialNavigate(url, options = {}) {
@@ -1495,7 +2010,22 @@
             const currentSidebar = document.querySelector('.sidebar-left');
             const nextSidebar = doc.querySelector('.sidebar-left');
             if (currentSidebar && nextSidebar) {
+                // Lưu queue container trước khi thay thế
+                const queueContainer = currentSidebar.querySelector('#queue-list-container');
+                const savedQueueHTML = queueContainer ? queueContainer.outerHTML : null;
+
                 currentSidebar.innerHTML = nextSidebar.innerHTML;
+
+                // Khôi phục queue container
+                if (savedQueueHTML) {
+                    const menuGroupQueue = currentSidebar.querySelector('.queue-group');
+                    if (menuGroupQueue) {
+                        menuGroupQueue.innerHTML = `
+                            <h3>DANH SÁCH CHỜ</h3>
+                            ${savedQueueHTML}
+                        `;
+                    }
+                }
             }
 
             target.innerHTML = nextContent.innerHTML;
@@ -1505,6 +2035,10 @@
             requestAnimationFrame(() => {
                 runScriptsIn(target);
                 refreshPlayerBindings();
+                // Gọi lại renderQueueSidebar để cập nhật UI queue từ localStorage
+                if (typeof window.renderQueueSidebar === 'function') {
+                    window.renderQueueSidebar();
+                }
             });
 
             if (!options.fromPopState) {
@@ -1549,6 +2083,214 @@
     window.addEventListener('popstate', () => {
         partialNavigate(window.location.href, { fromPopState: true });
     });
+
+    // ===== NOTIFICATION SYSTEM =====
+    if (window.isAuthenticated) {
+        const notiToggleBtn = document.getElementById('notiToggleBtn');
+        const notiDropdown = document.getElementById('notiDropdown');
+        const notiRedDot = document.getElementById('notiRedDot');
+        const notiContent = document.getElementById('notiContent');
+        const notiMarkAllRead = document.getElementById('notiMarkAllRead');
+
+        console.log('Notification system initialized', { notiToggleBtn, notiDropdown, notiRedDot, notiContent, notiMarkAllRead });
+
+        // Fetch notifications
+        async function fetchNotifications() {
+            try {
+                console.log('Fetching notifications...');
+                const response = await fetch('{{ route("api.notifications.get") }}');
+                const data = await response.json();
+                console.log('Notifications data:', data);
+                
+                // Update red dot visibility
+                if (data.unread_count > 0) {
+                    notiRedDot.style.display = 'block';
+                } else {
+                    notiRedDot.style.display = 'none';
+                }
+
+                // Render notifications
+                if (data.notifications.length === 0) {
+                    notiContent.innerHTML = '<p style="text-align: center; color: #888; padding: 20px;">Không có thông báo nào</p>';
+                } else {
+                    notiContent.innerHTML = data.notifications.map(noti => {
+                        let iconClass = 'fa-info-circle';
+                        if (noti.type === 'success') iconClass = 'fa-check-circle';
+                        if (noti.type === 'warning') iconClass = 'fa-exclamation-circle';
+                        if (noti.type === 'error') iconClass = 'fa-times-circle';
+
+                        return `
+                            <div class="noti-item ${noti.is_read ? '' : 'unread'}" data-noti-id="${noti.id}" data-noti-title="${noti.title.replace(/"/g, '&quot;')}" data-noti-content="${noti.content.replace(/"/g, '&quot;')}" data-noti-image="${noti.image_url || ''}" data-noti-type="${noti.type}" data-noti-date="${noti.created_at}" style="padding: 12px 15px; display: flex; gap: 12px; transition: 0.3s; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                ${noti.image_url ? `<img src="${noti.image_url}" alt="" class="noti-img" style="width: 45px; height: 45px; border-radius: 6px; object-fit: cover; flex-shrink: 0;">` : `<div class="noti-icon-box ${noti.type}" style="width: 45px; height: 45px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;"><i class="fas ${iconClass}"></i></div>`}
+                                <div class="noti-text" style="flex: 1;">
+                                    <p style="font-size: 13px; margin: 0 0 4px 0; color: #ddd; line-height: 1.4;"><b>${noti.title}</b></p>
+                                    <p style="font-size: 12px; margin: 0; color: #888;">${noti.content.substring(0, 50)}${noti.content.length > 50 ? '...' : ''}</p>
+                                    <span class="noti-time" style="font-size: 11px; color: rgba(255,255,255,0.5);">${noti.created_at}</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    // Add click handlers to notification items
+                    document.querySelectorAll('.noti-item').forEach(item => {
+                        item.addEventListener('click', async (e) => {
+                            const notiId = item.dataset.notiId;
+                            const notiTitle = item.dataset.notiTitle;
+                            const notiContent = item.dataset.notiContent;
+                            const notiImage = item.dataset.notiImage;
+                            const notiType = item.dataset.notiType;
+                            const notiDate = item.dataset.notiDate;
+                            
+                            console.log('Opening notification modal:', { notiId, notiTitle });
+                            
+                            // Show modal with full content
+                            showNotificationModal({
+                                id: notiId,
+                                title: notiTitle,
+                                content: notiContent,
+                                image_url: notiImage,
+                                type: notiType,
+                                created_at: notiDate
+                            });
+                            
+                            // Mark as read
+                            await markAsRead(notiId);
+                            item.classList.remove('unread');
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching notifications:', error);
+            }
+        }
+
+        // Show notification modal
+        function showNotificationModal(noti) {
+            const modal = document.getElementById('notiModal');
+            const notiModalTitle = document.getElementById('notiModalTitle');
+            const notiModalMeta = document.getElementById('notiModalMeta');
+            const notiModalBody = document.getElementById('notiModalBody');
+            const notiModalImage = document.getElementById('notiModalImage');
+            const notiModalImg = document.getElementById('notiModalImg');
+            
+            notiModalTitle.textContent = noti.title;
+            notiModalMeta.textContent = noti.created_at;
+            notiModalBody.innerHTML = noti.content.replace(/\n/g, '<br>');
+            
+            if (noti.image_url) {
+                notiModalImage.style.display = 'block';
+                notiModalImg.src = noti.image_url;
+                notiModalImg.alt = noti.title;
+            } else {
+                notiModalImage.style.display = 'none';
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        // Hide notification modal
+        function hideNotificationModal() {
+            const modal = document.getElementById('notiModal');
+            modal.style.display = 'none';
+        }
+
+        // Mark notification as read
+        async function markAsRead(notificationId) {
+            try {
+                const url = `{{ route('api.notifications.read', ':id') }}`.replace(':id', notificationId);
+                console.log('Marking as read URL:', url);
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                console.log('Mark as read response:', response.status);
+                if (response.ok) {
+                    await fetchNotifications();
+                }
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
+            }
+        }
+
+        // Mark all as read
+        if (notiMarkAllRead) {
+            notiMarkAllRead.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                try {
+                    const response = await fetch('{{ route("api.notifications.read-all") }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    console.log('Mark all as read response:', response.status);
+                    if (response.ok) {
+                        await fetchNotifications();
+                    }
+                } catch (error) {
+                    console.error('Error marking all notifications as read:', error);
+                }
+            });
+        }
+
+        // Toggle notification dropdown
+        if (notiToggleBtn) {
+            notiToggleBtn.addEventListener('click', (e) => {
+                console.log('Notification toggle clicked');
+                e.stopPropagation();
+                if (notiDropdown.classList.contains('show')) {
+                    notiDropdown.classList.remove('show');
+                } else {
+                    notiDropdown.classList.add('show');
+                    fetchNotifications();
+                }
+            });
+        }
+
+        // Close notification dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.notification-wrapper')) {
+                notiDropdown.classList.remove('show');
+            }
+        });
+
+        // Modal close handlers
+        const notiModal = document.getElementById('notiModal');
+        const notiModalClose = document.getElementById('notiModalClose');
+        
+        if (notiModalClose) {
+            notiModalClose.addEventListener('click', hideNotificationModal);
+        }
+        
+        // Close modal when clicking outside the modal content
+        if (notiModal) {
+            notiModal.addEventListener('click', (e) => {
+                if (e.target === notiModal) {
+                    hideNotificationModal();
+                }
+            });
+        }
+        
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && notiModal.style.display !== 'none') {
+                hideNotificationModal();
+            }
+        });
+
+        // Fetch notifications every 30 seconds
+        setInterval(fetchNotifications, 30000);
+        
+        // Initial fetch
+        fetchNotifications();
+    }
 </script>
 </body>
 </html>
