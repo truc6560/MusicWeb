@@ -42,11 +42,9 @@ class ĐKController extends Controller
 
         $user = User::create([
             'username' => $request->username,
-            'name' => $request->full_name,
             'full_name' => $request->full_name,
             'email' => $request->email,
             'phone' => $request->phone,
-            'password' => $hashedPassword,
             'password_hash' => $hashedPassword,
             'status' => 1,
             'is_admin' => 0,
