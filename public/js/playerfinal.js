@@ -501,15 +501,25 @@ function renderQueueSidebar() {
 function playFromQueue(queueIndex) {
     if (queueIndex < 0 || queueIndex >= queueList.length) return;
 
-    // Tạo playback queue từ bài được chọn đến hết
-    songList = queueList.slice(queueIndex);
-    currentIndex = 0;
-    playbackQueueSourceKey = 'queue-playback';
-    queuePlaybackCursor = queueIndex;
+    // Phát ngay bài được chọn và loại khỏi danh sách chờ,
+    // để các bài còn lại tiếp tục chờ phát sau khi bài hiện tại kết thúc.
+    const selectedSong = queueList.splice(queueIndex, 1)[0];
+    saveQueueToLocalStorage();
+    renderQueueSidebar();
 
-    if (songList.length === 0) return;
+    if (!selectedSong || !selectedSong.id) return;
 
-    // Phát bài đầu tiên trong queue
+    const existingIndex = songList.findIndex((song) => String(song.id) === String(selectedSong.id));
+    if (existingIndex === -1) {
+        songList.push(selectedSong);
+        currentIndex = songList.length - 1;
+    } else {
+        songList[existingIndex] = { ...songList[existingIndex], ...selectedSong };
+        currentIndex = existingIndex;
+    }
+
+    playbackQueueSourceKey = getCurrentPageQueueKey();
+    queuePlaybackCursor = null;
     loadSong(songList[currentIndex]);
 }
 
@@ -628,6 +638,25 @@ function getNextFromQueue() {
     saveQueueToLocalStorage();
     renderQueueSidebar();
     return nextSong;
+}
+
+function playNextQueuedSong() {
+    const nextSong = getNextFromQueue();
+    if (!nextSong || !nextSong.id) return false;
+
+    const existingIndex = songList.findIndex((song) => String(song.id) === String(nextSong.id));
+    if (existingIndex === -1) {
+        songList.push(nextSong);
+        currentIndex = songList.length - 1;
+    } else {
+        songList[existingIndex] = { ...songList[existingIndex], ...nextSong };
+        currentIndex = existingIndex;
+    }
+
+    playbackQueueSourceKey = getCurrentPageQueueKey();
+    queuePlaybackCursor = null;
+    loadSong(songList[currentIndex]);
+    return true;
 }
 
 // Hàm hiển thị thông báo tạm thời
@@ -1118,9 +1147,13 @@ audio.onended = () => {
         playerPlaybackState = 'playing';
         audio.play();
     } else {
-        consumeFinishedQueueSong(currentSong);
-        playerPlaybackState = 'paused';
-        changeSong(1);
+        // Ưu tiên danh sách chờ: bài kế tiếp luôn lấy từ queue nếu queue còn bài.
+        if (playNextQueuedSong()) {
+            playerPlaybackState = 'playing';
+        } else {
+            playerPlaybackState = 'paused';
+            changeSong(1);
+        }
     }
     syncSongPlayButtons();
 };
