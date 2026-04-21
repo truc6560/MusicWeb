@@ -420,13 +420,33 @@ function loadSong(song, autoPlay = true) {
 }
 
 // Lưu queue vào localStorage
+function getQueueStorageKey() {
+    const parsedUserId = Number.parseInt(window.currentUserId, 10);
+    if (Number.isFinite(parsedUserId) && parsedUserId > 0) {
+        return `playerQueue:user:${parsedUserId}`;
+    }
+    return "playerQueue:guest";
+}
+
 function saveQueueToLocalStorage() {
-    localStorage.setItem("playerQueue", JSON.stringify(queueList));
+    localStorage.setItem(getQueueStorageKey(), JSON.stringify(queueList));
 }
 
 // Khôi phục queue từ localStorage
 function loadQueueFromLocalStorage() {
-    const saved = localStorage.getItem("playerQueue");
+    const queueStorageKey = getQueueStorageKey();
+    let saved = localStorage.getItem(queueStorageKey);
+
+    // Di trú dữ liệu key cũ cho khách để không mất queue sau khi cập nhật.
+    if (!saved && queueStorageKey === "playerQueue:guest") {
+        const legacySaved = localStorage.getItem("playerQueue");
+        if (legacySaved) {
+            saved = legacySaved;
+            localStorage.setItem(queueStorageKey, legacySaved);
+            localStorage.removeItem("playerQueue");
+        }
+    }
+
     if (saved) {
         try {
             queueList = JSON.parse(saved);

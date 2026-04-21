@@ -1087,6 +1087,7 @@
     });
 
     window.isAuthenticated = @json(Auth::check());
+    window.currentUserId = @json(Auth::id());
     window.songDetailsBaseUrl = @json(url('/song'));
     window.playerPlaylists = @json($playerPlaylistsData ?? []);
     const isAuthenticated = window.isAuthenticated;

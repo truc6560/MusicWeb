@@ -127,24 +127,6 @@
         margin-top: 3px;
     }
 
-    /* --- LIKE BUTTON --- */
-    .btn-like {
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: 1.1rem;
-        color: #666;
-        transition: 0.2s;
-    }
-
-    .btn-like:hover {
-        color: #fff;
-        transform: scale(1.1);
-    }
-
-    .btn-like.liked {
-        color: #ff0077;
-    }
 </style>
 
 <div class="album-header">
@@ -174,7 +156,6 @@
             <th style="width: 50px;">#</th>
             <th>Bài hát</th>
             <th style="text-align: right;">Thời lượng</th>
-            <th style="width: 80px; text-align: center;">Thích</th>
         </tr>
     </thead>
     <tbody id="album-tracklist">
@@ -190,46 +171,7 @@
 </table>
 
 <script>
-    // 1. Hàm Toggle Like
-    function toggleLike(e, songId) {
-        e.stopPropagation();
-        const btn = e.currentTarget; 
-        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-        if (!@json(Auth::check())) {
-            alert('Vui lòng đăng nhập để thêm bài hát vào danh sách yêu thích.');
-            btn.classList.remove('liked');
-            return;
-        }
-
-        fetch("{{ route('albums.toggleLike') }}", { // Sử dụng route Laravel thay cho file .php lẻ
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': token
-            },
-            body: JSON.stringify({
-                song_id: songId
-            })
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.status === 'success') {
-                btn.classList.toggle('liked', data.action === 'liked');
-            } else if (data.message) {
-                alert(data.message);
-            } else {
-                alert('Không thể cập nhật bài hát yêu thích.');
-            }
-        })
-        .catch(err => {
-            alert('Vui lòng đăng nhập để thêm bài hát vào danh sách yêu thích.');
-            btn.classList.remove('liked');
-            console.error("Lỗi tương tác Like:", err);
-        });
-    }
-
-    // 2. XỬ LÝ NÚT PHÁT NGẪU NHIÊN
+    // XỬ LÝ NÚT PHÁT NGẪU NHIÊN
     const playAllBtn = document.getElementById('btnPlayRandom');
 
     if (playAllBtn) {

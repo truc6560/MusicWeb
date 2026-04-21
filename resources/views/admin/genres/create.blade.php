@@ -1,6 +1,4 @@
-@extends('layouts.admin')
-
-@section('content')
+<x-admin-layout title="Thêm Thể Loại Mới">
 <div class="card" style="max-width: 600px; margin: 0 auto;">
     <div class="card-header" style="border-bottom: none; margin-bottom: 0;">
         <h2 style="color: #00d1ff; text-align: center; width: 100%;"><i class="fas fa-folder-plus"></i> Thêm Thể Loại Mới</h2>
@@ -36,4 +34,4 @@
         </a>
     </form>
 </div>
-@endsection
+</x-admin-layout>

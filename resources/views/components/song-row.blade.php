@@ -42,11 +42,4 @@
     {{-- Thời lượng bài hát --}}
     <td style="text-align:right">{{ $duration }}</td>
 
-    {{-- Nút Like (Yêu thích) --}}
-    <td style="text-align:center">
-        <button class="btn-like {{ $song->is_liked ? 'liked' : '' }}" 
-                onclick="toggleLike(event, {{ $song->song_id }})">
-            <i class="fas fa-heart"></i>
-        </button>
-    </td>
 </tr>
