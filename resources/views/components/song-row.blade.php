@@ -6,6 +6,7 @@
     
     // Luôn phát qua stream endpoint để tránh lỗi tên file Unicode trên Windows
     $audioPath = route('song.stream', ['id' => $song->song_id]);
+    $songCover = $song->image_url ?: $albumImage;
 @endphp
 
 <tr class="song-item-row" 
@@ -13,7 +14,7 @@
     data-title="{{ $song->title }}" 
     data-artist="{{ $albumArtist }}" 
     data-src="{{ $audioPath }}"
-    data-cover="{{ $albumImage }}"
+    data-cover="{{ $songCover }}"
     data-artist-id="{{ $song->artist_id }}"
     data-album-id="{{ $song->album_id ?? '' }}">
 
@@ -27,7 +28,7 @@
             </button>
             {{-- Ảnh nhỏ bài hát --}}
             <a href="{{ route('song.details', ['id' => $song->song_id]) }}" style="display: inline-flex; line-height: 0;" data-no-ajax="false">
-                <img src="{{ $albumImage }}" class="song-thumb-small" alt="Thumb">
+                <img src="{{ $songCover }}" class="song-thumb-small" alt="Thumb">
             </a>
             <div>
                 {{-- Tiêu đề bài hát --}}
