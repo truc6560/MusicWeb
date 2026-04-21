@@ -77,6 +77,10 @@ class SocialAuthController extends Controller
             return redirect()->route('login')->withErrors(['error' => 'Không thể tìm thấy hoặc tạo tài khoản']);
         }
 
+        if ($user->isLocked()) {
+            return redirect()->route('login')->withErrors(['error' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.']);
+        }
+
         Auth::login($user);
         $request->session()->regenerate();
 

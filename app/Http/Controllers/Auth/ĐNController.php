@@ -12,6 +12,13 @@ use Illuminate\Support\Facades\Schema;
 
 class ĐNController extends Controller
 {
+    private function lockedAccountErrorResponse(string $field = 'username')
+    {
+        return back()->withErrors([
+            $field => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.',
+        ])->onlyInput('username');
+    }
+
     private function hasPhoneColumn(): bool
     {
         return Schema::hasColumn('users', 'phone');
@@ -88,6 +95,11 @@ class ĐNController extends Controller
         ];
 
         if (Auth::attempt($credentials)) {
+            if (Auth::user()?->isLocked()) {
+                Auth::logout();
+                return $this->lockedAccountErrorResponse();
+            }
+
             $request->session()->regenerate();
             return redirect()->intended('/');
         }
@@ -99,6 +111,11 @@ class ĐNController extends Controller
         ];
 
         if (Auth::attempt($credentials)) {
+            if (Auth::user()?->isLocked()) {
+                Auth::logout();
+                return $this->lockedAccountErrorResponse();
+            }
+
             $request->session()->regenerate();
             return redirect()->intended('/');
         }
@@ -112,6 +129,11 @@ class ĐNController extends Controller
                 ];
 
                 if (Auth::attempt($credentials)) {
+                    if (Auth::user()?->isLocked()) {
+                        Auth::logout();
+                        return $this->lockedAccountErrorResponse();
+                    }
+
                     $request->session()->regenerate();
                     return redirect()->intended('/');
                 }
@@ -143,6 +165,12 @@ class ĐNController extends Controller
         if (!$user) {
             return back()->withErrors([
                 'phone' => 'Không tìm thấy tài khoản với số điện thoại này.',
+            ])->withInput();
+        }
+
+        if ($user->isLocked()) {
+            return back()->withErrors([
+                'phone' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.',
             ])->withInput();
         }
 
@@ -207,6 +235,11 @@ class ĐNController extends Controller
             if (!$user) {
                 session()->forget(['phone_otp', 'phone']);
                 return back()->withErrors(['otp' => 'Phiên OTP không hợp lệ, vui lòng gửi lại mã.']);
+            }
+
+            if ($user->isLocked()) {
+                session()->forget(['phone_otp', 'phone']);
+                return back()->withErrors(['otp' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.']);
             }
 
             Auth::login($user);

@@ -35,6 +35,27 @@ class User extends Authenticatable
 
     protected $hidden = ['password', 'password_hash', 'remember_token'];
 
+    public function isLocked(): bool
+    {
+        $status = $this->status;
+
+        if (is_int($status) || ctype_digit((string) $status)) {
+            return (int) $status === 0;
+        }
+
+        if (is_bool($status)) {
+            return $status === false;
+        }
+
+        $normalized = strtolower(trim((string) $status));
+
+        if ($normalized === '') {
+            return false;
+        }
+
+        return in_array($normalized, ['banned', 'locked', 'inactive', 'disabled', 'suspended', '0', 'false'], true);
+    }
+
     public function getAuthPassword()
     {
         return $this->password_hash ?: $this->password;

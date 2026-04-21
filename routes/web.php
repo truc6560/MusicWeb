@@ -78,7 +78,7 @@ Route::middleware('guest')->group(function () {
 });
 
 // 3. AUTH ROUTES (CẦN ĐĂNG NHẬP)
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'active.user'])->group(function () {
     Route::post('/logout', [ĐNController::class, 'destroy'])->name('logout');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -108,7 +108,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // 4. KHU VỰC ADMIN (CẦN ĐĂNG NHẬP)
-Route::prefix('admin')->middleware('auth')->group(function () {
+Route::prefix('admin')->middleware(['auth', 'active.user'])->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.home');
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/statistics', [StatisticsController::class, 'index'])->name('admin.statistics');

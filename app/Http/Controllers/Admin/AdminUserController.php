@@ -39,12 +39,11 @@ class AdminUserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        // Đảo ngược trạng thái Active <-> Banned
-        $isActive = strtolower((string) $user->status) === 'active';
-        $user->status = $isActive ? 'Banned' : 'Active';
+        // Đảo ngược trạng thái khóa/mở khóa theo cùng một chuẩn giá trị.
+        $user->status = $user->isLocked() ? 'Active' : 'Banned';
         $user->save();
 
-        $message = $user->status === 'Banned' ? 'Tài khoản đã bị khóa.' : 'Tài khoản đã được mở khóa.';
+        $message = $user->isLocked() ? 'Tài khoản đã bị khóa.' : 'Tài khoản đã được mở khóa.';
         return back()->with('success', $message);
     }
 }
