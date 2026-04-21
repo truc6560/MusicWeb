@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
@@ -15,7 +16,7 @@ class ĐNController extends Controller
     private function lockedAccountErrorResponse(string $field = 'username')
     {
         return back()->withErrors([
-            $field => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.',
+            $field => 'tài khoản đã bị khóa',
         ])->onlyInput('username');
     }
 
@@ -88,56 +89,31 @@ class ĐNController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        // Thử đăng nhập với username
-        $credentials = [
-            'username' => $request->username,
-            'password' => $request->password,
-        ];
+        $identifier = trim($request->username);
+        $candidateUsers = collect([
+            User::where('username', $identifier)->first(),
+            User::where('email', $identifier)->first(),
+        ]);
 
-        if (Auth::attempt($credentials)) {
-            if (Auth::user()?->isLocked()) {
-                Auth::logout();
-                return $this->lockedAccountErrorResponse();
-            }
-
-            $request->session()->regenerate();
-            return redirect()->intended('/');
-        }
-
-        // Nếu không tìm thấy username, thử với email
-        $credentials = [
-            'email' => $request->username,
-            'password' => $request->password,
-        ];
-
-        if (Auth::attempt($credentials)) {
-            if (Auth::user()?->isLocked()) {
-                Auth::logout();
-                return $this->lockedAccountErrorResponse();
-            }
-
-            $request->session()->regenerate();
-            return redirect()->intended('/');
-        }
-
-        // Nếu không tìm thấy username hoặc email, thử với số điện thoại
         if ($this->hasPhoneColumn()) {
             foreach ($this->phoneCandidates($request->username) as $phone) {
-                $credentials = [
-                    'phone' => $phone,
-                    'password' => $request->password,
-                ];
-
-                if (Auth::attempt($credentials)) {
-                    if (Auth::user()?->isLocked()) {
-                        Auth::logout();
-                        return $this->lockedAccountErrorResponse();
-                    }
-
-                    $request->session()->regenerate();
-                    return redirect()->intended('/');
-                }
+                $candidateUsers->push(User::where('phone', $phone)->first());
             }
+        }
+
+        foreach ($candidateUsers->filter()->unique('user_id') as $user) {
+            if (!Hash::check($request->password, $user->getAuthPassword())) {
+                continue;
+            }
+
+            if ($user->isLocked()) {
+                return $this->lockedAccountErrorResponse();
+            }
+
+            Auth::login($user);
+            $request->session()->regenerate();
+
+            return redirect()->intended('/');
         }
 
         return back()->withErrors([
@@ -170,7 +146,7 @@ class ĐNController extends Controller
 
         if ($user->isLocked()) {
             return back()->withErrors([
-                'phone' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.',
+                'phone' => 'tài khoản đã bị khóa',
             ])->withInput();
         }
 
@@ -239,7 +215,7 @@ class ĐNController extends Controller
 
             if ($user->isLocked()) {
                 session()->forget(['phone_otp', 'phone']);
-                return back()->withErrors(['otp' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.']);
+                return back()->withErrors(['otp' => 'tài khoản đã bị khóa']);
             }
 
             Auth::login($user);

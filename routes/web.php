@@ -108,7 +108,7 @@ Route::middleware(['auth', 'active.user'])->group(function () {
 });
 
 // 4. KHU VỰC ADMIN (CẦN ĐĂNG NHẬP)
-Route::prefix('admin')->middleware(['auth', 'active.user'])->group(function () {
+Route::prefix('admin')->middleware(['auth', 'active.user', 'admin.only'])->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.home');
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/statistics', [StatisticsController::class, 'index'])->name('admin.statistics');

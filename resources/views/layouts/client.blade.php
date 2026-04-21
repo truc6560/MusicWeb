@@ -118,7 +118,6 @@
         </div>
 
         <div class="search-bar">
-            <span>🔍</span>
             <input type="text" placeholder="Tìm kiếm bài hát, nghệ sĩ, album...">
         </div>
 

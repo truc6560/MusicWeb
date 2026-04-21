@@ -323,13 +323,7 @@
         {{-- Cột trái: Avatar --}}
         <div class="profile-sidebar">
             <div class="profile-avatar">
-                @if($user->avatar_url)
-                    <img src="{{ asset($user->avatar_url) }}" alt="Avatar" id="profileAvatar">
-                @else
-                    <div class="avatar-placeholder" id="profileAvatar">
-                        {{ substr($user->full_name ?? $user->username, 0, 1) }}
-                    </div>
-                @endif
+                <img src="{{ $user->avatar_url ? asset($user->avatar_url) : asset('image/user.png') }}" alt="Avatar" id="profileAvatar">
                 <label for="avatarFile" class="camera-icon">
                     <i class="fas fa-camera" style="font-size: 16px; color: #000;"></i>
                 </label>
@@ -348,7 +342,7 @@
             <div class="profile-email">{{ $user->email }}</div>
             <div class="profile-stats">
                 <div class="stat-item">
-                    <div class="stat-number">0</div>
+                    <div class="stat-number">{{ (int) ($user->playlists_count ?? 0) }}</div>
                     <div class="stat-label">Playlists</div>
                 </div>
                 <div class="stat-item">
@@ -452,19 +446,7 @@
             var reader = new FileReader();
             reader.onload = function(ev) {
                 var avatarDiv = document.getElementById('profileAvatar');
-                if (avatarDiv.tagName === 'IMG') {
-                    avatarDiv.src = ev.target.result;
-                } else {
-                    var newImg = document.createElement('img');
-                    newImg.src = ev.target.result;
-                    newImg.style.width = '180px';
-                    newImg.style.height = '180px';
-                    newImg.style.borderRadius = '50%';
-                    newImg.style.objectFit = 'cover';
-                    newImg.style.border = '4px solid #8A2BE2';
-                    avatarDiv.parentNode.replaceChild(newImg, avatarDiv);
-                    newImg.id = 'profileAvatar';
-                }
+                avatarDiv.src = ev.target.result;
                 
                 // Cập nhật avatar header ngay lập tức
                 if (window.updateHeaderAvatar) {
@@ -504,9 +486,12 @@
     });
     
     // Xử lý nút Đổi mật khẩu
-    document.getElementById('btnChangePassword').addEventListener('click', function(e) {
-        // Button đã là type="submit" nên sẽ submit form bình thường
-    });
+    var changePasswordBtn = document.getElementById('btnChangePassword');
+    if (changePasswordBtn) {
+        changePasswordBtn.addEventListener('click', function(e) {
+            // Button đã là type="submit" nên sẽ submit form bình thường
+        });
+    }
     
     // Hàm hiển thị thông báo
     function showNotification(message, type) {

@@ -1,4 +1,4 @@
-@props(['title' => 'Lumina Audio - SOUNDWAVE'])
+@props(['title' => 'Lumina Audio - NHÓM 6'])
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -812,7 +812,7 @@
 
     <header class="header">
         <div class="header-left">
-            <div class="logo-neon"><img class="logo-icon" src="{{ asset('image/icon.png') }}" alt="Soundwave Icon"> SOUNDWAVE</div>
+            <div class="logo-neon"><img class="logo-icon" src="{{ asset('image/icon.png') }}" alt="Soundwave Icon"> NHÓM 6</div>
             <nav class="main-nav">
                 <a href="{{ route('client.home') }}" class="{{ request()->is('/') ? 'active' : '' }}">Trang chủ</a>
                 <a href="{{ route('albums.index') }}" class="{{ request()->is('albums*') ? 'active' : '' }}">Albums</a>
@@ -823,7 +823,6 @@
         </div>
 
         <div class="search-bar">
-            <span>🔍</span>
             <form id="siteSearchForm" style="flex: 1; position: relative;">
                 <input id="siteSearchInput" type="text" placeholder="Tìm kiếm bài hát, nghệ sĩ..." autocomplete="off">
                 <div id="searchSuggestions" class="search-suggestions" aria-live="polite"></div>
@@ -834,7 +833,7 @@
             @auth
                 <details class="user-profile" style="position: relative;">
                     <summary style="list-style: none; display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                        <img src="{{ auth()->user()->avatar_url ? asset(auth()->user()->avatar_url) : asset('image/default_user.png') }}" alt="User">
+                        <img src="{{ auth()->user()->avatar_url ? asset(auth()->user()->avatar_url) : asset('image/user.png') }}" alt="User">
                         <span>{{ auth()->user()->username ?? 'Người dùng' }}</span>
                         <i class="fas fa-caret-down" style="color: var(--text-sub);"></i>
                     </summary>

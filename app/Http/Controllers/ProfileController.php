@@ -5,14 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
     // Hiển thị trang hồ sơ
     public function edit()
     {
-        $user = Auth::user();
+        $user = Auth::user()->loadCount('playlists');
         return view('profile.edit', compact('user'));
     }
     public function update(Request $request)
@@ -111,19 +110,22 @@ class ProfileController extends Controller
     public function deleteAvatar(Request $request)
     {
         $user = Auth::user();
-        
-        if ($user->avatar_url && Storage::disk('public')->exists($user->avatar_url)) {
-            Storage::disk('public')->delete($user->avatar_url);
+
+        if ($user->avatar_url) {
+            $oldPath = public_path(ltrim($user->avatar_url, '/'));
+            if (file_exists($oldPath) && is_file($oldPath)) {
+                @unlink($oldPath);
+            }
         }
-        
+
         $user->avatar_url = null;
         $user->save();
-        
+
         // Nếu là request AJAX, trả về JSON
         if ($request->ajax()) {
             return response()->json(['success' => true]);
         }
-        
+
         return redirect()->route('profile.edit')->with('status', 'Đã xóa ảnh đại diện!');
     }
 }

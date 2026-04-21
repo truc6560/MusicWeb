@@ -19,12 +19,12 @@ class EnsureUserIsActive
 
             if ($request->expectsJson()) {
                 return response()->json([
-                    'message' => 'Tài khoản đã bị khóa.',
+                    'message' => 'tài khoản đã bị khóa',
                 ], 403);
             }
 
             return redirect()->route('login')->withErrors([
-                'username' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.',
+                'username' => 'tài khoản đã bị khóa',
             ]);
         }
 

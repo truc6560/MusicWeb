@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title }} - Melodify</title>
+    <title>{{ $title }} - NHÓM 6</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
@@ -48,7 +48,7 @@
 <body>
 
     <aside>
-        <h2><i class="fas fa-compact-disc"></i> Melodify</h2>
+        <h2><i class="fas fa-compact-disc"></i> NHÓM 6</h2>
         <nav>
             <a href="{{ route('admin.home') }}" class="nav-item {{ request()->routeIs('admin.home') || request()->routeIs('admin.dashboard') ? 'active' : '' }}"><i class="fas fa-chart-pie"></i> Bảng điều khiển</a>
             

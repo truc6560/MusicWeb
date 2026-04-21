@@ -172,15 +172,11 @@
         <tbody>
             @forelse($recentUsers as $user)
                 @php
-                    $statusClass = match($user->status) {
-                        'Active' => 'status-active',
-                        'Inactive' => 'status-inactive',
-                        default => 'status-banned',
-                    };
+                    $isActive = ! $user->isLocked();
                 @endphp
                 <tr>
                     <td>{{ $user->username }}</td>
-                    <td><span class="{{ $statusClass }}">{{ $user->status }}</span></td>
+                    <td><span class="{{ $isActive ? 'status-active' : 'status-banned' }}">{{ $isActive ? 'Hoạt động' : 'Đã khóa' }}</span></td>
                     <td>{!! $user->is_admin ? '<span style="color:#00d1ff">Admin</span>' : 'User' !!}</td>
                     <td style="text-align: right;">
                         <a href="{{ route('admin.users.index') }}" class="btn btn-delete">

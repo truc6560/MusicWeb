@@ -196,7 +196,7 @@
                 @forelse($users as $user)
                 @php
                     $isAdmin = (int) $user->is_admin === 1;
-                    $isActive = strtolower((string) $user->status) === 'active' || empty($user->status);
+                    $isActive = ! $user->isLocked();
                 @endphp
                 <tr>
                     <td><span class="user-id">#{{ $user->user_id }}</span></td>

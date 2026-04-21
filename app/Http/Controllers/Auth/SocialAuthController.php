@@ -78,7 +78,7 @@ class SocialAuthController extends Controller
         }
 
         if ($user->isLocked()) {
-            return redirect()->route('login')->withErrors(['error' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.']);
+            return redirect()->route('login')->withErrors(['username' => 'tài khoản đã bị khóa']);
         }
 
         Auth::login($user);

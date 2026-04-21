@@ -39,8 +39,8 @@ class AdminUserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        // Đảo ngược trạng thái khóa/mở khóa theo cùng một chuẩn giá trị.
-        $user->status = $user->isLocked() ? 'Active' : 'Banned';
+        // Lưu trạng thái theo schema hiện tại: 1 = hoạt động, 0 = khóa.
+        $user->status = $user->isLocked() ? 1 : 0;
         $user->save();
 
         $message = $user->isLocked() ? 'Tài khoản đã bị khóa.' : 'Tài khoản đã được mở khóa.';
